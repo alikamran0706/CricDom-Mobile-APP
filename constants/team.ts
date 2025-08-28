@@ -1,0 +1,1 @@
+  export const gameTypeOptions: any[] = [{label: 'Leather Ball', value: 'Leather Ball'}, {label: 'Tape Ball', value: 'Tape Ball'}, {label: 'Soft Ball', value: 'Soft Ball'}];
