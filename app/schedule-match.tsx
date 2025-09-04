@@ -118,7 +118,6 @@ export default function CreateMatchScreen() {
       result,
     };
 
-    console.log('Creating match:', matchData);
     Alert.alert('Success', 'Match created successfully!', [
       { text: 'OK', onPress: () => router.back() }
     ]);

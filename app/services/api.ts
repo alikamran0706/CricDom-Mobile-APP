@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-console.log(apiUrl, 'apiUrl');
 // Create a reusable base query function
 export const baseQuery = fetchBaseQuery({
   baseUrl: apiUrl,  // Set the base API URL here
@@ -12,9 +11,7 @@ export const baseQuery = fetchBaseQuery({
     const token = (getState() as RootState).user.token;
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
-      console.log('✅ Token set:', token);
     } else {
-      console.warn('⚠️ No token found');
     }
     return headers;
   }
@@ -29,7 +26,6 @@ export const baseQueryWithReauth: BaseQueryFn<
   const result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    console.warn('🔐 Unauthorized, logging out...');
     api.dispatch(logout());
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('profile');

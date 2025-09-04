@@ -125,15 +125,6 @@ export default function InvitePlayerScreen() {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 2000))
 
-            console.log("Sending invite:", {
-                phoneNumber,
-                playerName,
-                playerPosition,
-                teamId: team.id,
-                teamName: team.name,
-                inviteMessage
-            })
-
             //   Alert.alert(
             //     "Invite Sent!",
             //     `Invitation has been sent to ${playerName} at ${phoneNumber}`,

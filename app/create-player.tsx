@@ -28,7 +28,7 @@ export default function CreatePlayerScreen() {
   const dispatch = useDispatch();
   const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
   const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
-  const [uploadFile] = useUploadFileMutation();
+  const [uploadFile] = useUploadFileMutation(); 
   const profile = useSelector((state: RootState) => state.user.profile);
 
   const [formData, setFormData] = useState({

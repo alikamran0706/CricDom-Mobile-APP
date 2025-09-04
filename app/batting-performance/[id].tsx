@@ -85,7 +85,6 @@ export default function AddBattingPerformanceScreen() {
             strikeRate: parseFloat(strikeRate.toFixed(2)),
         };
 
-        console.log('Adding batting performance:', newPerformance);
         Alert.alert('Success', 'Batting performance added successfully!', [
             { text: 'OK', onPress: () => router.back() }
         ]);

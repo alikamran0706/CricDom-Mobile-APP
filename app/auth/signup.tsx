@@ -74,7 +74,6 @@ const SignupScreen: React.FC = () => {
         if (!validateForm()) return;
         try {
             const response: any = await register(formData).unwrap();
-            console.log(response, 'REGGGISTERRR');
             if (response) {
 
                 dispatch(setToken(response.jwt));

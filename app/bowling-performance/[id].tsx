@@ -4,13 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -75,7 +75,6 @@ export default function AddBowlingPerformanceScreen() {
       economy: parseFloat(economy.toFixed(2)),
     };
 
-    console.log('Adding bowling performance:', newPerformance);
     Alert.alert('Success', 'Bowling performance added successfully!', [
       { text: 'OK', onPress: () => router.back() }
     ]);

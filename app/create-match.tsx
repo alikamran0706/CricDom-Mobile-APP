@@ -108,7 +108,6 @@ export default function CreateMatch() {
         setActiveTab(null);
     };
 
-    console.log(teamOptions);
     const leagues = leaguesData?.data || [];
 
     const updateForm = (field: string) => (value: any) =>
@@ -131,7 +130,6 @@ export default function CreateMatch() {
 
         try {
             const location = await Location.getCurrentPositionAsync({});
-
             const address = await Location.reverseGeocodeAsync({
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -151,7 +149,6 @@ export default function CreateMatch() {
             }));
 
         } catch (err) {
-            console.error("❌ Failed to fetch location:", err);
             alert("Could not fetch your location. Try again.");
         } finally {
             setIsLocationLoading(false);
@@ -202,7 +199,6 @@ export default function CreateMatch() {
                 params: { refetch: 'true' }
             });
         } catch (err) {
-            console.error("Failed to create match:", err);
             // Show error feedback if needed
         }
     };
@@ -244,7 +240,6 @@ export default function CreateMatch() {
                                 className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center border-2 border-dashed border-gray-300"
                                 onPress={() => {
                                     // Handle image upload
-                                    console.log("Upload team image")
                                 }}
                             >
 
@@ -349,7 +344,6 @@ export default function CreateMatch() {
                                     value={formData.match_type}
                                     options={matchTypes}
                                     onSelect={(e: any) => {
-                                        console.log(e)
                                         setFormData(prev => ({ ...prev, match_type: e.value }))
                                         setShowMatchTypeDropdown(!showMatchTypeDropdown);
                                     }}

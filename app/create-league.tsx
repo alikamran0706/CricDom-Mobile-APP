@@ -36,8 +36,6 @@ export default function CreateLeague() {
         creator: user?.documentId,
     });
 
-    console.log(user,'useruseruseruser', formData)
-
     const navigation = useNavigation();
 
     useLayoutEffect(() => {

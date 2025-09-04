@@ -43,8 +43,6 @@ export default function PlayerProfileScreen() {
 
     const navigation = useNavigation();
 
-    console.log('/////////////////////////////',cachedPlayers?.data?.data,'//////////////////////////////');
-
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);

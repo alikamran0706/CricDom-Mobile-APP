@@ -1,4 +1,6 @@
 import AvatarImage from "@/components/AvatarImage";
+import SidebarDrawer from "@/components/Modal/Drawer/SidebarDrawer";
+import { useSidebar } from "@/hooks/useSidebar";
 import { RootState } from "@/store";
 import { useGetTeamsQuery } from "@/store/features/team/teamApi";
 import { Ionicons } from "@expo/vector-icons";
@@ -38,6 +40,7 @@ const recentMatches = [
 export default function HomeScreen() {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.user.profile);
+  const { toggleSidebar, isVisible, closeSidebar } = useSidebar()
   const { data, isLoading, isFetching, isError, refetch } = useGetTeamsQuery({
     page: 1,
     pageSize: 5,
@@ -49,6 +52,7 @@ export default function HomeScreen() {
 
   return (
     <>
+      <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <SafeAreaView className="flex-1 bg-white">
         <ScrollView className="flex-1 px-4">
@@ -60,7 +64,7 @@ export default function HomeScreen() {
                 style={{ width: 40, height: 40, resizeMode: 'contain' }}
               />
             </View>
-            <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
+            <TouchableOpacity onPress={toggleSidebar}>
               <Image source={{ uri: "https://images.unsplash.com/photo-1593766827228-8737b4534aa6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldGVyfGVufDB8fDB8fHwy" }} className="w-10 h-10 rounded-full" />
             </TouchableOpacity>
           </View>
@@ -111,7 +115,7 @@ export default function HomeScreen() {
                     <TouchableOpacity
                       key={team.id}
                       className="items-center justify-center"
-                      onPress={() => (team.isAdd ? router.push("/create-team") : router.push(`/team/1`))}
+                      onPress={() => (router.push(`/team/${team.documentId}`))}
                     >
                       {/* {team.isAdd ? (
                         <Ionicons name="add" size={24} color="#3B82F6" />
@@ -119,24 +123,24 @@ export default function HomeScreen() {
                         <Text className="text-white font-bold text-lg">{team.count}</Text>
                       ) : null} */}
 
-                       {
-                                team?.image?.formats?.thumbnail?.url ? (
-                                  <AvatarImage
-                                    uri={ team?.image?.formats?.thumbnail?.url}
-                                    size={62}
-                                    // borderRadius={8}
-                                    // rounded={false}
-                                    extraStyle={{marginRight: 12,}}
-                                  />
-                                )
-                                  :
-                                  <View
-                                    className="w-16 h-16 rounded-full items-center justify-center mr-4"
-                                    style={{ backgroundColor: "#000" }}
-                                  >
-                                    <Ionicons name="people" size={24} color="white" />
-                                  </View>
-                              }
+                      {
+                        team?.image?.formats?.thumbnail?.url ? (
+                          <AvatarImage
+                            uri={team?.image?.formats?.thumbnail?.url}
+                            size={62}
+                            // borderRadius={8}
+                            // rounded={false}
+                            extraStyle={{ marginRight: 12, }}
+                          />
+                        )
+                          :
+                          <View
+                            className="w-16 h-16 rounded-full items-center justify-center mr-4"
+                            style={{ backgroundColor: "#000" }}
+                          >
+                            <Ionicons name="people" size={24} color="white" />
+                          </View>
+                      }
                     </TouchableOpacity>
                   ))}
 

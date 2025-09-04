@@ -91,8 +91,6 @@ export default function CreateInningsScreen() {
       fallOfWickets: [],
     };
 
-    console.log('Creating innings:', newInnings);
-
     Alert.alert('Success', 'Innings created successfully!', [
       { text: 'OK', onPress: () => router.back() },
     ]);

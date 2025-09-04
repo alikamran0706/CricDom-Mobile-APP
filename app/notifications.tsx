@@ -132,8 +132,6 @@ const NotificationsScreen: React.FC = () => {
     };
 
     const handleJoinRequest = (notificationId: string, action: 'accept' | 'reject') => {
-        // Handle join request action
-        console.log(`${action} join request for notification ${notificationId}`);
         markAsRead(notificationId);
     };
 

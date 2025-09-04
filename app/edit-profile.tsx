@@ -35,14 +35,10 @@ export default function EditProfileScreen() {
                 data: formData,
             }).unwrap();
 
-            console.log("Updated user:", updatedUser);
-
             // ✅ Update Redux state and AsyncStorage
             dispatch(setProfile(updatedUser));
-            console.log("Profile updated successfully");
             router.back();
         } catch (error) {
-            console.error("Failed to update profile:", error);
         }
     };
 
