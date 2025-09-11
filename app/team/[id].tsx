@@ -50,16 +50,17 @@ interface TeamStats {
 }
 
 export default function TeamDetailScreen() {
-  const router = useRouter()
-  const navigation = useNavigation()
-  const { id } = useLocalSearchParams()
-  const profile = useSelector((state: RootState) => state.user.profile)
-  const { data, isLoading, isError } = useGetTeamQuery(id as string)
+  const router = useRouter();
+  const navigation = useNavigation();
+  const { id } = useLocalSearchParams();
+  const profile = useSelector((state: RootState) => state.user.profile);
+  const { data, isLoading, isError } = useGetTeamQuery(id as string);
 
-  const team = data?.data
-  const [players, setPlayers] = useState<Player[]>([])
-  const [activeTab, setActiveTab] = useState("Members")
-  const [showQRModal, setShowQRModal] = useState(false)
+  const team = data?.data;
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [activeTab, setActiveTab] = useState("Members");
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const tabs = ["Members", "Stats", "Leaderboards", "Matches", "Awards", "Photos"]
 
@@ -374,6 +375,11 @@ export default function TeamDetailScreen() {
     }
   };
 
+  const toggleFollow = () => {
+  setIsFollowing((prev) => !prev)
+  // Optional: Trigger backend follow/unfollow API here
+}
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-1">
@@ -417,70 +423,101 @@ export default function TeamDetailScreen() {
         ) : (
           <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 120 }}>
             {/* Team Info */}
-            <View className="h-60 rounded-2xl overflow-hidden bg-gray-100 mx-4">
-              {backgroundImageUrl ? (
-                <ImageBackground
-                  source={{ uri: backgroundImageUrl }}
-                  resizeMode="cover"
-                  style={{ flex: 1 }}
-                  imageStyle={{ borderRadius: 16 }}
-                >
-                  <View
-                    style={{
-                      ...StyleSheet.absoluteFillObject,
-                      backgroundColor: "rgba(0, 0, 0, 0.6)",
-                      zIndex: 1,
-                    }}
-                  />
+<View className="h-60 rounded-2xl overflow-hidden bg-gray-100 mx-4">
+  {backgroundImageUrl ? (
+    <ImageBackground
+      source={{ uri: backgroundImageUrl }}
+      resizeMode="cover"
+      style={{ flex: 1 }}
+      imageStyle={{ borderRadius: 16 }}
+    >
+      {/* Dark overlay */}
+      <View
+        style={{
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          zIndex: 1,
+        }}
+      />
 
-                  <View className="flex-1 py-6 items-center justify-center" style={{ zIndex: 2 }}>
-                    <View className="flex-row items-center h-8">
-                      <Text className="text-xl font-bold mr-4 text-white">{team?.name}</Text>
-                      {team?.owner?.documentId === profile?.documentId && (
-                        <TouchableOpacity
-                          onPress={() =>
-                            router.push({
-                              pathname: "/create-team",
-                              params: { team: JSON.stringify(team) },
-                            })
-                          }
-                          className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
-                        >
-                          <Ionicons name="pencil" size={20} color="#374151" />
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                    <Text className="text-white text-lg">{players.length} players</Text>
-                  </View>
-                </ImageBackground>
-              ) : (
-                <View className="flex-1 items-center justify-center px-6">
-                  <View className="flex-row items-center h-20">
-                    <Text className="text-xl font-bold mr-4 text-gray-900">{team?.name}</Text>
-                    {team?.owner?.documentId === profile?.documentId && (
-                      <TouchableOpacity
-                        onPress={() =>
-                          router.push({
-                            pathname: "/create-team",
-                            params: { team: JSON.stringify(team) },
-                          })
-                        }
-                        className="w-10 h-10 rounded-full bg-white items-center justify-center"
-                      >
-                        <Ionicons name="pencil" size={20} color="#374151" />
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      className="w-10 h-10 rounded-full bg-white items-center justify-center"
-                      onPress={() => setShowQRModal(true)}
-                    >
-                      <Ionicons name="qr-code-outline" size={20} color="#374151" />
-                    </TouchableOpacity>
-                  </View>
-                  <Text className="text-gray-600 pb-6">{players.length} players</Text>
-                </View>
-              )}
-            </View>
+      {/* Content */}
+      <View className="flex-1 py-6 items-center justify-center px-4" style={{ zIndex: 2 }}>
+        {/* Team name & edit button */}
+        <View className="flex-row items-center mb-2">
+          <Text className="text-xl font-bold mr-3 text-white">{team?.name}</Text>
+          {team?.owner?.documentId === profile?.documentId && (
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/create-team",
+                  params: { team: JSON.stringify(team) },
+                })
+              }
+              className="w-9 h-9 rounded-full bg-white items-center justify-center"
+            >
+              <Ionicons name="pencil" size={18} color="#374151" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <Text className="text-white text-base mb-4">{players.length} players</Text>
+
+        {/* Follow / Unfollow Button */}
+        <TouchableOpacity
+          onPress={toggleFollow}
+          className={`px-4 py-1.5 rounded-full ${
+            isFollowing ? "bg-white" : "bg-green-500"
+          }`}
+        >
+          <Text
+            className={`text-sm font-semibold ${
+              isFollowing ? "text-green-600" : "text-white"
+            }`}
+          >
+            {isFollowing ? "Unfollow" : "Follow"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
+  ) : (
+    // Fallback (no background image)
+    <View className="flex-1 items-center justify-center px-6">
+      <View className="flex-row items-center h-20">
+        <Text className="text-xl font-bold mr-3 text-gray-900">{team?.name}</Text>
+        {team?.owner?.documentId === profile?.documentId && (
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/create-team",
+                params: { team: JSON.stringify(team) },
+              })
+            }
+            className="w-9 h-9 rounded-full bg-white items-center justify-center"
+          >
+            <Ionicons name="pencil" size={18} color="#374151" />
+          </TouchableOpacity>
+        )}
+      </View>
+      <Text className="text-gray-600 mb-4">{players.length} players</Text>
+
+      {/* Follow / Unfollow Button (plain background) */}
+      <TouchableOpacity
+        onPress={toggleFollow}
+        className={`px-4 py-1.5 rounded-full ${
+          isFollowing ? "bg-gray-200" : "bg-green-500"
+        }`}
+      >
+        <Text
+          className={`text-sm font-semibold ${
+            isFollowing ? "text-green-600" : "text-white"
+          }`}
+        >
+          {isFollowing ? "Unfollow" : "Follow"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
 
             {/* Tabs */}
             <View className="mx-4 mt-6">

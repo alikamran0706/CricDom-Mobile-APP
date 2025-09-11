@@ -27,15 +27,12 @@ const TournamentScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-red-600 px-4 py-3">
-        <View className="flex-row items-center justify-between">
+      <View className="px-4 py-3">
+        <View className="flex-row items-center">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="white" />
+            <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-white">Add A Tournament</Text>
-          <TouchableOpacity>
-            <Ionicons name="play" size={24} color="white" />
-          </TouchableOpacity>
+          <Text className="text-xl font-bold text-black ml-3">Add A Tournament</Text>
         </View>
       </View>
 

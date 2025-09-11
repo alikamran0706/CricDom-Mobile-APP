@@ -46,7 +46,7 @@ export default function AddPlayersModal({
     useLazyGetPlayersQuery();
 
   useEffect(() => {
-    if (visible) { 
+    if (visible) {
       fetchPlayers({
         page: 1,
         pageSize: 100,
@@ -60,7 +60,7 @@ export default function AddPlayersModal({
         // },
       });
     }
-  }, [ visible]);
+  }, [visible]);
 
   const allFetchedPlayers: Player[] =
     allPlayersData?.data?.map((p: any) => ({
@@ -75,12 +75,12 @@ export default function AddPlayersModal({
 
   // Filter players based on search and exclude already-added
   const filteredPlayers = allFetchedPlayers
-  .filter(
-    (player) =>
-      !existingPlayerIds.includes(player.documentId) &&
-      (player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        player.position.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+    .filter(
+      (player) =>
+        !existingPlayerIds.includes(player.documentId) &&
+        (player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          player.position.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
   const togglePlayerSelection = (player: Player) => {
     setSelectedPlayers((prev) => {
@@ -195,6 +195,25 @@ export default function AddPlayersModal({
               Invite New Player
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push('/qr-scan')}
+            className="flex-row items-center px-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm my-4"
+            activeOpacity={0.8}
+          >
+            <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mr-4">
+              <Ionicons name="qr-code-outline" size={26} color="#2563EB" />
+            </View>
+            <View>
+              <Text className="text-base font-semibold text-gray-900">
+                Add Player from QR Code
+              </Text>
+              <Text className="text-sm text-gray-500">
+                Scan and join instantly
+              </Text>
+            </View>
+          </TouchableOpacity>
+
         </ScrollView>
 
         {/* Add Button */}

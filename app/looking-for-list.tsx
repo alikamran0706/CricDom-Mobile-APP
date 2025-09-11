@@ -83,7 +83,7 @@ const LookingForListScreen = () => {
                     </View>
                 </View>
                 <TouchableOpacity>
-                    <Ionicons name="share" size={20} color="#10b981" />
+                    <Ionicons name="share" size={20} color="#0e7ccb" />
                 </TouchableOpacity>
             </View>
 
@@ -101,13 +101,13 @@ const LookingForListScreen = () => {
                     <Text className="text-gray-500 text-sm mr-4">{item.timeAgo}</Text>
                     <View className="flex-row items-center">
                         <View
-                            className={`w-4 h-4 rounded-full mr-2 ${item.ballType === "tennis" ? "bg-green-500" : "bg-red-500"}`}
+                            className={`w-4 h-4 rounded-full mr-2 ${item.ballType === "tennis" ? "bg-[#0e7ccb]" : "bg-red-500"}`}
                         />
                         <Ionicons name="location-outline" size={16} color="#10b981" />
                         <Text className="text-gray-500 text-sm ml-1">{item.distance}</Text>
                     </View>
                 </View>
-                <TouchableOpacity className="bg-green-500 px-4 py-2 rounded-full">
+                <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-full">
                     <Text className="text-white font-semibold text-sm">CONTACT</Text>
                 </TouchableOpacity>
             </View>
@@ -117,21 +117,21 @@ const LookingForListScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             {/* Header */}
-            <View className="bg-red-600 px-4 py-3">
+            <View className="px-4 py-3">
                 <View className="flex-row items-center justify-between">
                     <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="white" />
+                        <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
-                    <Text className="text-xl font-bold text-white">Looking For</Text>
+                    <Text className="text-xl font-bold text-black">Looking For</Text>
                     <View className="flex-row">
                         <TouchableOpacity className="mr-4">
                             {/* <Ionicons name="target" size={24} color="white" /> */}
                         </TouchableOpacity>
                         <TouchableOpacity className="mr-4">
-                            <Ionicons name="chatbubbles" size={24} color="white" />
+                            <Ionicons name="chatbubbles" size={24} color="black" />
                         </TouchableOpacity>
                         <TouchableOpacity className="relative">
-                            <Ionicons name="funnel" size={24} color="white" />
+                            <Ionicons name="funnel" size={24} color="black" />
                             <View className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full items-center justify-center">
                                 <Text className="text-xs font-bold text-gray-800">1</Text>
                             </View>
@@ -144,16 +144,18 @@ const LookingForListScreen = () => {
             <View className="bg-white px-4 py-4 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                     <Text className="text-lg font-semibold text-gray-800">
-                        Looking for <Text className="text-green-600">Ground?</Text>
+                        Looking for <Text className="text-[#0e7ccb]">Ground?</Text>
                     </Text>
                     <View className="flex-row">
-                        <TouchableOpacity className="bg-green-500 px-4 py-2 rounded-full mr-2">
+                        <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-full mr-2"
+                            onPress={() => router.push(`/looking-for`)}
+                        >
                             <View className="flex-row items-center">
                                 <Ionicons name="add" size={16} color="white" />
                                 <Text className="text-white font-semibold ml-1">Post</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity className="bg-green-500 px-4 py-2 rounded-full">
+                        <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-full">
                             <View className="flex-row items-center">
                                 <Ionicons name="person" size={16} color="white" />
                                 <Text className="text-white font-semibold ml-1">You</Text>
@@ -164,22 +166,19 @@ const LookingForListScreen = () => {
             </View>
 
             {/* Filter Tabs */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                className="bg-white px-4 py-3 border-b border-gray-200"
-            >
-                {filters.map((filter) => (
-                    <TouchableOpacity
-                        key={filter}
-                        className={`px-4 py-2 rounded-full mr-3 border ${activeFilter === filter ? "bg-green-500 border-green-500" : "bg-transparent border-green-500"
-                            }`}
-                        onPress={() => setActiveFilter(filter)}
-                    >
-                        <Text className={`font-medium ${activeFilter === filter ? "text-white" : "text-green-600"}`}>{filter}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+            <View className="mx-4 mt-6">
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+                    {filters.map((tab) => (
+                        <TouchableOpacity
+                            key={tab}
+                            className={`px-4 py-2 rounded-full mr-3 ${activeFilter === tab ? "bg-[#0e7ccb]" : "bg-gray-200"}`}
+                            onPress={() => setActiveFilter(tab)}
+                        >
+                            <Text className={`font-medium ${activeFilter === tab ? "text-white" : "text-gray-700"}`}>{tab}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
 
             {/* Posts List */}
             <FlatList

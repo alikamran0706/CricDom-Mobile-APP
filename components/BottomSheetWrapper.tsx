@@ -1,11 +1,5 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import React, {
-  forwardRef,
-  ReactNode,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 
 export type BottomSheetRef = {
   open: () => void;
@@ -13,13 +7,14 @@ export type BottomSheetRef = {
 };
 
 type BottomSheetWrapperProps = {
-  children: ReactNode;
-  snapPoints?: (string | number)[];
+  children: React.ReactNode;
   onClose?: () => void;
+  maxDynamicHeight?: number;
+  enableDynamicSizing?: boolean;
 };
 
 const BottomSheetWrapper = forwardRef<BottomSheetRef, BottomSheetWrapperProps>(
-  ({ children, snapPoints = ["40%", "90%"], onClose }, ref) => {
+  ({ children, onClose, maxDynamicHeight = 600, enableDynamicSizing = true }, ref) => {
     const sheetRef = useRef<BottomSheet>(null);
 
     useImperativeHandle(ref, () => ({
@@ -27,20 +22,20 @@ const BottomSheetWrapper = forwardRef<BottomSheetRef, BottomSheetWrapperProps>(
       close: () => sheetRef.current?.close(),
     }));
 
-    const memoizedSnapPoints = useMemo(() => snapPoints, [snapPoints]);
-
     return (
-        <BottomSheet
-          ref={sheetRef}
-          index={-1}
-          snapPoints={memoizedSnapPoints}
-          onClose={onClose}
-          enablePanDownToClose
-        >
-          <BottomSheetView className="px-4 pb-6">
-            {children}
-          </BottomSheetView>
-        </BottomSheet>
+      <BottomSheet
+        ref={sheetRef}
+        index={-1}
+        enablePanDownToClose
+        onClose={onClose}
+        enableDynamicSizing={enableDynamicSizing}
+        maxDynamicContentSize={maxDynamicHeight}
+        enableContentPanningGesture={false}
+      >
+        <BottomSheetView className="px-4 pb-6">
+          {children}
+        </BottomSheetView>
+      </BottomSheet>
     );
   }
 );

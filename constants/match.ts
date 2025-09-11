@@ -90,9 +90,17 @@ export const matchData = {
   ] as MatchMoment[]
 };
 
-export const matchTypes = [{ label: "League", value: 'League' }, { label: "Semi Final", value: 'Semi' }, { label: "Final", value: 'Final' }];
+export const matchTypes = [{ label: "Limited Overs", value: 'League' }, { label: "Box/turf Cricket", value: 'Semi' }, { label: "Pair Cricket", value: 'Pair-Final' },
+  { label: "Test Match", value: 'Test Match' },   { label: "T20", value: 'Final' },
+];
 
+export const ballTypes = [
+  { type: "Tennis", color: "#84cc16", icon: "baseball" },
+  { type: "Leather", color: "#dc2626", icon: "baseball" },
+  { type: "Other", color: "#10b981", icon: "baseball" },
+];
 
+export const pitchTypes = ["ROUGH", "CEMENT", "TURF", "ASTROTURF", "MATTING"]
 
 // Sample data - replace with your actual match data
 export const teamA: TeamInnings = {
@@ -273,25 +281,25 @@ export const teamA: TeamInnings = {
   ],
 };
 
-export  const manOfTheMatch: ManOfTheMatch = {
-    id: "motm1",
-    name: "Naveen Sama",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60",
-    team: "Greater Minnesota CC",
-    performance: {
-      batting: {
-        runs: 53,
-        balls: 55,
-        fours: 4,
-        sixes: 3,
-        strikeRate: 96.36,
-      },
-      fielding: {
-        catches: 2,
-        runOuts: 0,
-      },
+export const manOfTheMatch: ManOfTheMatch = {
+  id: "motm1",
+  name: "Naveen Sama",
+  image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60",
+  team: "Greater Minnesota CC",
+  performance: {
+    batting: {
+      runs: 53,
+      balls: 55,
+      fours: 4,
+      sixes: 3,
+      strikeRate: 96.36,
     },
-    award: "Player of the Match",
-    description:
-      "Outstanding batting performance with 53 runs off 55 balls including 4 fours and 3 sixes, plus 2 crucial catches in the field.",
-  }
+    fielding: {
+      catches: 2,
+      runOuts: 0,
+    },
+  },
+  award: "Player of the Match",
+  description:
+    "Outstanding batting performance with 53 runs off 55 balls including 4 fours and 3 sixes, plus 2 crucial catches in the field.",
+}

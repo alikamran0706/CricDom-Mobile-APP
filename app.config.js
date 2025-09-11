@@ -2,7 +2,7 @@ export default ({ config }) => {
   return {
     ...config,
     name: "Cricdom",
-    slug: "cricdom", 
+    slug: "cricdom",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
@@ -27,6 +27,7 @@ export default ({ config }) => {
     },
     plugins: [
       "expo-router",
+      "expo-barcode-scanner",
       [
         "expo-splash-screen",
         {

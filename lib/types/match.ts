@@ -102,6 +102,7 @@ export interface Player {
   id: number; // This is the internal Strapi ID (number)
   documentId: string; // This is the custom document ID (string)
   name: string;
+  avatar?: string;
   age?: number;
   position?: string; // This is your "role" field
   batting_style?: string;

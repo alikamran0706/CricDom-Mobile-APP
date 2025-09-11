@@ -13,6 +13,7 @@ interface Props {
     shadowColor?: string
     loading?: boolean
     disabled?: boolean
+    emoji?: string
 }
 
 const FloatingActionButton: React.FC<Props> = ({
@@ -26,6 +27,7 @@ const FloatingActionButton: React.FC<Props> = ({
     shadowColor = "#007ACC",
     loading = false,
     disabled = false,
+    emoji
 }) => {
     // Reduce opacity if disabled
     const opacity = disabled ? 0.999 : 1
@@ -58,6 +60,10 @@ const FloatingActionButton: React.FC<Props> = ({
                             <View className="w-8 h-8 bg-gray-200/20 rounded-2xl items-center justify-center mr-3">
                                 <Ionicons name={iconName} size={18} color={iconColor} />
                             </View>
+                        }
+                        {
+                            emoji &&
+                            <Text className="text-2xl mr-2">{emoji}</Text>
                         }
                         <Text className="text-lg font-bold" style={{ color: textColor }}>
                             {label}

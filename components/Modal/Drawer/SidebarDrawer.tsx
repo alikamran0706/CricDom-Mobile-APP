@@ -38,16 +38,16 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
         // },
         {
             id: "2",
-            title: "Add a Tournament/Series",
+            title: "Add a Tournament",
             icon: "trophy",
-            badge: "FREE",
+            // badge: "FREE",
             route: "/add-tournament",
         },
         {
             id: "3",
-            title: "Start A Match",
+            title: "Start A Match",  
             icon: "play-circle",
-            badge: "FREE",
+            // badge: "FREE",
             route: "/create-match",
         },
         {
@@ -96,7 +96,7 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
             id: "11",
             title: "Looking For",
             icon: "search",
-            route: "/looking-for",
+            route: "/looking-for-list",
         },
         {
             id: "12",

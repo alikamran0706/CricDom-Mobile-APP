@@ -9,6 +9,7 @@ export const baseQuery = fetchBaseQuery({
   baseUrl: apiUrl,  // Set the base API URL here
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).user.token;
+    console.log('tokkekekennnnnnnnn', token, 'testttttttttttt')
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     } else {

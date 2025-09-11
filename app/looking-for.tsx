@@ -96,16 +96,27 @@ const CreateLookingOptionsScreen = () => {
     const renderOptionCard = (option: LookingOption) => (
         <TouchableOpacity
             key={option.id}
-            className="rounded-3xl p-6 m-2 shadow-sm items-center justify-center"
-            style={{ backgroundColor: option.color, width: "45%", aspectRatio: 1 }}
+            className="rounded-3xl p-6 m-2 items-center justify-center"
+            style={{
+                backgroundColor: '#e0f2fe', // light blue (Tailwind's sky-100)
+                width: '45%',
+                aspectRatio: 1,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 10,
+                elevation: 3, // lighter shadow for Android
+            }}
             onPress={() => router.push(option.route as any)}
         >
             <View className="items-center justify-center flex-1">
-                <Ionicons name={option.icon as any} size={40} color="white" className="mb-4" />
-                <Text className="text-white font-bold text-center text-sm leading-5">{option.title}</Text>
+                <Ionicons name={option.icon as any} size={40} color="#0284c7" className="mb-4" />
+                <Text className="text-[#0284c7] font-bold text-center text-sm leading-5">
+                    {option.title}
+                </Text>
             </View>
         </TouchableOpacity>
-    )
+    );
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">

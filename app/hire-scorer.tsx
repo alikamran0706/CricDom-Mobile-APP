@@ -1,43 +1,51 @@
-import { Ionicons } from "@expo/vector-icons"
-import { useRouter } from "expo-router"
-import { useState } from "react"
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRouter } from "expo-router";
+import { useLayoutEffect, useState } from "react";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ScorerHireScreen = () => {
-  const router = useRouter()
-  const [selectedType, setSelectedType] = useState("Whole day")
-  const [selectedGroundType, setSelectedGroundType] = useState("Open Ground")
-  const [selectedDays, setSelectedDays] = useState("1")
-  const [selectedMatchesPerDay, setSelectedMatchesPerDay] = useState("1")
-  const [selectedDailyBudget, setSelectedDailyBudget] = useState("")
-  const [selectedMatchBudget, setSelectedMatchBudget] = useState("")
-  const [selectedContact, setSelectedContact] = useState("CricHeroes DM")
-  const [location, setLocation] = useState("Lahore")
-  const [area, setArea] = useState("")
-  const [ground, setGround] = useState("")
-  const [details, setDetails] = useState("")
+  const router = useRouter();
+  const [selectedType, setSelectedType] = useState("Whole day");
+  const [selectedGroundType, setSelectedGroundType] = useState("Open Ground");
+  const [selectedDays, setSelectedDays] = useState("1");
+  const [selectedMatchesPerDay, setSelectedMatchesPerDay] = useState("1");
+  const [selectedDailyBudget, setSelectedDailyBudget] = useState("");
+  const [selectedMatchBudget, setSelectedMatchBudget] = useState("");
+  const [selectedContact, setSelectedContact] = useState("CricHeroes DM");
+  const [location, setLocation] = useState("Lahore");
+  const [area, setArea] = useState("");
+  const [ground, setGround] = useState("");
+  const [details, setDetails] = useState("");
+  const navigation = useNavigation();
 
-  const types = ["Whole day", "Match", "Tournament"]
-  const days = ["1", "2", "3", "4", "5+"]
-  const matchesPerDay = ["1", "2", "3", "4", "5+"]
-  const dailyBudgets = ["500 - 1000", "1100 - 1500", "1600 - 2000", "2000+", "NOT DECIDED"]
-  const matchBudgets = ["100 - 500", "600 - 1000", "1100 - 1500", "1500+", "NOT DECIDED"]
-  const contactMethods = ["CricHeroes DM", "Call", "WhatsApp"]
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
+  const types = ["Whole day", "Match", "Tournament"];
+  const days = ["1", "2", "3", "4", "5+"];
+  const matchesPerDay = ["1", "2", "3", "4", "5+"];
+  const dailyBudgets = ["500 - 1000", "1100 - 1500", "1600 - 2000", "2000+", "NOT DECIDED"];
+  const matchBudgets = ["100 - 500", "600 - 1000", "1100 - 1500", "1500+", "NOT DECIDED"];
+  const contactMethods = ["CricHeroes DM", "Call", "WhatsApp"];
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-red-600 px-4 py-3">
+      <View className="px-4 py-3">
         <View className="flex-row items-center">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="white" />
+            <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
-          <Text className="text-lg font-bold text-white ml-4">Looking for a scorer to hire</Text>
+          <Text className="text-lg font-bold text-black ml-4">Looking for a scorer to hire</Text>
         </View>
       </View>
 
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView className="flex-1 px-4 py-6"
+        contentContainerStyle={{ paddingBottom: 80 }}
+      >
         {/* Need a scorer for */}
         <View className="mb-6">
           <Text className="text-base font-medium text-gray-800 mb-3">Need a scorer for?</Text>
@@ -58,9 +66,9 @@ const ScorerHireScreen = () => {
         <View className="mb-6">
           <View className="flex-row items-center justify-between">
             <Text className="text-base font-medium text-gray-600">When do you need scorer?</Text>
-            <Ionicons name="calendar-outline" size={20} color="#10b981" />
+            <Ionicons name="calendar-outline" size={20} color="gray" />
           </View>
-          <View className="border-b-2 border-green-500 mt-2"></View>
+          <View className="border-b border-gray-300 mt-2"></View>
         </View>
 
         {/* Where */}
@@ -101,9 +109,8 @@ const ScorerHireScreen = () => {
           <Text className="text-base font-medium text-gray-800 mb-3">Ground Type?</Text>
           <View className="flex-row">
             <TouchableOpacity
-              className={`flex-1 items-center p-4 rounded-xl mr-2 ${
-                selectedGroundType === "Open Ground" ? "bg-blue-100" : "bg-gray-100"
-              }`}
+              className={`flex-1 items-center p-4 rounded-xl mr-2 ${selectedGroundType === "Open Ground" ? "bg-blue-100" : "bg-gray-100"
+                }`}
               onPress={() => setSelectedGroundType("Open Ground")}
             >
               <View className="w-12 h-12 bg-gray-300 rounded-full mb-2 items-center justify-center">
@@ -113,9 +120,8 @@ const ScorerHireScreen = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className={`flex-1 items-center p-4 rounded-xl ml-2 ${
-                selectedGroundType === "Box Cricket" ? "bg-blue-100" : "bg-gray-100"
-              }`}
+              className={`flex-1 items-center p-4 rounded-xl ml-2 ${selectedGroundType === "Box Cricket" ? "bg-blue-100" : "bg-gray-100"
+                }`}
               onPress={() => setSelectedGroundType("Box Cricket")}
             >
               <View className="w-12 h-12 bg-gray-300 rounded-full mb-2 items-center justify-center">
@@ -133,10 +139,10 @@ const ScorerHireScreen = () => {
             {days.map((day) => (
               <TouchableOpacity
                 key={day}
-                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedDays === day ? "bg-gray-300" : "bg-gray-200"}`}
+                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedDays === day ? "bg-[#0e7ccb]" : "bg-gray-200"}`}
                 onPress={() => setSelectedDays(day)}
               >
-                <Text className="text-gray-700">{day}</Text>
+                <Text className={selectedDays === day ? 'text-white' : "text-gray-700"}>{day}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -149,12 +155,11 @@ const ScorerHireScreen = () => {
             {matchesPerDay.map((match) => (
               <TouchableOpacity
                 key={match}
-                className={`px-4 py-2 rounded-full mr-3 mb-2 ${
-                  selectedMatchesPerDay === match ? "bg-gray-300" : "bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedMatchesPerDay === match ? "bg-[#0e7ccb]" : "bg-gray-200"
+                  }`}
                 onPress={() => setSelectedMatchesPerDay(match)}
               >
-                <Text className="text-gray-700">{match}</Text>
+                <Text className={selectedMatchesPerDay === match ? 'text-white' : "text-gray-700"}>{match}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -167,12 +172,11 @@ const ScorerHireScreen = () => {
             {dailyBudgets.map((budget) => (
               <TouchableOpacity
                 key={budget}
-                className={`px-4 py-2 rounded-full mr-3 mb-2 ${
-                  selectedDailyBudget === budget ? "bg-gray-300" : "bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedDailyBudget === budget ? "bg-[#0e7ccb]" : "bg-gray-200"
+                  }`}
                 onPress={() => setSelectedDailyBudget(budget)}
               >
-                <Text className="text-gray-700">{budget}</Text>
+                <Text className={selectedDailyBudget === budget ? 'text-white' : "text-gray-700"}>{budget}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -185,12 +189,11 @@ const ScorerHireScreen = () => {
             {matchBudgets.map((budget) => (
               <TouchableOpacity
                 key={budget}
-                className={`px-4 py-2 rounded-full mr-3 mb-2 ${
-                  selectedMatchBudget === budget ? "bg-gray-300" : "bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedMatchBudget === budget ? "bg-[#0e7ccb]" : "bg-gray-200"
+                  }`}
                 onPress={() => setSelectedMatchBudget(budget)}
               >
-                <Text className="text-gray-700">{budget}</Text>
+                <Text className={selectedMatchBudget === budget ? 'text-white ' : "text-gray-700"}>{budget}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -203,9 +206,8 @@ const ScorerHireScreen = () => {
             {contactMethods.map((method) => (
               <TouchableOpacity
                 key={method}
-                className={`px-4 py-2 rounded-full mr-3 mb-2 ${
-                  selectedContact === method ? "bg-green-500" : "bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full mr-3 mb-2 ${selectedContact === method ? "bg-[#0e7ccb]" : "bg-gray-200"
+                  }`}
                 onPress={() => setSelectedContact(method)}
               >
                 <Text className={selectedContact === method ? "text-white" : "text-gray-700"}>{method}</Text>
@@ -228,12 +230,10 @@ const ScorerHireScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Post Button */}
-      <View className="p-4 bg-white border-t border-gray-200">
-        <TouchableOpacity className="bg-green-500 rounded-xl py-4">
-          <Text className="text-center text-white font-semibold text-lg">POST</Text>
-        </TouchableOpacity>
-      </View>
+      <FloatingActionButton
+        label="Save"
+        onPress={() => { }}
+      />
     </SafeAreaView>
   )
 }
