@@ -161,7 +161,6 @@ const PowerPlayScreen = () => {
     }
 
     const isOverDisabled = (currentPowerPlay: keyof PowerPlaySelection, over: number) => {
-        // Disable if over is selected in OTHER power plays
         for (const key of ["powerPlay1", "powerPlay2", "powerPlay3"] as const) {
             if (key !== currentPowerPlay && selections[key].includes(over)) {
                 return true
@@ -172,44 +171,41 @@ const PowerPlayScreen = () => {
 
     const renderOversGrid = (powerPlay: keyof PowerPlaySelection) => {
         const overs = generateOversGrid()
-        const rows = []
+        return (
+            <View className="flex-row flex-wrap gap-1">
+                {overs.map((over) => {
+                    const isSelected = isOverSelected(powerPlay, over)
+                    const isDisabled = !isSelected && isOverDisabled(powerPlay, over)
 
-        for (let row = 0; row < 3; row++) {
-            const rowOvers = []
-            const startIndex = row * 8
-            const endIndex = row === 2 ? startIndex + 4 : startIndex + 8
-
-            for (let i = startIndex; i < endIndex && i < overs.length; i++) {
-                const over = overs[i]
-                const isSelected = isOverSelected(powerPlay, over)
-                const isDisabled = !isSelected && isOverDisabled(powerPlay, over)
-
-                rowOvers.push(
-                    <TouchableOpacity
-                        key={over}
-                        className={`w-12 h-12 items-center justify-center border border-gray-200 ${isSelected ? "bg-[#0e7ccb]" : isDisabled ? "bg-gray-200" : "bg-white"
+                    return (
+                        <TouchableOpacity
+                            key={over}
+                            className={`w-[11%] aspect-square items-center justify-center border border-gray-200 rounded-md ${
+                                isSelected
+                                    ? "bg-[#0e7ccb]"
+                                    : isDisabled
+                                    ? "bg-gray-200"
+                                    : "bg-white"
                             }`}
-                        onPress={() => !isDisabled && toggleOverSelection(powerPlay, over)}
-                        disabled={isDisabled}
-                    >
-                        <Text
-                            className={`font-semibold ${isSelected ? "text-white" : isDisabled ? "text-gray-400" : "text-gray-800"
-                                }`}
+                            onPress={() => !isDisabled && toggleOverSelection(powerPlay, over)}
+                            disabled={isDisabled}
                         >
-                            {over}
-                        </Text>
-                    </TouchableOpacity>
-                )
-            }
-
-            rows.push(
-                <View key={row} className="flex-row gap-1 mb-1">
-                    {rowOvers}
-                </View>
-            )
-        }
-
-        return <View>{rows}</View>
+                            <Text
+                                className={`font-semibold ${
+                                    isSelected
+                                        ? "text-white"
+                                        : isDisabled
+                                        ? "text-gray-400"
+                                        : "text-gray-800"
+                                }`}
+                            >
+                                {over}
+                            </Text>
+                        </TouchableOpacity>
+                    )
+                })}
+            </View>
+        )
     }
 
     const handleDone = () => {
@@ -248,21 +244,21 @@ const PowerPlayScreen = () => {
                 </View>
             </View>
 
-            <ScrollView className="flex-1 p-4"
-                contentContainerStyle={{ paddingBottom: 80 }}
+            <ScrollView className="flex-1 px-4"
+                contentContainerStyle={{ paddingBottom: 100 }}
             >
                 <View className="mb-8">
-                    <Text className="text-lg font-bold text-gray-800 mb-4">POWER PLAY 1</Text>
+                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 1</Text>
                     {renderOversGrid("powerPlay1")}
                 </View>
 
                 <View className="mb-8">
-                    <Text className="text-lg font-bold text-gray-800 mb-4">POWER PLAY 2</Text>
+                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 2</Text>
                     {renderOversGrid("powerPlay2")}
                 </View>
 
                 <View className="mb-8">
-                    <Text className="text-lg font-bold text-gray-800 mb-4">POWER PLAY 3</Text>
+                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 3</Text>
                     {renderOversGrid("powerPlay3")}
                 </View>
 

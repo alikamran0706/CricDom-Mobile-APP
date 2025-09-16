@@ -7,7 +7,7 @@ import { gameTypeOptions } from '@/constants/team';
 import { sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
-import { useCreateTeamMutation } from '@/store/features/team/teamApi';
+import { useCreateTeamMutation, useGetTeamsQuery } from '@/store/features/team/teamApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -56,6 +56,12 @@ export default function CreateTeamScreen() {
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false);
   const [createTeam, { isLoading, error: isError }] = useCreateTeamMutation();
   const [uploadFile] = useUploadFileMutation();
+  const { refetch } = useGetTeamsQuery({
+    page: 1,
+    pageSize: 5,
+    ownerId: user?.documentId,
+  });
+
   const [players, setPlayers] = useState<Player[]>(
     team?.players?.map((p: any) => ({
       id: p.id.toString(),
@@ -153,6 +159,7 @@ export default function CreateTeamScreen() {
       await createTeam({ data: payload }).unwrap();
       dispatch(showAlert({ type: 'success', message: true ? 'Team updated successfully!' : 'Team created successfully!' }));
 
+      refetch();
       router.replace({
         pathname: '/teams',
         params: { refetch: 'true' }
@@ -213,7 +220,7 @@ export default function CreateTeamScreen() {
               {/* Team Image Upload */}
               <View style={{ alignItems: 'center', marginBottom: 24 }}>
                 <ImagePickerButton
-                  title={team?.image ? 'Update Team Logo' :'Upload Team Logo'}
+                  title={team?.image ? 'Update Team Logo' : 'Upload Team Logo'}
                   imageUri={formData.image || team?.image?.formats?.thumbnail?.url}
                   onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
                 />

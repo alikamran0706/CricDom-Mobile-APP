@@ -3,7 +3,7 @@ import * as MediaLibrary from "expo-media-library";
 import React, { useRef } from "react";
 import { Alert, Share, Text, TouchableOpacity, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
-import { captureRef } from "react-native-view-shot";
+// import { captureRef } from "react-native-view-shot";
 import Modal from "../ui/Modal";
 
 const logo = require('../../assets/images/logo.png');
@@ -57,15 +57,15 @@ const QRCodeModal = ({
                 return;
             }
 
-            const uri = await captureRef(qrRef, {
-                format: "png",
-                quality: 1,
-            });
+            // const uri = await captureRef(qrRef, {
+            //     format: "png",
+            //     quality: 1,
+            // });
 
-            const asset = await MediaLibrary.createAssetAsync(uri);
-            await MediaLibrary.createAlbumAsync("Download", asset, false);
+            // const asset = await MediaLibrary.createAssetAsync(uri);
+            // await MediaLibrary.createAlbumAsync("Download", asset, false);
 
-            Alert.alert("Success", "QR Code saved to gallery.");
+            // Alert.alert("Success", "QR Code saved to gallery.");
         } catch (error) {
             console.error("Error saving image:", error);
             Alert.alert("Error", "Failed to save QR Code.");

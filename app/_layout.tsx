@@ -8,7 +8,6 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import 'react-native-reanimated';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import '../global.css';
 

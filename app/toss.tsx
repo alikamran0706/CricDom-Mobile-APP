@@ -1,8 +1,10 @@
+import { showAlert } from "@/store/features/alerts/alertSlice"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Animated, Easing, Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useDispatch } from "react-redux"
 
 interface Team {
     id: string
@@ -49,13 +51,14 @@ const TossScreen = () => {
             console.log("Error parsing team data, using defaults:", error)
             // Keep default teams if parsing fails
         }
-    }, [params])
+    }, [params]);
 
-    const [selectedWinner, setSelectedWinner] = useState<Team | null>(null)
-    const [selectedChoice, setSelectedChoice] = useState<"BAT" | "BOWL" | null>(null)
-    const [coinResult, setCoinResult] = useState<"HEADS" | "TAILS" | null>(null)
-    const [isFlipping, setIsFlipping] = useState(false)
-    const [showCelebration, setShowCelebration] = useState(false)
+    const [selectedWinner, setSelectedWinner] = useState<Team | null>(null);
+    const [selectedChoice, setSelectedChoice] = useState<"BAT" | "BOWL" | null>(null);
+    const [coinResult, setCoinResult] = useState<"HEADS" | "TAILS" | null>(null);
+    const [isFlipping, setIsFlipping] = useState(false);
+    const [showCelebration, setShowCelebration] = useState(false);
+    const dispatch = useDispatch();
 
     // Animation values
     const coinRotation = useRef(new Animated.Value(0)).current
@@ -113,9 +116,10 @@ const TossScreen = () => {
         // }
 
         // Show celebration
-        setShowCelebration(true)
-        startCelebrationAnimation()
+        setShowCelebration(true);
+        startCelebrationAnimation();
 
+        dispatch(showAlert({ type: 'success', message: `🎉 ${selectedWinner?.name} Won the toss! 🎊` }));
         // Show success alert with party
         setTimeout(() => {
             setShowCelebration(false)
@@ -251,7 +255,7 @@ const TossScreen = () => {
                                 onPress={() => handleChoiceSelect("BAT")}
                             >
                                 <View className="w-20 h-20 rounded-full bg-gray-300 items-center justify-center mb-4">
-                                   <Text className="text-4xl font-bold">🏏</Text>
+                                    <Text className="text-4xl font-bold">🏏</Text>
                                 </View>
                                 <Text className="text-gray-800 font-bold text-md">BAT</Text>
                                 {selectedChoice === "BAT" && (
@@ -405,21 +409,6 @@ const TossScreen = () => {
                             }}
                         />
                     ))}
-
-                    {/* Celebration Text */}
-                    <Animated.View
-                        className="absolute inset-0 items-center justify-center"
-                        style={{
-                            transform: [{ scale: celebrationScale }],
-                        }}
-                    >
-                        <View className="bg-white/95 rounded-3xl p-8 items-center shadow-2xl mx-8">
-                            <Text className="text-4xl mb-2">🎉</Text>
-                            <Text className="text-2xl font-bold text-gray-800 text-center">{selectedWinner?.name}</Text>
-                            <Text className="text-md text-gray-600 text-center">Won the toss!</Text>
-                            <Text className="text-4xl mt-2">🎊</Text>
-                        </View>
-                    </Animated.View>
                 </View>
             )}
         </SafeAreaView>

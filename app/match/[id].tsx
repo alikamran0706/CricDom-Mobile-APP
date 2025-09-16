@@ -111,7 +111,6 @@ export default function Match() {
 
             <BottomSheetWrapper
               ref={bottomSheetRef}
-              snapPoints={["60%", "75%"]}
               onClose={closePerformanceForm}
             >
               <PerformanceForm

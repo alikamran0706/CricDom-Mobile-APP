@@ -1,135 +1,218 @@
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
-import React from "react"
-import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import React, { useEffect, useRef, useState } from "react"
+import {
+    Animated,
+    Dimensions,
+    Easing,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
-
-interface SidebarDrawerProps {
-    isVisible: boolean
-    onClose: () => void
+interface MatchSettingsSidebarProps {
+  isVisible: boolean
+  onClose: () => void
 }
 
-const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
-    const router = useRouter()
+const SCREEN_WIDTH = Dimensions.get("window").width
+const DRAWER_WIDTH = 320
 
-    const [expandedSections, setExpandedSections] = React.useState({
-        match: true,
-        players: true,
-        scorer: true,
-    })
+const MatchSettingsSidebar = ({ isVisible, onClose }: MatchSettingsSidebarProps) => {
+  const router = useRouter()
+  const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current // starts off-screen
 
-    const toggleSection = (section: keyof typeof expandedSections) => {
-        setExpandedSections((prev) => ({
-            ...prev,
-            [section]: !prev[section],
-        }))
+  const [expandedSections, setExpandedSections] = useState({
+    match: true,
+    players: true,
+    scorer: true,
+  })
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
+
+  // Animate when isVisible changes
+  useEffect(() => {
+    if (isVisible) {
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_WIDTH - DRAWER_WIDTH,
+        duration: 300,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.ease),
+      }).start()
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_WIDTH,
+        duration: 300,
+        useNativeDriver: false,
+        easing: Easing.in(Easing.ease),
+      }).start()
     }
+  }, [isVisible])
 
-    const SettingsItem = ({ title, onPress }: { title: string; onPress?: () => void }) => (
-        <TouchableOpacity className="py-4 px-6 border-b border-gray-100" onPress={onPress}>
-            <Text className="text-gray-800 text-base">{title}</Text>
-        </TouchableOpacity>
-    )
+  const SettingsItem = ({ title, onPress }: { title: string; onPress?: () => void }) => (
+    <TouchableOpacity style={styles.item} onPress={onPress}>
+      <Text style={styles.itemText}>{title}</Text>
+    </TouchableOpacity>
+  )
 
-    const SectionHeader = ({
-        title,
-        expanded,
-        onToggle,
-    }: {
-        title: string
-        expanded: boolean
-        onToggle: () => void
-    }) => (
-        <TouchableOpacity className="flex-row items-center justify-between py-4 px-6 bg-gray-50" onPress={onToggle}>
-            <Text className="text-gray-900 text-lg font-semibold">{title}</Text>
-            <Ionicons name={expanded ? "chevron-down" : "chevron-forward"} size={20} color="#374151" />
-        </TouchableOpacity>
-    )
+  const SectionHeader = ({
+    title,
+    expanded,
+    onToggle,
+  }: {
+    title: string
+    expanded: boolean
+    onToggle: () => void
+  }) => (
+    <TouchableOpacity style={styles.sectionHeader} onPress={onToggle}>
+      <Text style={styles.sectionHeaderText}>{title}</Text>
+      <Ionicons name={expanded ? "chevron-down" : "chevron-forward"} size={20} color="#374151" />
+    </TouchableOpacity>
+  )
 
+  return (
+    <View style={StyleSheet.absoluteFillObject}>
+      {/* Overlay */}
+      {isVisible && (
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={onClose}
+        />
+      )}
 
+      {/* Sidebar */}
+      <Animated.View style={[styles.drawer, { left: slideAnim }]}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <ScrollView>
+            <SectionHeader
+              title="Match Settings"
+              expanded={expandedSections.match}
+              onToggle={() => toggleSection("match")}
+            />
+            {expandedSections.match && (
+              <View>
+                <SettingsItem title="Change Match Overs" />
+                <SettingsItem title="Match Rules (WD, NB, WW)" />
+                <SettingsItem title="Revise Target (DLS/VJD)" />
+                <SettingsItem title="Add Bonus Runs" />
+                <SettingsItem title="Give Penalty Runs" />
+                <SettingsItem title="End / Declare Innings" />
+                <SettingsItem title="End Match" />
+              </View>
+            )}
 
-    if (!isVisible) return null
+            <SectionHeader
+              title="Players Settings"
+              expanded={expandedSections.players}
+              onToggle={() => toggleSection("players")}
+            />
+            {expandedSections.players && (
+              <View>
+                <SettingsItem title="Change Playing Squad" />
+                <SettingsItem title="Change Bowler" />
+                <SettingsItem title="Replace Batters" />
+                <SettingsItem title="Retired Hurt (Batter)" />
+              </View>
+            )}
 
-    return (
-        <View className="absolute inset-0 z-50">
-            {/* Overlay */}
-            <TouchableOpacity className="absolute inset-0 bg-black/50" onPress={onClose} />
+            <SectionHeader
+              title="Scorer Settings"
+              expanded={expandedSections.scorer}
+              onToggle={() => toggleSection("scorer")}
+            />
+            {expandedSections.scorer && (
+              <View>
+                <SettingsItem title="Change Scorer" />
+              </View>
+            )}
 
-            {/* Sidebar */}
-            <View className="absolute right-0 top-0 bottom-0 w-80 bg-white">
-                <SafeAreaView className="flex-1">
-                    {/* Main content */}
-                    <View className="flex-1">
-                        <ScrollView className="flex-1">
-                            {/* Match Settings */}
-                            <SectionHeader
-                                title="Match Settings"
-                                expanded={expandedSections.match}
-                                onToggle={() => toggleSection("match")}
-                            />
-                            {expandedSections.match && (
-                                <View>
-                                    <SettingsItem title="Change Match Overs" />
-                                    <SettingsItem title="Match Rules (WD, NB, WW)" />
-                                    <SettingsItem title="Revise Target (DLS/VJD)" />
-                                    <SettingsItem title="Add Bonus Runs" />
-                                    <SettingsItem title="Give Penalty Runs" />
-                                    <SettingsItem title="End / Declare Innings" />
-                                    <SettingsItem title="End Match" />
-                                </View>
-                            )}
-
-                            {/* Players Settings */}
-                            <SectionHeader
-                                title="Players Settings"
-                                expanded={expandedSections.players}
-                                onToggle={() => toggleSection("players")}
-                            />
-                            {expandedSections.players && (
-                                <View>
-                                    <SettingsItem title="Change Playing Squad" />
-                                    <SettingsItem title="Change Bowler" />
-                                    <SettingsItem title="Replace Batters" />
-                                    <SettingsItem title="Retired Hurt (Batter)" />
-                                </View>
-                            )}
-
-                            {/* Scorer Settings */}
-                            <SectionHeader
-                                title="Scorer Settings"
-                                expanded={expandedSections.scorer}
-                                onToggle={() => toggleSection("scorer")}
-                            />
-                            {expandedSections.scorer && (
-                                <View>
-                                    <SettingsItem title="Change Scorer" />
-                                </View>
-                            )}
-
-                            {/* Help/FAQs Header */}
-                            <View className="mt-6 px-6">
-                                <View className="flex-row items-center justify-between py-4">
-                                    <Text className="text-gray-900 text-lg font-semibold">Help / FAQs</Text>
-                                    <Text className="text-teal-600 font-semibold">SHOW</Text>
-                                </View>
-                            </View>
-                        </ScrollView>
-
-                        {/* ✅ Fixed bottom helpline section */}
-                        <View className="px-6 py-4 border-t border-gray-200 bg-white">
-                            <Text className="text-gray-600 text-base mb-2">Cricdom Helpline</Text>
-                            <View className="flex-row items-center">
-                                <Ionicons name="call" size={20} color="#0e7ccb" />
-                                <Text className="text-[#0e7ccb] text-lg font-semibold ml-2">+55 5555555</Text>
-                            </View>
-                        </View>
-                    </View>
-                </SafeAreaView>
+            {/* Help/FAQs */}
+            <View style={{ marginVertical: 24, paddingHorizontal: 24 }}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Help / FAQs</Text>
+                <Text style={{ color: "#0e7ccb", fontWeight: "600" }}>SHOW</Text>
+              </View>
             </View>
-        </View>
+          </ScrollView>
 
-    )
+          {/* Helpline */}
+          <View style={styles.helpline}>
+            <Text style={styles.helplineLabel}>Cricdom Helpline</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name="call" size={20} color="#0e7ccb" />
+              <Text style={styles.helplinePhone}>+55 5555555</Text>
+            </View>
+          </View>
+        </SafeAreaView>
+      </Animated.View>
+    </View>
+  )
 }
 
-export default SidebarDrawer
+export default MatchSettingsSidebar
+
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 1,
+  },
+  drawer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: DRAWER_WIDTH,
+    backgroundColor: "white",
+    zIndex: 2,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 6,
+    paddingBottom: 16,
+    paddingHorizontal: 24,
+    backgroundColor: "#f9fafb",
+  },
+  sectionHeaderText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  item: {
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderColor: "#f3f4f6",
+  },
+  itemText: {
+    color: "#1f2937",
+    fontSize: 16,
+  },
+  helpline: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderTopWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: "white",
+  },
+  helplineLabel: {
+    color: "#6b7280",
+    fontSize: 16,
+    marginBottom: 6,
+  },
+  helplinePhone: {
+    color: "#0e7ccb",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
+})

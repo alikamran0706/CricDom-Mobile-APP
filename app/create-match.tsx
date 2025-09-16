@@ -643,14 +643,13 @@ export default function CreateMatch() {
 
                                 <BottomSheetWrapper
                                     ref={bottomSheetRef}
-                                    snapPoints={["60%", "75%"]}
                                     onClose={closePerformanceForm}
                                 >
-                                    <View style={styles.sheetContent}>
+                                    <View style={styles.sheetContent}> 
                                         {activeTab === "league" && (
                                             <>
                                                 <Text style={styles.sheetTitle}>Select League</Text>
-                                                <ScrollView>
+                                                <ScrollView className="max-h-80">
                                                     {leagues.map((l: any) => {
                                                         const isSelected = l.documentId === formData.league;
                                                         return (

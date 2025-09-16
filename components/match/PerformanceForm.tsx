@@ -28,7 +28,7 @@ export default function PerformanceForm({ activeTab, onTabChange, onClose }: Per
   };
 
   const BattingForm = () => (
-    <View className="p-4">
+    <View className="p-4 min-h-80">
       <Dropdown
         label="Player Name *"
         value={selectedPlayerId ? playerOptions.find(opt => opt.value === selectedPlayerId)?.label : ''}

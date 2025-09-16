@@ -140,7 +140,7 @@ export default function TeamDetailScreen() {
       <View className="flex-row justify-between items-center mb-4">
         <Text className="text-xl font-bold text-gray-900">Team Players</Text>
         <View className="bg-blue-100 px-3 py-1 rounded-full">
-          <Text className="text-blue-800 font-medium text-sm">{players.length} members</Text>
+          <Text className="text-[#0e7ccb] font-medium text-sm">{players.length} members</Text>
         </View>
       </View>
 
@@ -191,7 +191,7 @@ export default function TeamDetailScreen() {
 
         <View className="flex-row justify-between mb-4">
           <View className="items-center flex-1">
-            <Text className="text-2xl font-bold text-blue-600">{teamStats.matchesPlayed}</Text>
+            <Text className="text-2xl font-bold text-[#0e7ccb]">{teamStats.matchesPlayed}</Text>
             <Text className="text-gray-600 text-sm">Matches</Text>
           </View>
           <View className="items-center flex-1">
@@ -235,7 +235,7 @@ export default function TeamDetailScreen() {
       {leaderboardData.map((player, index) => (
         <View key={player.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-3">
           <View className="flex-row items-center">
-            <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-4">
+            <View className="w-8 h-8 rounded-full bg-[#0e7ccb] items-center justify-center mr-4">
               <Text className="text-white font-bold">{index + 1}</Text>
             </View>
             <View className="flex-1">
@@ -322,7 +322,7 @@ export default function TeamDetailScreen() {
         ))}
       </View>
 
-      <TouchableOpacity className="bg-blue-600 rounded-2xl p-4 items-center">
+      <TouchableOpacity className="bg-[#0e7ccb] rounded-2xl p-4 items-center">
         <View className="flex-row items-center">
           <Ionicons name="camera" size={20} color="white" />
           <Text className="text-white font-semibold ml-2">Add Photos</Text>
@@ -376,9 +376,9 @@ export default function TeamDetailScreen() {
   };
 
   const toggleFollow = () => {
-  setIsFollowing((prev) => !prev)
-  // Optional: Trigger backend follow/unfollow API here
-}
+    setIsFollowing((prev) => !prev)
+    // Optional: Trigger backend follow/unfollow API here
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -423,101 +423,97 @@ export default function TeamDetailScreen() {
         ) : (
           <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 120 }}>
             {/* Team Info */}
-<View className="h-60 rounded-2xl overflow-hidden bg-gray-100 mx-4">
-  {backgroundImageUrl ? (
-    <ImageBackground
-      source={{ uri: backgroundImageUrl }}
-      resizeMode="cover"
-      style={{ flex: 1 }}
-      imageStyle={{ borderRadius: 16 }}
-    >
-      {/* Dark overlay */}
-      <View
-        style={{
-          ...StyleSheet.absoluteFillObject,
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-          zIndex: 1,
-        }}
-      />
+            <View className="h-60 rounded-2xl overflow-hidden bg-gray-100 mx-4">
+              {backgroundImageUrl ? (
+                <ImageBackground
+                  source={{ uri: backgroundImageUrl }}
+                  resizeMode="cover"
+                  style={{ flex: 1 }}
+                  imageStyle={{ borderRadius: 16 }}
+                >
+                  {/* Dark overlay */}
+                  <View
+                    style={{
+                      ...StyleSheet.absoluteFillObject,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      zIndex: 1,
+                    }}
+                  />
 
-      {/* Content */}
-      <View className="flex-1 py-6 items-center justify-center px-4" style={{ zIndex: 2 }}>
-        {/* Team name & edit button */}
-        <View className="flex-row items-center mb-2">
-          <Text className="text-xl font-bold mr-3 text-white">{team?.name}</Text>
-          {team?.owner?.documentId === profile?.documentId && (
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/create-team",
-                  params: { team: JSON.stringify(team) },
-                })
-              }
-              className="w-9 h-9 rounded-full bg-white items-center justify-center"
-            >
-              <Ionicons name="pencil" size={18} color="#374151" />
-            </TouchableOpacity>
-          )}
-        </View>
+                  {/* Content */}
+                  <View className="flex-1 py-6 items-center justify-center px-4" style={{ zIndex: 2 }}>
+                    {/* Team name & edit button */}
+                    <View className="flex-row items-center mb-2">
+                      <Text className="text-xl font-bold mr-3 text-white">{team?.name}</Text>
+                      {team?.owner?.documentId === profile?.documentId && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            router.push({
+                              pathname: "/create-team",
+                              params: { team: JSON.stringify(team) },
+                            })
+                          }
+                          className="w-9 h-9 rounded-full bg-white items-center justify-center"
+                        >
+                          <Ionicons name="pencil" size={18} color="#374151" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
 
-        <Text className="text-white text-base mb-4">{players.length} players</Text>
+                    <Text className="text-white text-base mb-4">{players.length} players</Text>
 
-        {/* Follow / Unfollow Button */}
-        <TouchableOpacity
-          onPress={toggleFollow}
-          className={`px-4 py-1.5 rounded-full ${
-            isFollowing ? "bg-white" : "bg-green-500"
-          }`}
-        >
-          <Text
-            className={`text-sm font-semibold ${
-              isFollowing ? "text-green-600" : "text-white"
-            }`}
-          >
-            {isFollowing ? "Unfollow" : "Follow"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
-  ) : (
-    // Fallback (no background image)
-    <View className="flex-1 items-center justify-center px-6">
-      <View className="flex-row items-center h-20">
-        <Text className="text-xl font-bold mr-3 text-gray-900">{team?.name}</Text>
-        {team?.owner?.documentId === profile?.documentId && (
-          <TouchableOpacity
-            onPress={() =>
-              router.push({
-                pathname: "/create-team",
-                params: { team: JSON.stringify(team) },
-              })
-            }
-            className="w-9 h-9 rounded-full bg-white items-center justify-center"
-          >
-            <Ionicons name="pencil" size={18} color="#374151" />
-          </TouchableOpacity>
-        )}
-      </View>
-      <Text className="text-gray-600 mb-4">{players.length} players</Text>
+                    {/* Follow / Unfollow Button */}
+                    <TouchableOpacity
+                      onPress={toggleFollow}
+                      className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-white" : "bg-green-500"
+                        }`}
+                    >
+                      <Text
+                        className={`text-sm font-semibold ${isFollowing ? "text-green-600" : "text-white"
+                          }`}
+                      >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </ImageBackground>
+              ) : (
+                // Fallback (no background image)
+                <View className="flex-1 items-center justify-center px-6">
+                  <View className="flex-row items-center h-20">
+                    <Text className="text-xl font-bold mr-3 text-gray-900">{team?.name}</Text>
+                    {team?.owner?.documentId === profile?.documentId && (
+                      <TouchableOpacity
+                        onPress={() =>
+                          router.push({
+                            pathname: "/create-team",
+                            params: { team: JSON.stringify(team) },
+                          })
+                        }
+                        className="w-9 h-9 rounded-full bg-white items-center justify-center"
+                      >
+                        <Ionicons name="pencil" size={18} color="#374151" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <Text className="text-gray-600 mb-4">{players.length} players</Text>
 
-      {/* Follow / Unfollow Button (plain background) */}
-      <TouchableOpacity
-        onPress={toggleFollow}
-        className={`px-4 py-1.5 rounded-full ${
-          isFollowing ? "bg-gray-200" : "bg-green-500"
-        }`}
-      >
-        <Text
-          className={`text-sm font-semibold ${
-            isFollowing ? "text-green-600" : "text-white"
-          }`}
-        >
-          {isFollowing ? "Unfollow" : "Follow"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  )}
-</View>
+                  {/* Follow / Unfollow Button (plain background) */}
+                  <TouchableOpacity
+                    onPress={toggleFollow}
+                    className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-gray-200" : "bg-green-500"
+                      }`}
+                  >
+                    <Text
+                      className={`text-sm font-semibold ${isFollowing ? "text-green-600" : "text-white"
+                        }`}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
 
             {/* Tabs */}
             <View className="mx-4 mt-6">
@@ -525,7 +521,7 @@ export default function TeamDetailScreen() {
                 {tabs.map((tab) => (
                   <TouchableOpacity
                     key={tab}
-                    className={`px-4 py-2 rounded-full mr-3 ${activeTab === tab ? "bg-blue-600" : "bg-gray-200"}`}
+                    className={`px-4 py-2 rounded-full mr-3 ${activeTab === tab ? "bg-[#0e7ccb]" : "bg-gray-200"}`}
                     onPress={() => setActiveTab(tab)}
                   >
                     <Text className={`font-medium ${activeTab === tab ? "text-white" : "text-gray-700"}`}>{tab}</Text>

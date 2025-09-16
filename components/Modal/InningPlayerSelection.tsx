@@ -105,7 +105,7 @@ export default function InningPlayerSelection({
             <View className="flex-1 bg-white">
                 {/* Header */}
                 <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-200">
-                    <Text className="text-xl font-semibold">{header}</Text>
+                    <Text className="text-xl font-semibold text-black">{header}</Text>
                     <TouchableOpacity onPress={onClose}>
                         <Ionicons name="close" size={24} color="#000" />
                     </TouchableOpacity>
@@ -127,7 +127,7 @@ export default function InningPlayerSelection({
 
                 {/* Players Section */}
                 <View className="px-4 mb-4">
-                    <Text className="text-lg font-semibold mb-3">Available Players</Text>
+                    <Text className="text-lg font-semibold mb-3 text-black">Available Players</Text>
                 </View>
 
                 {/* Players List */}
@@ -161,7 +161,7 @@ export default function InningPlayerSelection({
                                     )}
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-base font-medium">{player.name}</Text>
+                                    <Text className="text-base font-medium text-black">{player.name}</Text>
                                     <Text className="text-sm text-gray-600">{player.position}</Text>
                                 </View>
                             </TouchableOpacity>

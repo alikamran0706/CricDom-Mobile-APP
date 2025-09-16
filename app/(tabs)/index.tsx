@@ -55,7 +55,7 @@ export default function HomeScreen() {
       <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <SafeAreaView className="flex-1 bg-white">
-        <ScrollView className="flex-1 px-4">
+        <ScrollView className="flex-1 px-4" nestedScrollEnabled={true}>
           {/* Header */}
           <View className="flex-row justify-between items-center py-4">
             <View>
@@ -104,56 +104,65 @@ export default function HomeScreen() {
           {/* Your Teams */}
           <View className="mb-6">
             <Text className="text-lg font-semibold mb-4 text-black">Your Teams</Text>
-            {
-              isLoading ?
-                <View style={{ alignItems: 'flex-start' }}>
-                  <ActivityIndicator size="large" color="#000" />
-                </View>
-                :
-                <View className="flex-row gap-x-3">
-                  {teams?.map((team: any) => (
-                    <TouchableOpacity
-                      key={team.id}
-                      className="items-center justify-center"
-                      onPress={() => (router.push(`/team/${team.documentId}`))}
-                    >
-                      {/* {team.isAdd ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 16 }}
+            >
+
+
+              {
+                isLoading ?
+                  <View style={{ alignItems: 'flex-start' }}>
+                    <ActivityIndicator size="large" color="#000" />
+                  </View>
+                  :
+                  <View className="flex-row gap-x-3">
+                    {teams?.map((team: any) => (
+                      <TouchableOpacity
+                        key={team.id}
+                        className="items-center justify-center"
+                        onPress={() => (router.push(`/team/${team.documentId}`))}
+                      >
+                        {/* {team.isAdd ? (
                         <Ionicons name="add" size={24} color="#3B82F6" />
                       ) : team.count ? (
                         <Text className="text-white font-bold text-lg">{team.count}</Text>
                       ) : null} */}
 
-                      {
-                        team?.image?.formats?.thumbnail?.url ? (
-                          <AvatarImage
-                            uri={team?.image?.formats?.thumbnail?.url}
-                            size={62}
-                            // borderRadius={8}
-                            // rounded={false}
-                            extraStyle={{ marginRight: 12, }}
-                          />
-                        )
-                          :
-                          <View
-                            className="w-16 h-16 rounded-full items-center justify-center mr-4"
-                            style={{ backgroundColor: "#000" }}
-                          >
-                            <Ionicons name="people" size={24} color="white" />
-                          </View>
-                      }
-                    </TouchableOpacity>
-                  ))}
+                        {
+                          team?.image?.formats?.thumbnail?.url ? (
+                            <AvatarImage
+                              uri={team?.image?.formats?.thumbnail?.url}
+                              size={62}
+                              // borderRadius={8}
+                              // rounded={false}
+                              extraStyle={{ marginRight: 12, }}
+                            />
+                          )
+                            :
+                            <View
+                              className="w-16 h-16 rounded-full items-center justify-center mr-4"
+                              style={{ backgroundColor: "#000" }}
+                            >
+                              <Ionicons name="people" size={24} color="white" />
+                            </View>
+                        }
+                      </TouchableOpacity>
+                    ))}
 
-                  <TouchableOpacity
-                    className="w-16 h-16 rounded-full items-center justify-center"
-                    style={{ backgroundColor: '#DBEAFE' }}
-                    onPress={() => (router.push("/create-team"))}
-                  >
-                    <Ionicons name="add" size={24} color="#3B82F6" />
-                  </TouchableOpacity>
-                </View>
-            }
+                    <TouchableOpacity
+                      className="w-16 h-16 rounded-full items-center justify-center"
+                      style={{ backgroundColor: '#DBEAFE' }}
+                      onPress={() => (router.push("/create-team"))}
+                    >
+                      <Ionicons name="add" size={24} color="#3B82F6" />
+                    </TouchableOpacity>
+                  </View>
+              }
+            </ScrollView>
           </View>
+
 
           {/* Manage Players Card */}
           <TouchableOpacity className="bg-blue-50 rounded-lg p-4 mb-6" onPress={() => router.push("/create-inning")}>

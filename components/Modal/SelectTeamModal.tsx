@@ -31,8 +31,6 @@ const SelectTeamModal = ({
         onClose();
     };
 
-    console.log(teamRecords, 'teamRecordsteamRecords')
-
     const filteredTeams = teamRecords?.filter(
         (team: any) =>
             (team.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -66,7 +64,7 @@ const SelectTeamModal = ({
                     </View>
                 )}
             </View>
-            <Text className="text-base font-medium">{team.name}</Text>
+            <Text className="text-base font-medium text-black">{team.name}</Text>
         </TouchableOpacity>
     );
 
@@ -103,7 +101,7 @@ const SelectTeamModal = ({
 
                     {/* Players Section */}
                     <View className="px-4 mb-4">
-                        <Text className="text-lg font-semibold mb-3">Available Teams</Text>
+                        <Text className="text-lg font-semibold mb-3 text-black">Available Teams</Text>
                     </View>
 
                     <FlatList

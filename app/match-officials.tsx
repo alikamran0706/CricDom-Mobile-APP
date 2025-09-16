@@ -85,7 +85,7 @@ const MatchOfficialsScreen = () => {
             >
                 {/* Select Umpires */}
                 <View className="mb-8">
-                    <Text className="text-2xl font-bold text-gray-800 mb-6">Select Umpires</Text>
+                    <Text className="lg font-bold text-gray-800 mb-6">Select Umpires</Text>
                     <View className="flex-row">
                         {renderOfficialSlot("", "1st", 'umpire')}
                         {renderOfficialSlot("", "2nd", 'umpire')}
@@ -94,7 +94,7 @@ const MatchOfficialsScreen = () => {
 
                 {/* Select Scorers Section */}
                 <View className="mb-8">
-                    <Text className="text-2xl font-bold text-gray-800 mb-6">Select Scorers</Text>
+                    <Text className="lg font-bold text-gray-800 mb-6">Select Scorers</Text>
                     <View className="flex-row">
                         {renderOfficialSlot("", "1st", "scorer")}
                         {renderOfficialSlot("", "2nd", "scorer")}
@@ -103,7 +103,7 @@ const MatchOfficialsScreen = () => {
 
                 {/* Select Commentators Section */}
                 <View className="mb-8">
-                    <Text className="text-2xl font-bold text-gray-800 mb-6">Select Commentators</Text>
+                    <Text className="lg font-bold text-gray-800 mb-6">Select Commentators</Text>
                     <View className="flex-row">
                         {renderOfficialSlot("", "1st", 'commentator')}
                         {renderOfficialSlot("", "2nd", 'commentator')}
@@ -112,7 +112,7 @@ const MatchOfficialsScreen = () => {
 
                 {/* Others Section */}
                 <View className="mb-8">
-                    <Text className="text-2xl font-bold text-gray-800 mb-6">Others</Text>
+                    <Text className="lg font-bold text-gray-800 mb-6">Others</Text>
                     <View className="flex-row">
                         {renderOfficialSlot("", "Match Referee", "referee")}
                         {renderOfficialSlot("videocam", "Live Streamers")}

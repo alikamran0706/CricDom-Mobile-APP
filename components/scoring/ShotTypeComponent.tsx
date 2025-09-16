@@ -6,7 +6,7 @@ interface ShotTypeComponentProps {
 }
 
 const shotTypes = [
-    { key: "defence", label: "DEFENCE", image: require("../../assets/images/scoring/4.png")},
+    { key: "defence", label: "DEFENCE", image: require("../../assets/images/scoring/4.png") },
     { key: "punch", label: "PUNCH", image: require("../../assets/images/scoring/2.png") },
     { key: "straight_drive", label: "STRAIGHT\nDRIVE", image: require("../../assets/images/scoring/6.png") },
     { key: "on_drive", label: "ON\nDRIVE", image: require("../../assets/images/scoring/44.png") },
@@ -27,9 +27,9 @@ export default function ShotTypeComponent({ onShotType }: ShotTypeComponentProps
                 </Text>
                 <View className="flex-1 h-px bg-gray-300" />
             </View>
-            <Text className="text-2xl font-bold text-gray-800 text-center mb-4">Long On</Text>
 
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
+                <Text className="text-2xl font-bold text-gray-800 text-center mb-4">Long On</Text>
                 <View className="flex-row flex-wrap justify-between mb-6">
                     {shotTypes.map((shot) => (
                         <TouchableOpacity
