@@ -7,11 +7,8 @@ import OutTypeComponent from "@/components/scoring/OutTypeComponent";
 import ShortcutsComponent from "@/components/scoring/ShortcutsComponent";
 import ShotTypeComponent from "@/components/scoring/ShotTypeComponent";
 import WideBallComponent from "@/components/scoring/WideBallComponent";
+import SocialShare from "@/components/SocialShare";
 import { RootState } from "@/store";
-import { useGetLeaguesQuery } from "@/store/features/league/leagueApi";
-import { useCreateMatchMutation } from "@/store/features/match/matchApi";
-import { useGetTeamsQuery } from "@/store/features/team/teamApi";
-import { useUploadFileMutation } from "@/store/features/upload/uploadApi";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useNavigation, useRouter } from "expo-router";
@@ -90,97 +87,11 @@ export default function CreateMatch() {
     });
     const [showSettings, setShowSettings] = useState(false);
     const [currentOver, setCurrentOver] = useState<string[]>(["1", "4", "W", "2"]);
-    const [showExtras, setShowExtras] = useState(false);
     const user = useSelector((state: RootState) => state.user.profile);
-    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-    const [showTimePicker, setShowTimePicker] = useState(false)
-    const [isTeamAModal, setIsTeamAModal] = useState(false);
-    const [selectTeam, setSelectTeam] = useState<any>(null);
-    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [activeTab, setActiveTab] = useState<string | null>(null);
-    const [createMatch, { isLoading, error }] = useCreateMatchMutation();
     const bottomSheetRef = useRef<BottomSheetRef>(null);
-    const [uploadFile] = useUploadFileMutation();
-    const [isLocationLoading, setIsLocationLoading] = useState(false);
-    const { data: leaguesData } = useGetLeaguesQuery({ page: 1, pageSize: 20, creatorId: user?.documentId, });
-
-    const [formData, setFormData] = useState<{
-        overs_limit: string;
-        description: string;
-        start_date: string;
-        end_date: string;
-        team_a: string;
-        team_b: string;
-        match_type: string;
-        match_creator: any;
-        image: string;
-        league: string | null;
-        overs_per_bowler: string;
-        ball_Type: string;
-        wagon_wheel: boolean;
-        pitch_type: string;
-        location: {
-            address: string;
-            latitude: number | null;
-            longitude: number | null;
-        };
-    }>({
-        overs_limit: "",
-        description: "",
-        start_date: "",
-        end_date: "",
-        team_a: "",
-        team_b: "",
-        match_type: "",
-        match_creator: user?.documentId,
-        image: "",
-        league: null,
-        overs_per_bowler: "",
-        ball_Type: "",
-        wagon_wheel: false,
-        pitch_type: "",
-        location: {
-            address: "",
-            latitude: null,
-            longitude: null,
-        },
-    });
-
-    const openLocationSheet = () => {
-        setActiveTab("location");
-        bottomSheetRef.current?.open();
-    };
-
-    const openLeagueSheet = () => {
-        bottomSheetRef.current?.open();
-        setActiveTab('league');
-    };
-
-    const closeSheet = () => {
-        bottomSheetRef.current?.close()
-        setActiveTab(null);
-    };
 
     const navigation = useNavigation();
-
-    const [teamPage, setTeamPage] = useState(1);
-    const { data: teamsData, isFetching: isFetchingTeams } = useGetTeamsQuery({
-        page: teamPage,
-        pageSize: 12,
-    });
-
-    const loadMoreTeams = () => {
-        if (!isFetchingTeams && teamPage < teamsData.meta?.pageCount)
-            setTeamPage((prev) => prev + 1);
-    };
-    // Prepare dropdown options
-    const teamRecord = teamsData?.data;
-
-    const closePerformanceForm = () => {
-        bottomSheetRef.current?.close();
-        setActiveTab(null);
-    };
 
     const isValidBall = (ball: string) => {
         // Add other non-legal deliveries if needed
@@ -227,8 +138,6 @@ export default function CreateMatch() {
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
-
-
 
     const handleRunScored = (runs: number) => {
         setMatchState((prev) => ({
@@ -416,9 +325,17 @@ export default function CreateMatch() {
                                     <Text className="text-gray-300 text-sm">T20 Match • Over {matchState.overs + 1}</Text>
                                 </View>
                                 <View className="flex-row items-center justify-center gap-x-3 ">
-                                    <TouchableOpacity onPress={() => console.log('Share pressed')}>
+                                    {/* <TouchableOpacity onPress={() => console.log('Share pressed')}>
                                         <Ionicons name="share-social-outline" size={24} color="white" />
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
+
+                                    <SocialShare
+                                        title="Custom Share Title"
+                                        message="Check out this exciting cricket match on Cricdom! Watch live scores, make your picks, and play along!"
+                                        url="https://expo.dev/@alikamran07/cricdom"
+                                        color='white'
+                                        className=''
+                                    />
 
                                     <TouchableOpacity onPress={() => setShowSettings(true)}>
                                         <Ionicons name="settings-outline" size={24} color="white" />
@@ -574,7 +491,13 @@ export default function CreateMatch() {
                                                                     : "bg-gray-600"
                                                         }`}
                                                 >
-                                                    <Text className="text-white text-xs font-medium">{ball}</Text>
+                                                    <Text
+                                                        className="text-white text-xs font-medium"
+                                                        numberOfLines={1}
+                                                        ellipsizeMode="tail"
+                                                    >
+                                                        {ball}
+                                                    </Text>
                                                 </View>
                                             ))}
                                             {/* Empty balls */}

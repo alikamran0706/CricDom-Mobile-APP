@@ -92,7 +92,7 @@ const CommentsScreen = () => {
                         <View className="flex-row items-center">
                             <Text className="text-gray-500 text-sm mr-4">{item.timeAgo}</Text>
                             <TouchableOpacity className="mr-4">
-                                <Text className={`text-sm font-medium ${item.hasLiked ? "text-green-600" : "text-gray-600"}`}>
+                                <Text className={`text-sm font-medium ${item.hasLiked ? "text-[#0e7ccb]" : "text-gray-600"}`}>
                                     {item.hasLiked ? "Liked it" : "React"}
                                 </Text>
                             </TouchableOpacity>
@@ -102,7 +102,7 @@ const CommentsScreen = () => {
                             {item.likes > 0 && (
                                 <View className="flex-row items-center ml-4">
                                     <Text className="text-gray-600 text-sm mr-1">{item.likes}</Text>
-                                    <View className="w-5 h-5 bg-green-500 rounded-full items-center justify-center">
+                                    <View className="w-5 h-5 bg-[#0e7ccb] rounded-full items-center justify-center">
                                         <Ionicons name="thumbs-up" size={12} color="white" />
                                     </View>
                                 </View>
@@ -118,21 +118,21 @@ const CommentsScreen = () => {
     )
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
-            <View className="bg-red-600 px-4 py-3">
+            <View className="px-4 py-3">
                 <View className="flex-row items-center">
                     <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="white" />
+                        <Ionicons name="arrow-back" size={24} color="#3b3b3b" />
                     </TouchableOpacity>
-                    <Text className="text-xl font-bold text-white ml-4">Comments</Text>
+                    <Text className="text-xl font-bold text-black ml-4">Comments</Text>
                 </View>
             </View>
 
             {/* View Previous Comments */}
             <View className="px-4 py-3 bg-white border-b border-gray-200">
                 <TouchableOpacity>
-                    <Text className="text-green-600 font-semibold">View Previous comments</Text>
+                    <Text className="text-gray-700 font-semibold">View Previous comments</Text>
                 </TouchableOpacity>
             </View>
 
@@ -151,7 +151,7 @@ const CommentsScreen = () => {
                     {quickReactions.map((reaction) => (
                         <TouchableOpacity
                             key={reaction}
-                            className={`px-3 py-2 rounded-full mr-2 mb-2 ${selectedReaction === reaction ? "bg-green-500" : "bg-gray-200"
+                            className={`px-3 py-2 rounded-full mr-2 mb-2 ${selectedReaction === reaction ? "bg-[#0e7ccb]" : "bg-gray-200"
                                 }`}
                             onPress={() => setSelectedReaction(reaction)}
                         >
@@ -175,6 +175,7 @@ const CommentsScreen = () => {
                             <TextInput
                                 className="text-base text-gray-800"
                                 placeholder="Add a comment..."
+                                placeholderTextColor="#A0A0A0"
                                 value={newComment}
                                 onChangeText={setNewComment}
                                 multiline
@@ -183,7 +184,7 @@ const CommentsScreen = () => {
                         </View>
 
                         <TouchableOpacity
-                            className={`w-12 h-12 rounded-full items-center justify-center ${newComment.trim() ? "bg-green-500" : "bg-gray-300"
+                            className={`w-12 h-12 rounded-full items-center justify-center ${newComment.trim() ? "bg-[#0e7ccb]" : "bg-gray-300"
                                 }`}
                             onPress={addComment}
                             disabled={!newComment.trim()}

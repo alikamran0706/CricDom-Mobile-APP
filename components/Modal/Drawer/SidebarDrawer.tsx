@@ -1,8 +1,12 @@
+import { logout } from "@/store/features/user/userSlice"
 import { Ionicons } from "@expo/vector-icons"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { LinearGradient } from "expo-linear-gradient"
 import { useRouter } from "expo-router"
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { useEffect, useRef } from "react"
+import { Animated, Dimensions, Easing, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useDispatch } from "react-redux"
 
 interface MenuItem {
     id: string
@@ -17,8 +21,13 @@ interface SidebarDrawerProps {
     onClose: () => void
 }
 
+const SCREEN_WIDTH = Dimensions.get("window").width
+const DRAWER_WIDTH = 320
+
 const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
-    const router = useRouter()
+    const router = useRouter();
+    const dispatch = useDispatch();
+    const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current
 
     const userProfile = {
         name: "Ali Kamran",
@@ -29,13 +38,6 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
     }
 
     const menuItems: MenuItem[] = [
-        // {
-        //     id: "1",
-        //     title: "Subscribe PRO",
-        //     icon: "bar-chart",
-        //     badge: "PRO",
-        //     route: "/subscription",
-        // },
         {
             id: "2",
             title: "Add a Tournament",
@@ -45,17 +47,17 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
         },
         {
             id: "3",
-            title: "Start A Match",  
+            title: "Start A Match",
             icon: "play-circle",
             // badge: "FREE",
             route: "/create-match",
         },
-        {
-            id: "4",
-            title: "Go Live",
-            icon: "play",
-            route: "/go-live",
-        },
+        // {
+        //     id: "4",
+        //     title: "Go Live",
+        //     icon: "play",
+        //     route: "/go-live",
+        // },
         {
             id: "5",
             title: "My Cricket",
@@ -78,19 +80,13 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
             id: "8",
             title: "Team Leaderboard",
             icon: "trophy",
-            route: "/team-leaderboard",
+            route: "/player-leaderboard",
         },
         {
             id: "9",
             title: "CricDom Awards",
             icon: "medal",
             route: "/awards",
-        },
-        {
-            id: "10",
-            title: "Challenges",
-            icon: "target",
-            route: "/challenge",
         },
         {
             id: "11",
@@ -103,6 +99,36 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
             title: "Community",
             icon: "people",
             route: "/community",
+        },
+        {
+            id: "13",
+            title: "Edit Profile",
+            icon: "person",
+            route: "/edit-profile",
+        },
+        {
+            id: "14",
+            title: "Create/Update Player",
+            icon: "person",
+            route: "/create-player",
+        },
+        {
+            id: "15",
+            title: "Notifications",
+            icon: "notifications",
+            route: "/notifications",
+        },
+        {
+            id: "16",
+            title: "Settings",
+            icon: "settings",
+            route: "/settings",
+        },
+        {
+            id: "17",
+            title: "Help & Support",
+            icon: "help-circle",
+            route: "/support",
         },
     ]
 
@@ -122,15 +148,46 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
         }
     }
 
+    useEffect(() => {
+        if (isVisible) {
+            Animated.timing(slideAnim, {
+                toValue: SCREEN_WIDTH - DRAWER_WIDTH,
+                duration: 300,
+                useNativeDriver: false,
+                easing: Easing.out(Easing.ease),
+            }).start()
+        } else {
+            Animated.timing(slideAnim, {
+                toValue: SCREEN_WIDTH,
+                duration: 300,
+                useNativeDriver: false,
+                easing: Easing.in(Easing.ease),
+            }).start()
+        }
+    }, [isVisible]);
+
+    const handleLogout = async() => {
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('profile');
+        dispatch(logout())
+        router.replace("/auth/login")
+      }
+
     if (!isVisible) return null
 
     return (
-        <View className="absolute inset-0 z-50">
+        <View style={StyleSheet.absoluteFillObject}>
             {/* Overlay */}
-            <TouchableOpacity className="absolute inset-0 bg-black/50" onPress={onClose} />
+            {isVisible && (
+                <TouchableOpacity
+                    style={styles.overlay}
+                    activeOpacity={1}
+                    onPress={onClose}
+                />
+            )}
 
             {/* Sidebar */}
-            <View className="absolute right-0 top-0 bottom-0 w-80 bg-white">
+            <Animated.View style={[styles.drawer, { left: slideAnim }]}>
                 <SafeAreaView className="flex-1">
                     {/* Profile Section */}
                     <LinearGradient
@@ -139,9 +196,9 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
                         end={{ x: 1, y: 1 }}
                         className="px-4 py-6"
                     >
-                        <View className="absolute bg-gray-800/70 rounded-full top-10 p-1" style={{ left: -21 }}>
+                        <View className="absolute bg-white top-80 py-6 rounded-sm z-0" style={{ left: -8 }}>
                             <TouchableOpacity onPress={onClose}>
-                                <Ionicons name="chevron-forward" size={24} color="white" />
+                                <Ionicons name="chevron-forward" size={12} color="black" />
                             </TouchableOpacity>
                         </View>
                         <View className="flex-row items-center justify-between mb-4">
@@ -192,12 +249,35 @@ const SidebarDrawer = ({ isVisible, onClose }: SidebarDrawerProps) => {
                                     )}
                                 </TouchableOpacity>
                             ))}
+
+                            <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={handleLogout}>
+                                <View className="flex-row items-center">
+                                    <Ionicons name="log-out-outline" size={24} color="#EF4444" />
+                                    <Text className="text-lg ml-4 text-red-500">Logout</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </ScrollView>
                 </SafeAreaView>
-            </View>
+            </Animated.View>
         </View>
     )
 }
 
 export default SidebarDrawer
+
+const styles = StyleSheet.create({
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 1,
+    },
+    drawer: {
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        width: DRAWER_WIDTH,
+        backgroundColor: "white",
+        zIndex: 2,
+    },
+})

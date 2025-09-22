@@ -1,10 +1,11 @@
 "use client"
 
 import QRCodeModal from "@/components/Modal/QRCodeModal"
+import SocialShare from "@/components/SocialShare"
 import { getFullStrapiUrl } from "@/lib/utils/common"
 import type { RootState } from "@/store"
 import { useGetTeamQuery } from "@/store/features/team/teamApi"
-import { Feather, Ionicons } from "@expo/vector-icons"
+import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { useEffect, useLayoutEffect, useState } from "react"
 import {
@@ -12,11 +13,10 @@ import {
   Image,
   ImageBackground,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useSelector } from "react-redux"
@@ -350,31 +350,6 @@ export default function TeamDetailScreen() {
     }
   }
 
-  const handleShare = async () => {
-    try {
-      const result = await Share.share({
-        message: `Check out Cricdom! Play and follow cricket live. Download now:\n`,
-        url: 'https://alikamran07.github.io/cricdom',
-        title: 'Cricdom App',
-      });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // iOS-specific: shared with activity type
-          console.log('Shared with activity type:', result.activityType);
-        } else {
-          // Shared
-          console.log('Content shared!');
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // Dismissed
-        console.log('Share dismissed');
-      }
-    } catch (error: any) {
-      console.error('Error sharing content:', error.message);
-    }
-  };
-
   const toggleFollow = () => {
     setIsFollowing((prev) => !prev)
     // Optional: Trigger backend follow/unfollow API here
@@ -395,12 +370,11 @@ export default function TeamDetailScreen() {
 
           {/* Right-side Icons */}
           <View className="flex-row items-center space-x-4">
-            <TouchableOpacity
-              onPress={handleShare}
-              className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
-            >
-              <Feather name="share-2" size={20} color="#374151" />
-            </TouchableOpacity>
+            <SocialShare
+              title="Custom Share Title"
+              message="This is a custom share message for this screen!"
+              url="https://expo.dev/@alikamran07/cricdom"
+            />
 
             {/* QR Code Button */}
             <TouchableOpacity className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"

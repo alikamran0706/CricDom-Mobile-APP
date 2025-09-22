@@ -1,0 +1,32 @@
+export const umpires = [
+        {
+            id: "1",
+            name: "Wasim Akram",
+            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/umpires-bW6nI7nzjfYI351USeVweptTYbyhPS.jpeg",
+            matches: 4414,
+            points: 1126617,
+            dailyRate: 1200,
+            matchRate: 450,
+            rank: 1,
+        },
+        {
+            id: "2",
+            name: "Mohammed Jame...",
+            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/umpires-bW6nI7nzjfYI351USeVweptTYbyhPS.jpeg",
+            matches: 2714,
+            points: 639590,
+            dailyRate: 3000,
+            matchRate: 2000,
+            rank: 2,
+        },
+        {
+            id: "3",
+            name: "Shailesh Kumar",
+            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/umpires-bW6nI7nzjfYI351USeVweptTYbyhPS.jpeg",
+            matches: 2495,
+            points: 596646,
+            dailyRate: 2000,
+            matchRate: 700,
+            rank: 3,
+        },
+    ]

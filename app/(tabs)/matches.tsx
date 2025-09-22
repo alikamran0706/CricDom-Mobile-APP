@@ -1,3 +1,4 @@
+import Tabs from "@/components/ui/Tabs"
 import { useGetMatchesQuery } from "@/store/features/match/matchApi"
 import { Ionicons } from "@expo/vector-icons"
 import { router, useLocalSearchParams } from "expo-router"
@@ -62,18 +63,7 @@ export default function MatchesScreen() {
     }
   }, [params?.refetch]);
 
-  const TabButton = ({ tab, title }: { tab: TabType; title: string }) => (
-
-    <TouchableOpacity
-      key={tab}
-      className={`${activeTab === tab ? 'bg-[#4A90E2]' : 'bg-transparent'} px-[10px] py-[5px] mr-[8px] rounded-full`}
-      onPress={() => setActiveTab(tab)}
-    >
-      <Text
-        className={`${activeTab === tab ? 'text-white' : 'text-[#666]'} font-lg font-bold`}
-      >{title}</Text>
-    </TouchableOpacity>
-  )
+  const tabs = ['Upcoming', 'Past', 'Today'];
 
   const renderMatchItem = ({ item: match }: any) => {
     const tournamentName = match?.description || "Cricket Match";
@@ -212,7 +202,7 @@ export default function MatchesScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4">
+        <View className="flex-row items-center justify-between px-4 pt-4">
           <Text className="text-xl font-semibold text-black">Matches</Text>
           <TouchableOpacity className="w-8 h-8 items-center justify-center" onPress={() => router.push('/create-match')}>
             <Ionicons name="add" size={24} color="#000" />
@@ -220,14 +210,13 @@ export default function MatchesScreen() {
         </View>
 
         {/* Tabs */}
-        <View className="flex-row px-6 mt-2">
-          <TabButton tab="Upcoming" title="Upcoming" />
-          <TabButton tab="past" title="Past" />
-          <TabButton tab="today" title="Today" />
-        </View>
+        <Tabs
+          tabs={tabs}
+          activeTab='Upcoming'
+        />
 
         {/* Active Tab Content */}
-        <View className="px-4 py-6">
+        <View className="px-4 pb-6">
           <Text className="text-lg font-semibold capitalize text-black">{activeTab}</Text>
 
           {/* Match List */}
@@ -243,7 +232,7 @@ export default function MatchesScreen() {
             <FlatList
               data={filteredMatches}
               keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20 }}
+              contentContainerStyle={{ paddingVertical: 20 }}
               renderItem={renderMatchItem}
               onEndReached={loadMore}
               onEndReachedThreshold={0.5}

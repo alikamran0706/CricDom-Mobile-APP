@@ -180,28 +180,32 @@ const PowerPlayScreen = () => {
                     return (
                         <TouchableOpacity
                             key={over}
-                            className={`w-[11%] aspect-square items-center justify-center border border-gray-200 rounded-md ${
-                                isSelected
-                                    ? "bg-[#0e7ccb]"
-                                    : isDisabled
-                                    ? "bg-gray-200"
-                                    : "bg-white"
-                            }`}
+                            className={`
+                                w-[11%] aspect-square h-[11%]
+                                items-center justify-center
+                                border border-gray-200 rounded-md
+                                ${isSelected ? "bg-[#0e7ccb]" : isDisabled ? "bg-gray-200" : "bg-white"}
+                            `}
                             onPress={() => !isDisabled && toggleOverSelection(powerPlay, over)}
                             disabled={isDisabled}
                         >
                             <Text
-                                className={`font-semibold ${
-                                    isSelected
-                                        ? "text-white"
-                                        : isDisabled
-                                        ? "text-gray-400"
-                                        : "text-gray-800"
-                                }`}
+                                className={`
+                                    font-semibold text-base
+                                    ${isSelected ? "text-white" : isDisabled ? "text-gray-400" : "text-gray-800"}
+                                `}
+                                style={{
+                                    lineHeight: 24,
+                                    includeFontPadding: false,
+                                    textAlignVertical: 'center',
+                                }}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
                             >
                                 {over}
                             </Text>
                         </TouchableOpacity>
+
                     )
                 })}
             </View>
@@ -234,43 +238,45 @@ const PowerPlayScreen = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
-            {/* Header */}
-            <View className="px-4 py-3">
-                <View className="flex-row items-center">
-                    <TouchableOpacity onPress={() => router.back()} className="mr-4">
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold text-black">Select Power Play Overs</Text>
+            <View className="flex-1">
+                {/* Header */}
+                <View className="px-4 py-3">
+                    <View className="flex-row items-center">
+                        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+                            <Ionicons name="arrow-back" size={24} color="black" />
+                        </TouchableOpacity>
+                        <Text className="text-xl font-bold text-black">Select Power Play Overs</Text>
+                    </View>
                 </View>
+
+                <ScrollView className="flex-1 px-4"
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                >
+                    <View className="mb-8">
+                        <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 1</Text>
+                        {renderOversGrid("powerPlay1")}
+                    </View>
+
+                    <View className="mb-8">
+                        <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 2</Text>
+                        {renderOversGrid("powerPlay2")}
+                    </View>
+
+                    <View className="mb-8">
+                        <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 3</Text>
+                        {renderOversGrid("powerPlay3")}
+                    </View>
+
+                    <View className="mb-8">
+                        <Text className="text-sm text-gray-600 italic">
+                            *Batting power play overs can be selected later during scoring from the settings.
+                        </Text>
+                    </View>
+                </ScrollView>
+
+                {/* Done Button */}
+                <FloatingActionButton label="Done" onPress={handleDone} />
             </View>
-
-            <ScrollView className="flex-1 px-4"
-                contentContainerStyle={{ paddingBottom: 100 }}
-            >
-                <View className="mb-8">
-                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 1</Text>
-                    {renderOversGrid("powerPlay1")}
-                </View>
-
-                <View className="mb-8">
-                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 2</Text>
-                    {renderOversGrid("powerPlay2")}
-                </View>
-
-                <View className="mb-8">
-                    <Text className="text-md font-bold text-gray-800 mb-4">POWER PLAY 3</Text>
-                    {renderOversGrid("powerPlay3")}
-                </View>
-
-                <View className="mb-8">
-                    <Text className="text-sm text-gray-600 italic">
-                        *Batting power play overs can be selected later during scoring from the settings.
-                    </Text>
-                </View>
-            </ScrollView>
-
-            {/* Done Button */}
-            <FloatingActionButton label="Done" onPress={handleDone} />
         </SafeAreaView>
     )
 }

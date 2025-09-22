@@ -16,7 +16,7 @@ export default function NoBallComponent({ onNoBall }: NoBallComponentProps) {
   return (
     <View className="p-4">
       <View className="flex-row items-center justify-between mb-6">
-        <Text className="text-xl font-semibold text-gray-800">No Ball (NB=1)</Text>
+        <Text className="text-xl font-semibold text-gray-800">No Ball (NB=1)</Text> 
         <TouchableOpacity>
           <Ionicons name="settings-outline" size={24} color="#6b7280" />
         </TouchableOpacity>
@@ -28,17 +28,17 @@ export default function NoBallComponent({ onNoBall }: NoBallComponentProps) {
           <TouchableOpacity
             key={runs}
             onPress={() => handleNoBall(runs)}
-            className={`flex-1 min-w-[80px] py-4 rounded-lg border-2 items-center ${
-              runs === 1 ? "bg-emerald-500 border-emerald-500" : "border-emerald-500"
+            className={`flex-1 min-w-[80px] py-4 rounded-lg border items-center ${
+              runs === 1 ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-400"
             }`}
           >
-            <Text className={`text-base font-semibold ${runs === 1 ? "text-white" : "text-emerald-600"}`}>
+            <Text className={`text-base font-semibold ${runs === 1 ? "text-white" : "text-gray-500"}`}>
               NB + {runs}
             </Text>
           </TouchableOpacity>
         ))}
-        <TouchableOpacity className="flex-1 min-w-[80px] py-4 rounded-lg border-2 border-emerald-500 items-center">
-          <Text className="text-emerald-600 text-xl font-bold">+</Text>
+        <TouchableOpacity className="flex-1 min-w-[80px] py-4 rounded-lg border border-gray-400 items-center">
+          <Text className="text-gray-500 text-xl font-bold">+</Text>
         </TouchableOpacity>
       </View>
 
@@ -56,7 +56,7 @@ export default function NoBallComponent({ onNoBall }: NoBallComponentProps) {
           >
             <View
               className={`w-5 h-5 rounded-full border-2 mr-2 ${
-                selectedType === type.key ? "bg-emerald-500 border-emerald-500" : "border-gray-400"
+                selectedType === type.key ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-400"
               }`}
             />
             <Text className="text-gray-700">{type.label}</Text>

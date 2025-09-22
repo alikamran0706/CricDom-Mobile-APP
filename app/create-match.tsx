@@ -105,7 +105,7 @@ export default function CreateMatch() {
     });
 
     const loadMoreTeams = () => {
-        if (!isFetchingTeams && teamPage < teamsData.meta?.pageCount) 
+        if (!isFetchingTeams && teamPage < teamsData.meta?.pageCount)
             setTeamPage((prev) => prev + 1);
     };
     // Prepare dropdown options
@@ -411,8 +411,8 @@ export default function CreateMatch() {
                                             onPress={() => router.push('/power-play')}
                                         >
                                             <View className="flex-row items-center justify-center">
-                                                <Ionicons name="flash" size={20} color="#3b82f6" />
-                                                <Text className="text-blue-700 font-semibold ml-2">CONFIGURE POWER PLAY</Text>
+                                                <Ionicons name="flash" size={20} color="#0e7ccb" />
+                                                <Text className="text-[#0e7ccb] font-semibold ml-2">CONFIGURE POWER PLAY</Text>
                                             </View>
                                         </TouchableOpacity>
 
@@ -645,88 +645,86 @@ export default function CreateMatch() {
                                     ref={bottomSheetRef}
                                     onClose={closePerformanceForm}
                                 >
-                                    <View style={styles.sheetContent}> 
-                                        {activeTab === "league" && (
-                                            <>
-                                                <Text style={styles.sheetTitle}>Select League</Text>
-                                                <ScrollView className="max-h-80">
-                                                    {leagues.map((l: any) => {
-                                                        const isSelected = l.documentId === formData.league;
-                                                        return (
-                                                            <Pressable
-                                                                key={l.documentId}
-                                                                style={styles.leagueItem}
-                                                                onPress={() => {
-                                                                    updateForm("league")(l.documentId);
-                                                                    closeSheet();
-                                                                }}
-                                                            >
-                                                                <Text style={[
-                                                                    styles.leagueText,
-                                                                    isSelected && { color: '#0e7ccb', fontWeight: '600' }
-                                                                ]}>
-                                                                    {l.name}
-                                                                </Text>
+                                    {activeTab === "league" && (
+                                        <>
+                                            <Text style={styles.sheetTitle}>Select League</Text>
+                                            <ScrollView className="max-h-80">
+                                                {leagues.map((l: any) => {
+                                                    const isSelected = l.documentId === formData.league;
+                                                    return (
+                                                        <Pressable
+                                                            key={l.documentId}
+                                                            style={styles.leagueItem}
+                                                            onPress={() => {
+                                                                updateForm("league")(l.documentId);
+                                                                closeSheet();
+                                                            }}
+                                                        >
+                                                            <Text style={[
+                                                                styles.leagueText,
+                                                                isSelected && { color: '#0e7ccb', fontWeight: '600' }
+                                                            ]}>
+                                                                {l.name}
+                                                            </Text>
 
-                                                                {isSelected && (
-                                                                    <Ionicons name="checkmark" size={20} color="#0e7ccb" style={{ marginLeft: 'auto' }} />
-                                                                )}
-                                                            </Pressable>
-                                                        );
-                                                    })}
-                                                </ScrollView>
-                                            </>
-                                        )}
+                                                            {isSelected && (
+                                                                <Ionicons name="checkmark" size={20} color="#0e7ccb" style={{ marginLeft: 'auto' }} />
+                                                            )}
+                                                        </Pressable>
+                                                    );
+                                                })}
+                                            </ScrollView>
+                                        </>
+                                    )}
 
-                                        {activeTab === "location" && (
-                                            <>
-                                                <Text style={styles.sheetTitle}>Enter Location Manually</Text>
-                                                <View className="space-y-4">
-                                                    <Input
-                                                        label="Address"
-                                                        value={formData.location.address}
-                                                        onChangeText={(val) =>
-                                                            setFormData((prev) => ({
-                                                                ...prev,
-                                                                location: { ...prev.location, address: val },
-                                                            }))
-                                                        }
-                                                        placeholder="Enter address"
-                                                    />
-                                                    <Input
-                                                        label="Latitude"
-                                                        value={formData.location.latitude?.toString() || ""}
-                                                        onChangeText={(val) =>
-                                                            setFormData((prev) => ({
-                                                                ...prev,
-                                                                location: {
-                                                                    ...prev.location,
-                                                                    latitude: val ? parseFloat(val) : null,
-                                                                },
-                                                            }))
-                                                        }
-                                                        placeholder="Enter latitude"
-                                                        keyboardType="numeric"
-                                                    />
-                                                    <Input
-                                                        label="Longitude"
-                                                        value={formData.location.longitude?.toString() || ""}
-                                                        onChangeText={(val) =>
-                                                            setFormData((prev) => ({
-                                                                ...prev,
-                                                                location: {
-                                                                    ...prev.location,
-                                                                    longitude: val ? parseFloat(val) : null,
-                                                                },
-                                                            }))
-                                                        }
-                                                        placeholder="Enter longitude"
-                                                        keyboardType="numeric"
-                                                    />
-                                                </View>
-                                            </>
-                                        )}
-                                    </View>
+                                    {activeTab === "location" && (
+                                        <>
+                                            <Text style={styles.sheetTitle}>Enter Location Manually</Text>
+                                            <View className="space-y-4">
+                                                <Input
+                                                    label="Address"
+                                                    value={formData.location.address}
+                                                    onChangeText={(val) =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            location: { ...prev.location, address: val },
+                                                        }))
+                                                    }
+                                                    placeholder="Enter address"
+                                                />
+                                                <Input
+                                                    label="Latitude"
+                                                    value={formData.location.latitude?.toString() || ""}
+                                                    onChangeText={(val) =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            location: {
+                                                                ...prev.location,
+                                                                latitude: val ? parseFloat(val) : null,
+                                                            },
+                                                        }))
+                                                    }
+                                                    placeholder="Enter latitude"
+                                                    keyboardType="numeric"
+                                                />
+                                                <Input
+                                                    label="Longitude"
+                                                    value={formData.location.longitude?.toString() || ""}
+                                                    onChangeText={(val) =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            location: {
+                                                                ...prev.location,
+                                                                longitude: val ? parseFloat(val) : null,
+                                                            },
+                                                        }))
+                                                    }
+                                                    placeholder="Enter longitude"
+                                                    keyboardType="numeric"
+                                                />
+                                            </View>
+                                        </>
+                                    )}
                                 </BottomSheetWrapper>
 
                                 {showStartDatePicker && (

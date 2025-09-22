@@ -79,7 +79,7 @@ const SignupScreen: React.FC = () => {
                 dispatch(setToken(response.jwt));
                 dispatch(setProfile(response.user));
                 dispatch(showAlert({ type: 'success', message: 'Register successful!' }));
-                router.replace('/(tabs)');
+                router.replace('/register-player');
 
             }
         } catch (error: any) {

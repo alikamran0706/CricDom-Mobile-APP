@@ -43,7 +43,7 @@ const HeroSection = () => {
                 />
 
                 <Text className="text-4xl font-bold text-center">
-                    <Text className="text-black">Crick</Text>
+                    <Text className="text-black">Cric</Text>
                     <Text className="text-[#0e7ccb]">dom</Text>
                 </Text>
             </View>

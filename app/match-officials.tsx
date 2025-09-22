@@ -69,61 +69,63 @@ const MatchOfficialsScreen = () => {
     )
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
-            {/* Header */}
-            <View className="px-4 py-3">
-                <View className="flex-row items-center">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold text-black ml-4">Match Officials</Text>
+        <SafeAreaView className="flex-1 bg-white">
+            <View className="flex-1">
+                {/* Header */}
+                <View className="px-4 py-3">
+                    <View className="flex-row items-center">
+                        <TouchableOpacity onPress={() => router.back()}>
+                            <Ionicons name="arrow-back" size={24} color="black" />
+                        </TouchableOpacity>
+                        <Text className="text-xl font-bold text-black ml-4">Match Officials</Text>
+                    </View>
                 </View>
+
+                <ScrollView className="flex-1 px-4 py-6"
+                    contentContainerStyle={{ paddingBottom: 80 }}
+                >
+                    {/* Select Umpires */}
+                    <View className="mb-8">
+                        <Text className="lg font-bold text-gray-800 mb-6">Select Umpires</Text>
+                        <View className="flex-row">
+                            {renderOfficialSlot("", "1st", 'umpire')}
+                            {renderOfficialSlot("", "2nd", 'umpire')}
+                        </View>
+                    </View>
+
+                    {/* Select Scorers Section */}
+                    <View className="mb-8">
+                        <Text className="lg font-bold text-gray-800 mb-6">Select Scorers</Text>
+                        <View className="flex-row">
+                            {renderOfficialSlot("", "1st", "scorer")}
+                            {renderOfficialSlot("", "2nd", "scorer")}
+                        </View>
+                    </View>
+
+                    {/* Select Commentators Section */}
+                    <View className="mb-8">
+                        <Text className="lg font-bold text-gray-800 mb-6">Select Commentators</Text>
+                        <View className="flex-row">
+                            {renderOfficialSlot("", "1st", 'commentator')}
+                            {renderOfficialSlot("", "2nd", 'commentator')}
+                        </View>
+                    </View>
+
+                    {/* Others Section */}
+                    <View className="mb-8">
+                        <Text className="lg font-bold text-gray-800 mb-6">Others</Text>
+                        <View className="flex-row">
+                            {renderOfficialSlot("", "Match Referee", "referee")}
+                            {renderOfficialSlot("videocam", "Live Streamers")}
+                        </View>
+                    </View>
+                </ScrollView>
+
+                <FloatingActionButton
+                    label="Done"
+                    onPress={() => router.push("/toss")}
+                />
             </View>
-
-            <ScrollView className="flex-1 px-4 py-6"
-                contentContainerStyle={{ paddingBottom: 80 }}
-            >
-                {/* Select Umpires */}
-                <View className="mb-8">
-                    <Text className="lg font-bold text-gray-800 mb-6">Select Umpires</Text>
-                    <View className="flex-row">
-                        {renderOfficialSlot("", "1st", 'umpire')}
-                        {renderOfficialSlot("", "2nd", 'umpire')}
-                    </View>
-                </View>
-
-                {/* Select Scorers Section */}
-                <View className="mb-8">
-                    <Text className="lg font-bold text-gray-800 mb-6">Select Scorers</Text>
-                    <View className="flex-row">
-                        {renderOfficialSlot("", "1st", "scorer")}
-                        {renderOfficialSlot("", "2nd", "scorer")}
-                    </View>
-                </View>
-
-                {/* Select Commentators Section */}
-                <View className="mb-8">
-                    <Text className="lg font-bold text-gray-800 mb-6">Select Commentators</Text>
-                    <View className="flex-row">
-                        {renderOfficialSlot("", "1st", 'commentator')}
-                        {renderOfficialSlot("", "2nd", 'commentator')}
-                    </View>
-                </View>
-
-                {/* Others Section */}
-                <View className="mb-8">
-                    <Text className="lg font-bold text-gray-800 mb-6">Others</Text>
-                    <View className="flex-row">
-                        {renderOfficialSlot("", "Match Referee", "referee")}
-                        {renderOfficialSlot("videocam", "Live Streamers")}
-                    </View>
-                </View>
-            </ScrollView>
-
-            <FloatingActionButton
-                label="Done"
-                onPress={() => router.push("/toss")}
-            />
         </SafeAreaView>
     )
 }

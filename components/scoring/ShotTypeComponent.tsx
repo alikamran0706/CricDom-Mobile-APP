@@ -70,7 +70,7 @@ export default function ShotTypeComponent({ onShotType }: ShotTypeComponentProps
                     <Switch
                         value={shotSelectionEnabled}
                         onValueChange={setShotSelectionEnabled}
-                        trackColor={{ false: "#d1d5db", true: "#10b981" }}
+                        trackColor={{ false: "#d1d5db", true: "#0e7ccb" }}
                         thumbColor={shotSelectionEnabled ? "#ffffff" : "#f3f4f6"}
                     />
                 </View>

@@ -26,70 +26,70 @@ const CreateLookingOptionsScreen = () => {
             title: "TEAMS FOR MY TOURNAMENT",
             icon: "trophy",
             color: "#ec4899",
-            route: "/create-tournament",
+            route: "/looking-for-team-for-tournament",
         },
         {
             id: "2",
             title: "A TOURNAMENT TO PARTICIPATE",
             icon: "trophy",
             color: "#60a5fa",
-            route: "/find-tournament",
+            route: "/looking-for-tournament",
         },
         {
             id: "3",
             title: "AN OPPONENT TO PLAY A MATCH",
             icon: "people",
             color: "#f87171",
-            route: "/find-opponent",
+            route: "/looking-for-opponent",
         },
         {
             id: "4",
             title: "A TEAM TO JOIN AS A PLAYER",
             icon: "people",
             color: "#fbbf24",
-            route: "/join-team",
+            route: "/looking-for-team",
         },
         {
             id: "5",
             title: "A PLAYER TO JOIN MY TEAM",
             icon: "person-add",
             color: "#34d399",
-            route: "/find-player",
+            route: "/looking-for-player",
         },
         {
             id: "6",
             title: "A GROUND TO PLAY",
             icon: "location",
             color: "#a78bfa",
-            route: "/find-ground",
+            route: "/looking-for-ground",
         },
         {
             id: "7",
             title: "AN UMPIRE TO HIRE",
             icon: "person",
             color: "#4ade80",
-            route: "/hire-umpire",
+            route: "/looking-for-umpire",
         },
         {
             id: "8",
             title: "A SCORER TO HIRE",
             icon: "calculator",
             color: "#fb923c",
-            route: "/hire-scorer",
+            route: "/looking-for-scorer",
         },
         {
             id: "9",
             title: "A COMMENTATOR TO HIRE",
             icon: "mic",
             color: "#a855f7",
-            route: "/hire-commentator",
+            route: "/looking-for-commentator",
         },
         {
             id: "10",
             title: "A LIVE STREAMER",
             icon: "videocam",
             color: "#22d3ee",
-            route: "/hire-streamer",
+            route: "/looking-for-list",
         },
     ]
 
@@ -131,7 +131,7 @@ const CreateLookingOptionsScreen = () => {
             </View>
 
             {/* Options Grid */}
-            <ScrollView className="flex-1 px-2 py-6">
+            <ScrollView className="flex-1 px-2 py-6" contentContainerStyle={{ paddingBottom: 40 }}>
                 <View className="flex-row flex-wrap justify-between">{options.map(renderOptionCard)}</View>
             </ScrollView>
         </SafeAreaView>

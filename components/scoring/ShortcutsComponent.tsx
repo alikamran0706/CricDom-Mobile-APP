@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 
 interface ShortcutItem {
     id: string
     title: string
-    icon: keyof typeof Ionicons.glyphMap
+    icon?: keyof typeof Ionicons.glyphMap
+    image?: any
     onPress: () => void
 }
 
@@ -27,19 +28,19 @@ const ShortcutsComponent = ({ navigation }: any) => {
         {
             id: "3",
             title: "Change Scorer",
-            icon: "people-outline",
+            image: require("../../assets/images/scoring/replace scorer.png"),
             onPress: () => console.log("Change Scorer"),
         },
         {
             id: "4",
             title: "Change Squad",
-            icon: "swap-horizontal-outline",
+            image: require("../../assets/images/scoring/change player.png"),
             onPress: () => console.log("Change Squad"),
         },
         {
             id: "5",
             title: "Full Scorecard",
-            icon: "document-text-outline",
+            image: require("../../assets/images/score.png"),
             onPress: () => console.log("Full Scorecard"),
         },
         {
@@ -51,7 +52,7 @@ const ShortcutsComponent = ({ navigation }: any) => {
         {
             id: "7",
             title: "Replace Batters",
-            icon: "refresh-outline",
+            image: require("../../assets/images/scoring/change player.png"),
             onPress: () => console.log("Replace Batters"),
         },
         {
@@ -69,19 +70,19 @@ const ShortcutsComponent = ({ navigation }: any) => {
         {
             id: "12",
             title: "Match Breaks",
-            icon: "pause-outline",
+            image: require("../../assets/images/scoring/coffe-break.png"),
             onPress: () => console.log("Match Breaks"),
         },
         {
             id: "13",
             title: "Power Play",
-            icon: "flash-outline",
+            image: require("../../assets/images/scoring/power play.png"),
             onPress: () => console.log("Power Play"),
         },
         {
             id: "15",
             title: "Change Bowler",
-            icon: "refresh-outline",
+            image: require("../../assets/images/scoring/replace bowler.png"),
             onPress: () => console.log("Change Bowler"),
         },
     ]
@@ -93,7 +94,22 @@ const ShortcutsComponent = ({ navigation }: any) => {
             onPress={item.onPress}
             activeOpacity={0.7}
         >
-            <Ionicons name={item.icon} size={24} color="#6B7280" />
+            {
+                item.icon ?
+                    <Ionicons name={item.icon} size={24} color="#6B7280" />
+                    :
+                    <View className="w-16 h-16 items-center justify-center mb-2">
+                        <Image
+                            source={item.image}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                tintColor: '#6b7280',
+                                resizeMode: 'contain',
+                            }}
+                        />
+                    </View>
+            }
             <Text className="text-sm text-gray-700 text-center font-medium leading-tight">{item.title}</Text>
         </TouchableOpacity>
     )

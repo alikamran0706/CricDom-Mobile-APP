@@ -1,0 +1,69 @@
+import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
+import React from 'react'
+import { Text, TouchableOpacity, View } from 'react-native'
+
+const upcomingActivities = [
+    { id: "1", title: "Leagues", icon: "calendar", color: "#DBEAFE" },
+    { id: "3", title: "Matches", icon: "trophy", color: "#DBEAFE" },
+    { id: "2", title: "Teams", icon: "checkmark-circle", color: "#DBEAFE" },
+    { id: "4", title: "Innings", icon: "trending-up", color: "#DBEAFE" },
+]
+
+const MoreComponentsBelow = () => {
+    const router = useRouter();
+
+    return (
+        <View className="px-4">
+            {/* Today's Matches */}
+            <View className="mb-6">
+                <Text className="text-lg font-semibold mb-4 text-black">Live Matches</Text>
+                <View className="bg-blue-50 rounded-lg p-4">
+                    <View className="flex-row justify-between items-center">
+                        <View>
+                            <Text className="font-semibold text-gray-800">Team A vs Team B</Text>
+                            <Text className="text-gray-600 text-sm">Score: 158/3</Text>
+                        </View>
+                        <TouchableOpacity className="bg-white rounded-lg px-4 py-2" onPress={() => router.push(`/match/1`)}>
+                            <Text className="text-[#0e7ccb] font-medium">View</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
+            {/* Upcoming Activities */}
+            <View className="mb-6">
+                <Text className="text-lg font-semibold mb-4 text-black">My Activities</Text>
+                <View className="flex-row flex-wrap justify-between">
+                    {upcomingActivities.map((activity) => (
+                        <TouchableOpacity
+                            key={activity.id}
+                            className="w-[48%] rounded-lg p-4 mb-3 items-center"
+                            style={{ backgroundColor: activity.color }}
+                        >
+                            <Ionicons name={activity.icon as any} size={32} color="#0e7ccb" />
+                            <Text className="text-[#0e7ccb] font-medium mt-2">{activity.title}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            {/* Recent Activity */}
+            <View className="mb-6">
+                <Text className="text-lg font-semibold mb-3 text-black">Recent Activity</Text>
+                <View className="gap-y-3">
+                    <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
+                        <Text className="font-medium text-black">Team Titans vs Warriors</Text>
+                        <Text className="text-gray-600 text-sm">Match scheduled for tomorrow</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
+                        <Text className="font-medium text-black">New player added to Strikers</Text>
+                        <Text className="text-gray-600 text-sm">John Doe joined the team</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    )
+}
+
+export default MoreComponentsBelow

@@ -107,7 +107,7 @@ const LookingForListScreen = () => {
                         <Text className="text-gray-500 text-sm ml-1">{item.distance}</Text>
                     </View>
                 </View>
-                <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-full">
+                <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-full" onPress={() => router.push('/message')}>
                     <Text className="text-white font-semibold text-sm">CONTACT</Text>
                 </TouchableOpacity>
             </View>
@@ -127,10 +127,10 @@ const LookingForListScreen = () => {
                         <TouchableOpacity className="mr-4">
                             {/* <Ionicons name="target" size={24} color="white" /> */}
                         </TouchableOpacity>
-                        <TouchableOpacity className="mr-4">
+                        <TouchableOpacity className="mr-4" onPress={() => router.push('/direct-messages')}>
                             <Ionicons name="chatbubbles" size={24} color="black" />
                         </TouchableOpacity>
-                        <TouchableOpacity className="relative">
+                        <TouchableOpacity className="relative" onPress={() => router.push('/filters')}>
                             <Ionicons name="funnel" size={24} color="black" />
                             <View className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full items-center justify-center">
                                 <Text className="text-xs font-bold text-gray-800">1</Text>

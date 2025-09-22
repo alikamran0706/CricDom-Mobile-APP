@@ -1,5 +1,5 @@
-"use client"
-
+import Header from "@/components/community/Header"
+import FloatingActionButton from "@/components/ui/FloatingActionButton"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect } from "react"
@@ -60,25 +60,28 @@ const PersonalCoachingScreen = () => {
 
     const renderCoachCard = ({ item }: { item: Coach }) => (
         <TouchableOpacity
-            className="bg-white rounded-2xl p-4 mb-4 mx-4 shadow-sm border border-gray-100"
-        //   onPress={() => router.push(`/coach/${item.id}`)}
+            key={item.id}
+            className="bg-white flex-row items-center p-4 m-2 rounded-xl"
+            style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+            }}
         >
-            <View className="flex-row items-center">
-                <Image source={{ uri: item.image }} className="w-16 h-16 rounded-2xl mr-4" />
-
-                <View className="flex-1">
-                    <Text className="text-lg font-bold text-gray-800 mb-1">{item.name}</Text>
-                    <Text className="text-sm text-gray-600 mb-3">{item.location}</Text>
-                </View>
+            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300">
+                <Image source={{ uri: item.image }} className="w-[100%] h-[100%]" />
             </View>
-
-            <View className="flex-row justify-between items-center mt-3 pt-3 border-t border-gray-100">
-                <View className="flex-row items-center">
-                    <View className="bg-orange-100 px-3 py-1 rounded-full mr-3">
-                        <Text className="text-orange-600 font-semibold">{item.rating}/5</Text>
-                    </View>
-                    <Text className="text-gray-600">{item.reviewCount} Review(s)</Text>
+            <View className="flex-1">
+                <Text className="text-gray-800 text-lg font-bold mb-1">{item.name}</Text>
+                <Text className="text-gray-600 text-sm">{item.location}</Text>
+            </View>
+            <View className="items-end">
+                <View className="bg-[#0e7ccb] px-3 py-1 rounded-full mb-1">
+                    <Text className="text-white text-xs font-bold">{item.rating}/5</Text>
                 </View>
+                <Text className="text-gray-600 text-xs">{item.reviewCount} Review(s)</Text>
             </View>
         </TouchableOpacity>
     )
@@ -86,41 +89,15 @@ const PersonalCoachingScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             {/* Header */}
-            <View className="bg-red-600 px-4 py-3">
-                <View className="flex-row items-center justify-between">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="white" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold text-white">Community</Text>
-                    <View className="flex-row">
-                        <TouchableOpacity className="mr-4">
-                            <Ionicons name="search" size={24} color="white" />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Ionicons name="funnel" size={24} color="white" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-
-            {/* Section Header */}
-            <View className="bg-white px-4 py-4 border-b border-gray-200">
-                <View className="flex-row items-center justify-between">
-                    <Text className="text-xl font-bold text-gray-800">Personal Coaching</Text>
-                    <TouchableOpacity className="bg-red-600 px-4 py-2 rounded-full">
-                        <View className="flex-row items-center">
-                            <Ionicons name="add" size={16} color="white" />
-                            <Text className="text-white font-semibold ml-1">Register</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <Header
+                heading={`Personal Coaching`}
+            />
 
             {/* Location Filter */}
             <View className="bg-white px-4 py-3 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                     <Text className="text-base text-gray-600">
-                        Nearby <Text className="text-green-600 font-semibold">All Locations</Text>
+                        Nearby <Text className="text-[#0e7ccb] font-semibold">All Locations</Text>
                     </Text>
                     <View className="flex-row items-center">
                         <Ionicons name="swap-vertical" size={20} color="#666" />
@@ -136,6 +113,12 @@ const PersonalCoachingScreen = () => {
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingVertical: 8 }}
+            />
+
+            {/* Bottom Buttons */}
+            <FloatingActionButton
+                label="REGISTER"
+                onPress={() => router.push('/create-ground')}
             />
         </SafeAreaView>
     )

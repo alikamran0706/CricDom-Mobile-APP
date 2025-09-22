@@ -1,245 +1,181 @@
-import AvatarImage from "@/components/AvatarImage";
+import MoreComponentsBelow from "@/components/home/MoreComponentsBelow";
+import OtherComponentsAbove from "@/components/home/OtherComponentsAbove";
 import SidebarDrawer from "@/components/Modal/Drawer/SidebarDrawer";
+import SocialShare from "@/components/SocialShare";
 import { useSidebar } from "@/hooks/useSidebar";
-import { RootState } from "@/store";
-import { useGetTeamsQuery } from "@/store/features/team/teamApi";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { ActivityIndicator, Image, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
 
 const logo = require('../../assets/images/logo.png');
 
-const upcomingActivities = [
-  { id: "1", title: "Leagues", icon: "calendar", color: "#DBEAFE" },
-  { id: "3", title: "Matches", icon: "trophy", color: "#DBEAFE" },
-  { id: "2", title: "Teams", icon: "checkmark-circle", color: "#DBEAFE" },
-  { id: "4", title: "Innings", icon: "trending-up", color: "#DBEAFE" },
-]
-
-const recentMatches = [
-  {
-    id: "1",
-    title: "County Championship: Day 3",
-    subtitle: "Highlights",
-    description: "Watch the key moments from yesterday's matches.",
-    image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500&auto=format&fit=crop&q=60",
-    backgroundColor: "#F3F4F6"
-  },
-  {
-    id: "2",
-    title: "T20 Blast: Match",
-    subtitle: "Get ready for tonight!",
-    description: "Clash.",
-    image: "https://images.unsplash.com/photo-1593766827228-8737b4534aa6?w=500&auto=format&fit=crop&q=60",
-    backgroundColor: "#F3F4F6"
-  }
-]
+interface Post {
+  id: string
+  content: string
+  author: string
+  timestamp: string
+  reactions: number
+  comments: number
+  image?: string
+  quickReactions: string[]
+}
 
 export default function HomeScreen() {
   const router = useRouter();
-  const user = useSelector((state: RootState) => state.user.profile);
   const { toggleSidebar, isVisible, closeSidebar } = useSidebar()
-  const { data, isLoading, isFetching, isError, refetch } = useGetTeamsQuery({
-    page: 1,
-    pageSize: 5,
-    ownerId: user?.documentId,
-  });
 
-  const teams = data?.data || [];
-  const teamsPagination = data?.meta?.pagination;
+
+  const renderPost = ({ item }: { item: Post }) => (
+    <View className="bg-white mb-4 shadow-sm">
+      {/* Post Image */}
+      {item.image && (
+        <View className="relative">
+          <Image source={{ uri: item.image }} className="w-full h-64" />
+          <View className="absolute inset-0 bg-black/30" />
+          <View className="absolute bottom-4 left-4 right-4">
+            <Text className="text-white text-xl font-bold mb-2">{item.content}</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Post Footer */}
+      <View className="p-4">
+        <View className="flex-row items-center mb-3">
+          <View className="items-center justify-center">
+            <Image
+              source={logo}
+              style={{ width: 25, height: 25, resizeMode: 'contain' }}
+            />
+          </View>
+          <Text className="font-semibold text-gray-800">{item.author}</Text>
+        </View>
+
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-gray-500 text-sm">{item.timestamp}</Text>
+          <Text className="text-gray-500 text-sm">{item.comments} comments</Text>
+        </View>
+
+        <View className="flex-row items-center mb-4">
+          <View className="w-6 h-6 bg-green-500 rounded-full items-center justify-center mr-2">
+            <Ionicons name="thumbs-up" size={12} color="white" />
+          </View>
+          <Text className="text-gray-600 text-sm">{item.reactions} reactions</Text>
+        </View>
+
+        {/* Action Buttons */}
+        <View className="flex-row justify-around border-t border-gray-200 pt-4 mb-4">
+          <TouchableOpacity className="flex-row items-center">
+            <Ionicons name="thumbs-up-outline" size={20} color="#666" />
+            <Text className="text-gray-600 ml-2">React</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center"
+            onPress={() => router.push("/comments")}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color="#666" />
+            <Text className="text-gray-600 ml-2">Comment</Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity className="flex-row items-center">
+            <Ionicons name="share-outline" size={20} color="#666" />
+            <Text className="text-gray-600 ml-2">Share</Text>
+          </TouchableOpacity> */}
+
+          <SocialShare
+            title="Custom Share Title"
+            message="Share Post"
+            url="https://expo.dev/@alikamran07/cricdom"
+            color='#666'
+            text='Share'
+            className='flex-row items-center gap-x-2'
+          />
+        </View>
+
+        {/* Quick Reactions */}
+        <View className="flex-row flex-wrap mb-4">
+          {item.quickReactions.map((reaction) => (
+            <TouchableOpacity key={reaction} className="bg-gray-100 px-3 py-2 rounded-full mr-2 mb-2">
+              <Text className="text-gray-700 text-sm">{reaction}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Sample Comment */}
+        <View className="flex-row items-start">
+          <Image
+            source={{
+              uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60",
+            }}
+            className="w-8 h-8 rounded-full mr-3"
+          />
+          <View className="flex-1">
+            <Text className="font-semibold text-gray-800 mb-1">Md Asif Alam</Text>
+            <Text className="text-gray-700">Straight drive 💯</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  )
+
+  const posts: Post[] = [
+    {
+      id: "1",
+      content:
+        "You've got a juicy half-volley... Are you guiding it with the field, or going big on your favourite side?",
+      author: "cricdom",
+      timestamp: "28-08-2025 01:00 PM",
+      reactions: 47,
+      comments: 62,
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&auto=format&fit=crop&q=60",
+      quickReactions: ["Straight drive 💯", "Loft it", "Leg side any day 😎", "Deep"],
+    },
+  ]
 
   return (
     <>
       <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <SafeAreaView className="flex-1 bg-white">
-        <ScrollView className="flex-1 px-4" nestedScrollEnabled={true}>
-          {/* Header */}
-          <View className="flex-row justify-between items-center py-4">
-            <View>
-              <Image
-                source={logo}
-                style={{ width: 40, height: 40, resizeMode: 'contain' }}
-              />
-            </View>
-            <TouchableOpacity onPress={toggleSidebar}>
-              <Image source={{ uri: "https://images.unsplash.com/photo-1593766827228-8737b4534aa6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldGVyfGVufDB8fDB8fHwy" }} className="w-10 h-10 rounded-full" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Recent Match */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold mb-4 text-black">Recent Match</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-              {recentMatches.map((match) => (
-                <TouchableOpacity
-                  key={match.id}
-                  className="w-64 rounded-xl p-4 mr-4"
-                  style={{ backgroundColor: match.backgroundColor }}
-                  onPress={() => router.push(`/match/${match.id}`)}
-                >
-                  <Image
-                    source={{ uri: match.image }}
-                    className="w-full h-32 rounded-lg mb-3"
-                    resizeMode="cover"
-                  />
-                  <View>
-                    <Text className="text-gray-800 font-bold text-base mb-1">
-                      {match.title}
-                    </Text>
-                    <Text className="text-gray-800 font-semibold text-sm mb-1">
-                      {match.subtitle}
-                    </Text>
-                    <Text className="text-gray-600 text-sm">
-                      {match.description}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Your Teams */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold mb-4 text-black">Your Teams</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingRight: 16 }}
-            >
-
-
-              {
-                isLoading ?
-                  <View style={{ alignItems: 'flex-start' }}>
-                    <ActivityIndicator size="large" color="#000" />
-                  </View>
-                  :
-                  <View className="flex-row gap-x-3">
-                    {teams?.map((team: any) => (
-                      <TouchableOpacity
-                        key={team.id}
-                        className="items-center justify-center"
-                        onPress={() => (router.push(`/team/${team.documentId}`))}
-                      >
-                        {/* {team.isAdd ? (
-                        <Ionicons name="add" size={24} color="#3B82F6" />
-                      ) : team.count ? (
-                        <Text className="text-white font-bold text-lg">{team.count}</Text>
-                      ) : null} */}
-
-                        {
-                          team?.image?.formats?.thumbnail?.url ? (
-                            <AvatarImage
-                              uri={team?.image?.formats?.thumbnail?.url}
-                              size={62}
-                              // borderRadius={8}
-                              // rounded={false}
-                              extraStyle={{ marginRight: 12, }}
-                            />
-                          )
-                            :
-                            <View
-                              className="w-16 h-16 rounded-full items-center justify-center mr-4"
-                              style={{ backgroundColor: "#000" }}
-                            >
-                              <Ionicons name="people" size={24} color="white" />
-                            </View>
-                        }
-                      </TouchableOpacity>
-                    ))}
-
-                    <TouchableOpacity
-                      className="w-16 h-16 rounded-full items-center justify-center"
-                      style={{ backgroundColor: '#DBEAFE' }}
-                      onPress={() => (router.push("/create-team"))}
-                    >
-                      <Ionicons name="add" size={24} color="#3B82F6" />
-                    </TouchableOpacity>
-                  </View>
-              }
-            </ScrollView>
-          </View>
-
-
-          {/* Manage Players Card */}
-          <TouchableOpacity className="bg-blue-50 rounded-lg p-4 mb-6" onPress={() => router.push("/create-inning")}>
-            <View className="flex-row items-center mb-2">
-              <Ionicons name="people" size={20} color="#0e7ccb" />
-              <Text className="text-[#0e7ccb] font-semibold ml-2">Create inning</Text>
-            </View>
-            <Text className="text-gray-600 text-sm mb-3">Track team performance easily!</Text>
-          </TouchableOpacity>
-
-          {/* Today's Matches */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold mb-4 text-black">Live Matches</Text>
-            <View className="bg-blue-50 rounded-lg p-4">
-              <View className="flex-row justify-between items-center">
-                <View>
-                  <Text className="font-semibold text-gray-800">Team A vs Team B</Text>
-                  <Text className="text-gray-600 text-sm">Score: 158/3</Text>
-                </View>
-                <TouchableOpacity className="bg-white rounded-lg px-4 py-2" onPress={() => router.push(`/match/1`)}>
-                  <Text className="text-[#0e7ccb] font-medium">View</Text>
-                </TouchableOpacity>
+        {/* Header */}
+        <View className="px-4 py-3">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <View>
+                <Image
+                  source={logo}
+                  style={{ width: 40, height: 40, resizeMode: 'contain' }}
+                />
               </View>
             </View>
-          </View>
-
-          {/* Upcoming Activities */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold mb-4 text-black">My Activities</Text>
-            <View className="flex-row flex-wrap justify-between">
-              {upcomingActivities.map((activity) => (
-                <TouchableOpacity
-                  key={activity.id}
-                  className="w-[48%] rounded-lg p-4 mb-3 items-center"
-                  style={{ backgroundColor: activity.color }}
-                >
-                  <Ionicons name={activity.icon as any} size={32} color="#0e7ccb" />
-                  <Text className="text-[#0e7ccb] font-medium mt-2">{activity.title}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Quick Stats */}
-          <View className="bg-gray-50 rounded-lg mb-6 px-2">
-            <Text className="text-lg font-semibold mb-3 text-black">Quick Stats</Text>
-            <View className="flex-row justify-between">
-              <View className="items-center">
-                <Text className="text-2xl font-bold text-[#0e7ccb]">{teamsPagination?.total}</Text>
-                <Text className="text-gray-600">Teams</Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-2xl font-bold text-green-600">38</Text>
-                <Text className="text-gray-600">Leagues</Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-2xl font-bold text-orange-600">12</Text>
-                <Text className="text-gray-600">Matches</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Recent Activity */}
-          <View className="mb-6">
-            <Text className="text-lg font-semibold mb-3 text-black">Recent Activity</Text>
-            <View className="gap-y-3">
-              <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
-                <Text className="font-medium text-black">Team Titans vs Warriors</Text>
-                <Text className="text-gray-600 text-sm">Match scheduled for tomorrow</Text>
+            <View className="flex-row">
+              <TouchableOpacity className="mr-4" onPress={() => router.push(`/search`)}>
+                <Ionicons name="search" size={24} color="#3b3b3b" />
               </TouchableOpacity>
-              <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
-                <Text className="font-medium text-black">New player added to Strikers</Text>
-                <Text className="text-gray-600 text-sm">John Doe joined the team</Text>
+              <TouchableOpacity className="mr-4" onPress={() => router.push(`/direct-messages`)}>
+                <Ionicons name="chatbubbles" size={24} color="#3b3b3b" />
+              </TouchableOpacity>
+              <TouchableOpacity className="mr-4" onPress={() => router.push("/notifications")}>
+                <Ionicons name="notifications" size={24} color="#3b3b3b" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={toggleSidebar}>
+                <Ionicons name="menu" size={24} color="#3b3b3b" />
               </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
+        </View>
+
+
+        <FlatList
+          data={posts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={() => (
+            <OtherComponentsAbove />
+          )}
+          ListFooterComponent={() => (
+            <MoreComponentsBelow />
+          )}
+        />
+
       </SafeAreaView>
     </>
   )

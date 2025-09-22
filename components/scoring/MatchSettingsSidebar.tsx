@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
 import React, { useEffect, useRef, useState } from "react"
 import {
-    Animated,
-    Dimensions,
-    Easing,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  Easing,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
@@ -23,7 +23,7 @@ const DRAWER_WIDTH = 320
 
 const MatchSettingsSidebar = ({ isVisible, onClose }: MatchSettingsSidebarProps) => {
   const router = useRouter()
-  const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current // starts off-screen
+  const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current 
 
   const [expandedSections, setExpandedSections] = useState({
     match: true,
