@@ -24,7 +24,6 @@ export default function QRFromGallery() {
       // This part requires a workaround in React Native (see note below 👇)
 
     } catch (error) {
-      console.error('Error picking image:', error);
     }
   };
 

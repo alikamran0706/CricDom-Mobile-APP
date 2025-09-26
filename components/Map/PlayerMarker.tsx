@@ -28,7 +28,6 @@ const PlayerMarker = React.memo(({ player, onPress }: { player: Player, onPress:
                     resizeMode="contain"
                     onLoad={() => setImageLoaded(true)}
                     onError={() => {
-                        console.log(`Image failed to load for ${player.type}`)
                         setImageError(true)
                     }}
                 />

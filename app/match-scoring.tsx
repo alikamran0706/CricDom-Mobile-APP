@@ -122,7 +122,6 @@ export default function MatchScoring() {
         visible={showChangePlayerModal}
         onClose={() => setShowChangePlayerModal(false)}
         onAddPlayers={(player: any) => {
-          console.log("Selected player:", player)
         }}
       />
     </SafeAreaView>

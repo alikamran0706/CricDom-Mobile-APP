@@ -26,7 +26,6 @@ export default function StartInningsScreen() {
     };
 
     const handleStartScoring = () => {
-        console.log('hellooooo')
         if ((player !== undefined && player !== null) && selectedNonStriker && selectedBowler) {
             router.push("/scoring")
         }

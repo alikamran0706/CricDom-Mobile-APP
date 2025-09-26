@@ -49,7 +49,6 @@ const TossScreen = () => {
                 setTeamB(parsedTeamB)
             }
         } catch (error) {
-            console.log("Error parsing team data, using defaults:", error)
             // Keep default teams if parsing fails
         }
     }, [params]);

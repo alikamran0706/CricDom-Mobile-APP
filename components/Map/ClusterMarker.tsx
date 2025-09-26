@@ -16,12 +16,10 @@ const ClusterMarker = React.memo(({ cluster, onPress }: any) => {
   }, [cluster_id])
 
   const handleImageError = () => {
-    console.log("Cluster marker image failed to load, using fallback")
     setImageError(true)
   }
 
   const handleImageLoad = () => {
-    console.log("Cluster marker image loaded successfully")
     setImageLoaded(true)
   }
 

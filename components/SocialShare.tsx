@@ -20,25 +20,19 @@ const SocialShare: React.FC<SocialShareProps> = ({
   text = ''
 }) => {
   const handleShare = async () => {
-    console.log(Share,'ShareShareShareShare')
     try {
       const result = await Share.share({
         title,
         message: `${message}\n${url}`,
         url,
       });
- console.log(result,'resultresultresultresult')
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log('Shared with activity type:', result.activityType);
         } else {
-          console.log('Content shared!');
         }
       } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
       }
     } catch (error: any) {
-      console.error('Error sharing content:', error.message);
     }
   };
 

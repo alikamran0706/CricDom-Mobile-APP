@@ -38,7 +38,6 @@ export default function LeagueDetailScreen() {
     }
 
     const leagueData = league?.data;
-    console.log(league?.data, 'leagueData')
     if (!leagueData) return null;
 
     return (

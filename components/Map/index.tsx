@@ -59,7 +59,6 @@ export default function Map({ data, searchTerm }: any) {
 
             setClusters(newClusters)
         } catch (error) {
-            console.log("Clustering error:", error)
         }
     }, [region])
 
@@ -114,8 +113,6 @@ export default function Map({ data, searchTerm }: any) {
                     latitudeDelta: region.latitudeDelta / 4, // Zoom in more aggressively
                     longitudeDelta: region.longitudeDelta / 4,
                 }
-
-                console.log(`Zooming to cluster at zoom ${expansionZoom}`)
                 mapRef.current.animateToRegion(newRegion, 500)
             }
         },

@@ -61,10 +61,8 @@ const moveDirectories = async (userInput) => {
           await fs.promises.rename(oldDirPath, newDirPath);
         } else {
           await fs.promises.rm(oldDirPath, { recursive: true, force: true });
-          console.log(`❌ /${dir} deleted.`);
         }
       } else {
-        console.log(`➡️ /${dir} does not exist, skipping.`);
       }
     }
 
@@ -76,12 +74,10 @@ const moveDirectories = async (userInput) => {
     // Create index.tsx
     const indexPath = path.join(newAppDirPath, "index.tsx");
     await fs.promises.writeFile(indexPath, indexContent);
-    console.log("📄 app/index.tsx created.");
 
     // Create _layout.tsx
     const layoutPath = path.join(newAppDirPath, "_layout.tsx");
     await fs.promises.writeFile(layoutPath, layoutContent);
-    console.log("📄 app/_layout.tsx created.");
 
     console.log("\n✅ Project reset complete. Next steps:");
     console.log(

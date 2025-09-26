@@ -123,7 +123,6 @@ export default function CreateMatch() {
         // setTimeout(() => {
         //     bottomSheetRef.current?.open();
         // }, 50);
-        console.log("openBottomSheet", tab)
         setActiveTab(tab)
     }
 
@@ -375,7 +374,6 @@ export default function CreateMatch() {
                                         key={run}
                                         onPress={() => {
                                             handleRunScored(run)
-                                            console.log('dddddd')
                                             if (run > 0)
                                                 openBottomSheet("shottype")
                                         }}

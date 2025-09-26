@@ -6,7 +6,6 @@ const PlayerModal = ({ modalVisible, closeModal, selectedPlayer, playerTypeConfi
 
     const challengePlayer = useCallback(() => {
         if (selectedPlayer) {
-            console.log(`Challenging ${selectedPlayer.name}`)
             closeModal()
         }
     }, [selectedPlayer, closeModal])

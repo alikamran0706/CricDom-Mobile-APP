@@ -40,12 +40,9 @@ const QRCodeModal = ({
             });
 
             if (result.action === Share.sharedAction) {
-                console.log("Content shared!");
             } else if (result.action === Share.dismissedAction) {
-                console.log("Share dismissed");
             }
         } catch (error) {
-            console.error("Error sharing:", error);
         }
     };
 
@@ -67,7 +64,6 @@ const QRCodeModal = ({
 
             // Alert.alert("Success", "QR Code saved to gallery.");
         } catch (error) {
-            console.error("Error saving image:", error);
             Alert.alert("Error", "Failed to save QR Code.");
         }
     };
@@ -75,7 +71,6 @@ const QRCodeModal = ({
 
     const handleShare = () => {
         // Implement share functionality
-        console.log("Share QR code")
     }
 
     return (
