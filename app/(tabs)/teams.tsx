@@ -77,7 +77,7 @@ export default function TeamsScreen() {
               size={42}
               borderRadius={8}
               rounded={false}
-              extraStyle={{marginRight: 12,}}
+              extraStyle={{ marginRight: 12, }}
             />
           )
             :
@@ -102,11 +102,10 @@ export default function TeamsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-xl font-semibold ml-4 text-black">Teams</Text>
+      <View className="px-4 py-3">
+        <View className="flex-row items-center justify-center">
+          <Text className="text-xl font-bold text-black">Teams</Text>
+        </View>
       </View>
 
       {/* Search */}
@@ -129,7 +128,7 @@ export default function TeamsScreen() {
       </View>
 
       {/* List */}
-      <View style={{paddingBottom: 200}}>
+      <View style={{ paddingBottom: 200 }}>
 
         {isLoading && page === 1 ? (
           <View className="flex-1 items-center justify-center py-6">

@@ -14,7 +14,7 @@ const CardWithRating = ({id, title, subTitle, image, rating, reviews}: any) => {
                 elevation: 3,
             }}
         >
-            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300">
+            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300 overflow-hidden">
                 <Image source={{ uri: image }} className="w-[100%] h-[100%]" />
             </View>
             <View className="flex-1">

@@ -9,7 +9,7 @@ import ShotTypeComponent from "@/components/scoring/ShotTypeComponent";
 import WideBallComponent from "@/components/scoring/WideBallComponent";
 import SocialShare from "@/components/SocialShare";
 import { RootState } from "@/store";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -318,7 +318,7 @@ export default function CreateMatch() {
 
                             <View className="flex-row items-center justify-between w-full px-4">
                                 <TouchableOpacity className="mr-4" onPress={() => router.back()}>
-                                    <Ionicons name="arrow-back" size={24} color="white" />
+                                    <Entypo name="arrow-bold-left" size={29} color="white" />
                                 </TouchableOpacity>
                                 <View>
                                     <Text className="text-white text-lg font-semibold">Pakistan vs India</Text>

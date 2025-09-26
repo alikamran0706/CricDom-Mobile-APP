@@ -1,4 +1,5 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import Header from "@/components/ui/Header";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
@@ -90,14 +91,7 @@ export default function MatchRulesScreen() {
     return (
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
-            <View className="px-4 py-4 flex-row items-center">
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="black" />
-                </TouchableOpacity>
-                <Text className="text-black text-xl font-semibold ml-4">
-                    Match Rules (WD, NB, WW)
-                </Text>
-            </View>
+            <Header heading='Match Rules (WD, NB, WW)' />
 
             <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
                 {/* WAGON WHEEL */}

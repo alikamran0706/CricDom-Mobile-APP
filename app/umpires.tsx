@@ -79,7 +79,7 @@ const ScorersScreen = () => {
                 {/* Bottom Buttons */}
                 <FloatingActionButton
                     label="REGISTER"
-                    onPress={() => {}}
+                    onPress={() => router.push('/create-umpire')}
                 />
             </View>
         </SafeAreaView>

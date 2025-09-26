@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
+import { Entypo, Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -9,7 +9,7 @@ const Header = ({heading = ''}) => {
         <View className="px-4 py-3">
             <View className="flex-row items-center justify-between">
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#3b3b3b" />
+                     <Entypo name="arrow-bold-left" size={29} color="#3b3b3b" />
                 </TouchableOpacity>
                 <Text className="text-xl font-bold text-black">{heading}</Text>
                 <View className="flex-row">

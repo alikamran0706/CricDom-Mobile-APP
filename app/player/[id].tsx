@@ -1,8 +1,10 @@
+import Header from "@/components/community/Header";
+import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Match {
@@ -20,15 +22,57 @@ interface Match {
 }
 
 const PlayerProfileScreen = () => {
+    const { community } = useLocalSearchParams();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState("MATCHES");
+    const [activeTab, setActiveTab] = useState(community ? "REVIEWS" : "MATCHES");
     const navigation = useNavigation();
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const tabs = ["ABOUT", "REVIEWS", "ACHIEVEMENTS", "MATCHES"];
+    const reviews = [
+        {
+            id: 1,
+            name: "Musaib",
+            date: "06/09/2025",
+            rating: 5,
+            image: "/user-profile.jpg",
+        },
+        {
+            id: 2,
+            name: "Ashish Kumar Mishra",
+            date: "10/08/2025",
+            rating: 5,
+            image: "/user-profile-2.jpg",
+        },
+        {
+            id: 3,
+            name: "Mohd Kaif",
+            date: "13/05/2025",
+            rating: 5,
+            comment: "Kdkow",
+            image: "/user-profile-3.jpg",
+        },
+        {
+            id: 4,
+            name: "Limbadri K",
+            date: "03/04/2025",
+            rating: 4,
+            comment: "Swzauw in vii Eid sq",
+            image: "/user-profile-4.jpg",
+        },
+        {
+            id: 5,
+            name: "Sameer",
+            date: "01/03/2025",
+            rating: 5,
+            image: "/user-profile-5.jpg",
+        },
+    ]
+
+    const tabs = community ? ["ABOUT", "REVIEWS"]
+        : ["ABOUT", "REVIEWS", "ACHIEVEMENTS", "MATCHES"];
 
     const matches: Match[] = [
         {
@@ -97,114 +141,291 @@ const PlayerProfileScreen = () => {
                 </TouchableOpacity>
             </View>
         </View>
-    )
+    );
+
+    const renderStars = (rating: any) => {
+        return Array.from({ length: 5 }, (_, index) => (
+            <Ionicons key={index} name={index < rating ? "star" : "star-outline"} size={16} color="#FFA500" />
+        ))
+    }
+
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-900">
-            {/* Header */}
-            <LinearGradient colors={['#ffffff', '#a9d3f2', '#a9d3f2']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="px-4 py-3"
-            >
-                <View className="flex-row items-center justify-between">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="#3b3b3b" />
-                    </TouchableOpacity>
-                    <View className="flex-row">
-                        <TouchableOpacity className="mr-4">
-                            <Ionicons name="share" size={24} color="#3b3b3b" />
-                        </TouchableOpacity>
-                        <TouchableOpacity className="relative">
-                            <Ionicons name="funnel" size={24} color="#3b3b3b" />
-                            <View className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full items-center justify-center">
-                                <Text className="text-xs font-bold text-gray-800">1</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ flex: 1 }}>
+                {/* Header */}
+                <LinearGradient colors={['#ffffff', '#a9d3f2', '#a9d3f2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                >
+                   <Header />
+
+
+                    {/* Profile Section */}
+                    <View className="items-center pb-6">
+                        <Image
+                            source={{
+                                uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60",
+                            }}
+                            className="w-24 h-24 rounded-full mb-4"
+                        />
+                        <Text className="text-2xl font-bold text-black mb-1">Saleem Khan</Text>
+                        <Text className="text-gray-700 mb-4">(Scorer - Karachi)</Text>
+
+                        <TouchableOpacity className="bg-[#0e7ccb] px-6 py-3 rounded-xl" onPress={() => router.push('/message')}>
+                            <View className="flex-row items-center">
+                                <Ionicons name="chatbubble" size={20} color="white" />
+                                <Text className="text-white font-semibold ml-2">MESSAGE</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
-                </View>
 
-
-                {/* Profile Section */}
-                <View className="items-center pb-6">
-                    <Image
-                        source={{
-                            uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60",
-                        }}
-                        className="w-24 h-24 rounded-full mb-4"
-                    />
-                    <Text className="text-2xl font-bold text-black mb-1">Saleem Khan</Text>
-                    <Text className="text-gray-700 mb-4">(Scorer - Karachi)</Text>
-
-                    <TouchableOpacity className="bg-[#0e7ccb] px-6 py-3 rounded-xl" onPress={() => router.push('/message')}>
-                        <View className="flex-row items-center">
-                            <Ionicons name="chatbubble" size={20} color="white" />
-                            <Text className="text-white font-semibold ml-2">MESSAGE</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Rating and Price */}
-                <View className="px-4 pb-4">
-                    <View className="flex-row justify-between items-center">
-                        <Text className="text-gray-800 text-lg">Rs.1600/day, 800/ma...</Text>
-                        <View className="flex-row items-center">
-                            <Text className="text-black text-lg font-bold mr-2">5.0</Text>
-                            <View className="flex-row">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Ionicons key={star} name="star" size={16} color="#fbbf24" />
-                                ))}
+                    {/* Rating and Price */}
+                    <View className="px-4 pb-4">
+                        <View className="flex-row justify-between items-center">
+                            <Text className="text-gray-800 text-lg">Rs.1600/day, 800/ma...</Text>
+                            <View className="flex-row items-center">
+                                <Text className="text-black text-lg font-bold mr-2">5.0</Text>
+                                <View className="flex-row">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Ionicons key={star} name="star" size={16} color="#fbbf24" />
+                                    ))}
+                                </View>
+                                <Text className="text-gray-600 ml-2">(4)</Text>
                             </View>
-                            <Text className="text-gray-600 ml-2">(4)</Text>
                         </View>
                     </View>
-                </View>
-            </LinearGradient>
+                </LinearGradient>
 
-            {/* Tabs */}
-            <View className="bg-white">
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-3">
-                    {tabs.map((tab) => (
-                        <TouchableOpacity
-                            key={tab}
-                            className={`px-4 py-2 mr-4 ${activeTab === tab ? "border-b-2 border-[#0e7ccbd6]" : ""}`}
-                            onPress={() => setActiveTab(tab)}
-                        >
-                            <Text className={`font-medium ${activeTab === tab ? "text-gray-900" : "text-gray-600"}`}>{tab}</Text>
-                        </TouchableOpacity>
-                    ))}
+                {/* Tabs */}
+                <View className="bg-white">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-3">
+                        {tabs.map((tab) => (
+                            <TouchableOpacity
+                                key={tab}
+                                className={`px-4 py-2 mr-4 ${activeTab === tab ? "border-b-2 border-[#0e7ccbd6]" : ""}`}
+                                onPress={() => setActiveTab(tab)}
+                            >
+                                <Text className={`font-medium ${activeTab === tab ? "text-gray-900" : "text-gray-600"}`}>{tab}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                </View>
+
+                {/* Content */}
+                <ScrollView className="flex-1 bg-gray-50 px-4 py-4" contentContainerStyle={{ paddingBottom: 100 }}>
+                    {activeTab === "MATCHES" && (
+                        <View>
+                            <Text className="text-sm text-gray-600 italic mb-4">*Matches scored by this scorer.</Text>
+                            {matches.map(renderMatchCard)}
+                        </View>
+                    )}
+
+                    {activeTab === "ABOUT" && (
+                        <View className="bg-white rounded-2xl p-4">
+                            <Text className="text-gray-800">Profile information and details about the scorer.</Text>
+                        </View>
+                    )}
+
+                    {activeTab === "REVIEWS" && (
+                        <View>
+                            {/* Rating Summary */}
+                            <View style={styles.ratingSummary}>
+                                <View style={styles.ratingBars}>
+                                    {[5, 4, 3, 2, 1].map((star) => (
+                                        <View key={star} style={styles.ratingRow}>
+                                            <Text style={styles.starNumber}>{star}</Text>
+                                            <Ionicons name="star" size={16} color="#FFA500" />
+                                            <View style={styles.ratingBar}>
+                                                <View style={[styles.ratingFill, { width: star === 5 ? "80%" : star === 4 ? "15%" : "5%" }]} />
+                                            </View>
+                                        </View>
+                                    ))}
+                                </View>
+                                <View style={styles.overallRating}>
+                                    <Text style={styles.ratingScore}>4.8</Text>
+                                    <View style={styles.starsContainer}>{renderStars(5)}</View>
+                                    <Text style={styles.reviewCount}>(46)</Text>
+                                </View>
+                            </View>
+
+                            {reviews.map((review) => (
+                                <View key={review.id} style={styles.reviewCard}>
+                                    <Image source={{ uri: review.image }} style={styles.reviewerImage} />
+                                    <View style={styles.reviewContent}>
+                                        <Text style={styles.reviewerName}>{review.name}</Text>
+                                        <View style={styles.reviewRating}>
+                                            {renderStars(review.rating)}
+                                            <Text style={styles.reviewDate}>{review.date}</Text>
+                                        </View>
+                                        {review.comment && <Text style={styles.reviewComment}>{review.comment}</Text>}
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {activeTab === "ACHIEVEMENTS" && (
+                        <View className="bg-white rounded-2xl p-4">
+                            <Text className="text-gray-800">Scorer achievements and certifications.</Text>
+                        </View>
+                    )}
                 </ScrollView>
-            </View>
-
-            {/* Content */}
-            <ScrollView className="flex-1 bg-gray-50 px-4 py-4">
-                {activeTab === "MATCHES" && (
-                    <View>
-                        <Text className="text-sm text-gray-600 italic mb-4">*Matches scored by this scorer.</Text>
-                        {matches.map(renderMatchCard)}
-                    </View>
-                )}
-
-                {activeTab === "ABOUT" && (
-                    <View className="bg-white rounded-2xl p-4">
-                        <Text className="text-gray-800">Profile information and details about the scorer.</Text>
-                    </View>
-                )}
 
                 {activeTab === "REVIEWS" && (
-                    <View className="bg-white rounded-2xl p-4">
-                        <Text className="text-gray-800">Customer reviews and ratings.</Text>
-                    </View>
+                    <FloatingActionButton
+                        label={'WRITE A REVIEW'}
+                        onPress={() => { }}
+                    />
                 )}
-
-                {activeTab === "ACHIEVEMENTS" && (
-                    <View className="bg-white rounded-2xl p-4">
-                        <Text className="text-gray-800">Scorer achievements and certifications.</Text>
-                    </View>
-                )}
-            </ScrollView>
+            </View>
         </SafeAreaView>
     )
 }
 
-export default PlayerProfileScreen
+export default PlayerProfileScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f5f5f5",
+    },
+    header: {
+        backgroundColor: "#C53030",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 16,
+        paddingTop: 50,
+        paddingBottom: 16,
+    },
+    headerTitle: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    tabContainer: {
+        flexDirection: "row",
+        backgroundColor: "#2C3E50",
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 16,
+        alignItems: "center",
+    },
+    activeTab: {
+        borderBottomWidth: 3,
+        borderBottomColor: "#FFA500",
+    },
+    tabText: {
+        color: "#95A5A6",
+        fontWeight: "bold",
+    },
+    activeTabText: {
+        color: "white",
+    },
+    content: {
+        flex: 1,
+        padding: 16,
+    },
+    ratingSummary: {
+        backgroundColor: "white",
+        borderRadius: 12,
+        padding: 20,
+        marginBottom: 16,
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    ratingBars: {
+        flex: 1,
+    },
+    ratingRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    starNumber: {
+        width: 20,
+        fontSize: 14,
+        color: "#333",
+    },
+    ratingBar: {
+        flex: 1,
+        height: 8,
+        backgroundColor: "#E0E0E0",
+        borderRadius: 4,
+        marginLeft: 8,
+    },
+    ratingFill: {
+        height: "100%",
+        backgroundColor: "#4CAF50",
+        borderRadius: 4,
+    },
+    overallRating: {
+        alignItems: "center",
+        marginLeft: 20,
+    },
+    ratingScore: {
+        fontSize: 36,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    starsContainer: {
+        flexDirection: "row",
+        marginVertical: 8,
+    },
+    reviewCount: {
+        fontSize: 14,
+        color: "#666",
+    },
+    reviewCard: {
+        backgroundColor: "white",
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        flexDirection: "row",
+    },
+    reviewerImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 12,
+    },
+    reviewContent: {
+        flex: 1,
+    },
+    reviewerName: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#333",
+        marginBottom: 4,
+    },
+    reviewRating: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    reviewDate: {
+        fontSize: 12,
+        color: "#666",
+        marginLeft: 8,
+    },
+    reviewComment: {
+        fontSize: 14,
+        color: "#333",
+        lineHeight: 20,
+    },
+    writeReviewButton: {
+        backgroundColor: "#00BFA5",
+        paddingVertical: 16,
+        borderRadius: 8,
+        alignItems: "center",
+        marginTop: 16,
+    },
+    writeReviewText: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+})
+

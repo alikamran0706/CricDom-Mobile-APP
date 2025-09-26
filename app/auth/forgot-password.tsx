@@ -128,7 +128,7 @@ const ForgotPasswordScreen: React.FC = () => {
                                     <View className="mt-6 items-center">
                                         <Text className="text-gray-700 text-base">Remember your password?</Text>
                                         <TouchableOpacity onPress={() => router.replace('/auth/login')}>
-                                            <Text className="text-blue-600 font-semibold text-base mt-1">Back to Login</Text>
+                                            <Text className="text-[#0e7ccb] font-semibold text-base mt-1">Back to Login</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>

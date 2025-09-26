@@ -14,6 +14,7 @@ interface Props {
     loading?: boolean
     disabled?: boolean
     emoji?: string
+    iconPosition?: string
 }
 
 const FloatingActionButton: React.FC<Props> = ({
@@ -27,7 +28,8 @@ const FloatingActionButton: React.FC<Props> = ({
     shadowColor = "#007ACC",
     loading = false,
     disabled = false,
-    emoji
+    emoji,
+    iconPosition = 'left'
 }) => {
     // Reduce opacity if disabled
     const opacity = disabled ? 0.999 : 1
@@ -56,7 +58,7 @@ const FloatingActionButton: React.FC<Props> = ({
                 ) : (
                     <>
                         {
-                            iconName &&
+                            (iconPosition === 'left' && iconName) &&
                             <View className="w-8 h-8 bg-gray-200/20 rounded-2xl items-center justify-center mr-3">
                                 <Ionicons name={iconName} size={18} color={iconColor} />
                             </View>
@@ -68,6 +70,12 @@ const FloatingActionButton: React.FC<Props> = ({
                         <Text className="text-lg font-bold" style={{ color: textColor }}>
                             {label}
                         </Text>
+                        {
+                            (iconPosition === 'right' && iconName) &&
+                            <View className="w-8 h-8 rounded-2xl items-center justify-center ml-3">
+                                <Ionicons name={iconName} size={18} color={iconColor} />
+                            </View>
+                        }
                     </>
                 )}
             </Pressable>

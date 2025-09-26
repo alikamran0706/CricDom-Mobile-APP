@@ -130,6 +130,10 @@ export default function HomeScreen() {
     },
   ]
 
+  const loadMore = () => {
+
+  }
+
   return (
     <>
       <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
@@ -162,12 +166,12 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-
-
         <FlatList
           data={posts}
           renderItem={renderPost}
           keyExtractor={(item) => item.id}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
           ListHeaderComponent={() => (
             <OtherComponentsAbove />
           )}
@@ -175,7 +179,6 @@ export default function HomeScreen() {
             <MoreComponentsBelow />
           )}
         />
-
       </SafeAreaView>
     </>
   )

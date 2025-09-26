@@ -4,7 +4,7 @@ import { Animated, Dimensions, Easing, Image, Text, View } from 'react-native';
 
 const { height } = Dimensions.get('window');
 const banner = require('../../assets/images/banner.jpg');
-const logo = require('../../assets/images/icon.png');
+const logo = require('../../assets/images/crickdom-team.png');
 
 const HeroSection = () => {
     const ballAnim = useRef(new Animated.ValueXY({ x: 80, y: 50 })).current;
@@ -14,13 +14,13 @@ const HeroSection = () => {
     useEffect(() => {
         Animated.parallel([
             Animated.timing(ballAnim, {
-                toValue: { x: 210, y: -7 },
+                toValue: { x: 190, y: -7 },
                 duration: 2000,
                 useNativeDriver: true,
                 easing: Easing.out(Easing.exp),
             }),
             Animated.timing(trophyAnim, {
-                toValue: { x: -20, y: 210 },
+                toValue: { x: -15, y: 170 },
                 duration: 2000,
                 useNativeDriver: true,
                 easing: Easing.out(Easing.exp),
@@ -34,7 +34,7 @@ const HeroSection = () => {
         ]).start();
     }, []);
     return (
-        <View className="items-center pt-8 pb-4" style={{ minHeight: height * 0.45 }}>
+        <View className="items-center pt-4 pb-2" style={{ minHeight: height * 0.1 }}>
             {/* Logo */}
             <View className="mb-6 flex-row items-center justify-center gap-x-2">
                 <Image
@@ -52,7 +52,7 @@ const HeroSection = () => {
             <View className="relative mb-8">
                 <View
                     className="rounded-full bg-white/10 items-center justify-center overflow-hidden border-4 border-white/20"
-                    style={{ width: 240, height: 240 }}
+                    style={{ width: 200, height: 200 }}
                 >
                     <Image
                         source={banner}
@@ -66,8 +66,8 @@ const HeroSection = () => {
                 <Animated.View
                     style={{
                         position: 'absolute',
-                        width: 40,
-                        height: 40,
+                        width: 35,
+                        height: 35,
                         backgroundColor: '#f97316', // orange-400
                         borderRadius: 20,
                         justifyContent: 'center',
@@ -87,8 +87,8 @@ const HeroSection = () => {
                 <Animated.View
                     style={{
                         position: 'absolute',
-                        width: 40,
-                        height: 40,
+                        width: 30,
+                        height: 30,
                         backgroundColor: '#22c55e', // green-500
                         borderRadius: 20,
                         justifyContent: 'center',
@@ -108,8 +108,8 @@ const HeroSection = () => {
                 <Animated.View
                     style={{
                         position: 'absolute',
-                        width: 32,
-                        height: 32,
+                        width: 22,
+                        height: 22,
                         backgroundColor: '#facc15', // yellow-400
                         borderRadius: 16,
                         justifyContent: 'center',

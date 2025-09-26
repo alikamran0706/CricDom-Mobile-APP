@@ -1,237 +1,237 @@
-import { Ionicons } from "@expo/vector-icons"
-import { useState } from "react"
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import ImagePickerButton from '@/components/ImagePickerButton';
+import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
+import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
+import { RootState } from '@/store';
+import { showAlert } from '@/store/features/alerts/alertSlice';
+import { useCreatePlayerMutation, useGetPlayerByIdQuery, useUpdatePlayerMutation } from '@/store/features/player/playerApi';
+import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
-const RegisterCoachingScreen = () => {
-  const [formData, setFormData] = useState({
-    companyName: "",
-    address: "",
-    city: "",
-    contactName: "Ali Kamran",
-    contactNumber: "",
-    serviceDetails: "",
-    youtubeLink: "",
-    facebookLink: "",
-  })
+export default function CreatePlayerScreen() {
+    const router = useRouter();
+    const params = useLocalSearchParams();
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    const navigation = useNavigation();
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Register Personal Coaching</Text>
-      </View>
+    const { data, isLoading: loading, refetch } = useGetPlayerByIdQuery(id!, {
+        skip: !id,
+    });
+    const player = data?.data
+    const dispatch = useDispatch();
+    const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
+    const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+    const [uploadFile] = useUploadFileMutation();
+    const profile = useSelector((state: RootState) => state.user.profile);
 
-      <ScrollView style={styles.content}>
-        {/* Photo Upload */}
-        <View style={styles.photoSection}>
-          <View style={styles.photoPlaceholder}>
-            <View style={styles.logoCircle}>
-              <Ionicons name="fitness" size={40} color="#666" />
+    const [formData, setFormData] = useState({
+        name: '',
+        phone_number: '',
+        image: null as string | null,
+        companyName: '',
+        address: '',
+        city: '',
+        contactNumber: '',
+        youtubeLink: '',
+        facebookLink: '',
+        serviceDetails: '',
+    });
+
+    useEffect(() => {
+        if (id) {
+            refetch();
+        }
+    }, [id]);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({ headerShown: false });
+    }, [navigation]);
+
+
+    const uploadImageAndGetId = async (): Promise<number | null> => {
+        if (!formData.image) return null;
+
+        try {
+            const imageId = await uploadFile({ image: formData.image }).unwrap().then(res => res[0]?.id);
+            return imageId;
+        } catch (uploadError) {
+            dispatch(
+                showAlert({
+                    type: 'error',
+                    message: 'Could not upload the image.',
+                })
+            );
+            return null;
+        }
+    };
+
+    const handleCreatePlayer = async () => {
+        const cleanedData = sanitizeObject(formData);
+        if (!cleanedData?.name?.trim()) {
+            dispatch(
+                showAlert({
+                    type: 'error',
+                    message: 'Please enter player name',
+                })
+            );
+            return;
+        }
+
+        if (!cleanedData?.phone_number?.trim()) {
+            dispatch(
+                showAlert({
+                    type: 'error',
+                    message: 'Please enter phone number',
+                })
+            );
+            return;
+        }
+
+        let imageId: number | null = null;
+        if (cleanedData?.image) {
+            imageId = await uploadImageAndGetId();
+            if (!imageId) return; // Stop if upload failed
+        }
+
+        const playerData = {
+            ...cleanedData,
+            ...(imageId && { image: imageId }),
+            ...(profile && { user: profile.documentId }),
+        };
+
+        try {
+            if (id)
+                await updatePlayer({ id, data: playerData }).unwrap();
+            else
+                await createPlayer({ data: playerData }).unwrap();
+
+            dispatch(showAlert({ type: 'success', message: id ? 'Player updated successfully!' : 'Player created successfully!' }));
+            router.replace({
+                pathname: '/profile',
+                params: { refetch: 'true' }
+            });
+        }
+        catch (error: any) {
+
+            dispatch(
+                showAlert({
+                    type: 'error',
+                    message: error?.response?.data || error.message || isError || 'An unknown error occurred.',
+                })
+            );
+
+        }
+    };
+
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ flex: 1 }}>
+                {/* Header */}
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 16,
+                    paddingVertical: 16,
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#E5E7EB'
+                }}>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <Ionicons name="arrow-back" size={24} color="#000" />
+                    </TouchableOpacity>
+                    <Text style={{ fontSize: 20, fontWeight: '600', marginLeft: 16 }}>
+                        Register Personal Coaching
+                    </Text>
+                </View>
+                {
+                    loading ?
+                        <View className="flex-1 items-center justify-center">
+                            <ActivityIndicator size="large" color="#000" />
+                        </View>
+                        :
+                        <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}
+                            contentContainerStyle={{ paddingBottom: 70 }}>
+                            <View style={{ paddingVertical: 24 }}>
+                                {/* Player Image Upload */}
+                                <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                                    <ImagePickerButton
+                                        imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
+                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
+                                        title='Upload Photo'
+                                    />
+                                </View>
+                                {/* Ground Name */}
+                                <FloatingLabelInputBorderBottom
+                                    label="Company Name"
+                                    value={formData.companyName}
+                                    onChangeText={(text) => setFormData({ ...formData, companyName: text })}
+                                    required={true}
+                                />
+                                {/* Address */}
+                                <FloatingLabelInputBorderBottom
+                                    label="Address"
+                                    value={formData.address}
+                                    onChangeText={(text) => setFormData({ ...formData, address: text })}
+                                    required={true}
+                                />
+                                {/* City */}
+                                <FloatingLabelInputBorderBottom
+                                    label="City"
+                                    value={formData.city}
+                                    onChangeText={(text) => setFormData({ ...formData, city: text })}
+                                    required={true}
+                                />
+                                {/* Contact Person Name */}
+                                <FloatingLabelInputBorderBottom
+                                    label="Contact Person Name"
+                                    value={formData.contactNumber}
+                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
+                                    required={true}
+                                />
+                                <FloatingLabelInputBorderBottom
+                                    label="Contact Number"
+                                    value={formData.contactNumber}
+                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
+                                    multiline
+                                    numberOfLines={6}
+                                    textAlignVertical="top"
+                                />
+                                <FloatingLabelInputBorderBottom
+                                    label="Add more details"
+                                    value={formData.serviceDetails}
+                                    onChangeText={(text) => setFormData({ ...formData, serviceDetails: text })}
+                                    multiline
+                                    numberOfLines={6}
+                                    textAlignVertical="top"
+                                />
+                                <FloatingLabelInputBorderBottom
+                                    label="YouTube Channel Link"
+                                    value={formData.youtubeLink}
+                                    onChangeText={(text) => setFormData({ ...formData, youtubeLink: text })}
+                                />
+                                <FloatingLabelInputBorderBottom
+                                    label="Facebook Page Link"
+                                    value={formData.facebookLink}
+                                    onChangeText={(text) => setFormData({ ...formData, facebookLink: text })}
+                                />
+                            </View>
+                        </ScrollView>
+                }
+
+                {/* Floating Create Button */}
+                <FloatingActionButton
+                    label={player ? "Update Coach" : "Create Coach"}
+                    iconName="person-add"
+                    onPress={handleCreatePlayer}
+                    loading={isLoading || isUpdating}
+                    disabled={isLoading || isUpdating}
+                />
             </View>
-            <View style={styles.cameraIcon}>
-              <Ionicons name="camera" size={16} color="white" />
-            </View>
-          </View>
-          <Text style={styles.addPhotoText}>Add Photo</Text>
-        </View>
-
-        {/* Form Fields */}
-        <View style={styles.formSection}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Company Name*</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.companyName}
-              onChangeText={(value) => handleInputChange("companyName", value)}
-              placeholder="Enter company name"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Address*</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.address}
-              onChangeText={(value) => handleInputChange("address", value)}
-              placeholder="Enter address"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>City*</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.city}
-              onChangeText={(value) => handleInputChange("city", value)}
-              placeholder="Enter city"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Contact Person Name*</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.contactName}
-              onChangeText={(value) => handleInputChange("contactName", value)}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Contact Number*</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.contactNumber}
-              onChangeText={(value) => handleInputChange("contactNumber", value)}
-              placeholder="Enter contact number"
-              keyboardType="phone-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.textArea}
-              value={formData.serviceDetails}
-              onChangeText={(value) => handleInputChange("serviceDetails", value)}
-              placeholder="Add more details about your service, like Facilities, Timing, etc."
-              multiline
-              numberOfLines={6}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>YouTube Channel Link</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.youtubeLink}
-              onChangeText={(value) => handleInputChange("youtubeLink", value)}
-              placeholder="Enter YouTube channel link"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Facebook Page Link</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.facebookLink}
-              onChangeText={(value) => handleInputChange("facebookLink", value)}
-              placeholder="Enter Facebook page link"
-            />
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* Next Button */}
-      <TouchableOpacity style={styles.nextButton}>
-        <Text style={styles.nextButtonText}>NEXT</Text>
-      </TouchableOpacity>
-    </View>
-  )
+        </SafeAreaView>
+    );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  header: {
-    backgroundColor: "#C53030",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-  },
-  headerTitle: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 16,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  photoSection: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  photoPlaceholder: {
-    position: "relative",
-    marginBottom: 12,
-  },
-  logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#ddd",
-  },
-  cameraIcon: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#C53030",
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addPhotoText: {
-    fontSize: 16,
-    color: "#C53030",
-    fontWeight: "500",
-  },
-  formSection: {
-    gap: 20,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 4,
-  },
-  input: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    paddingVertical: 12,
-    fontSize: 16,
-    color: "#333",
-  },
-  textArea: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    height: 120,
-    fontSize: 14,
-    color: "#666",
-  },
-  nextButton: {
-    backgroundColor: "#00BFA5",
-    paddingVertical: 16,
-    alignItems: "center",
-    margin: 16,
-    borderRadius: 8,
-  },
-  nextButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-})
-
-export default RegisterCoachingScreen

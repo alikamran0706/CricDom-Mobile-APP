@@ -4,6 +4,7 @@ import FloatingLabelInput from '@/components/ui/FloatingLabelInput';
 import { showAlert } from '@/store/features/alerts/alertSlice';
 import { useRegisterMutation } from '@/store/features/user/userApi';
 import { setProfile, setToken } from '@/store/features/user/userSlice';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -37,13 +38,14 @@ const { width, height } = Dimensions.get('window');
 const SignupScreen: React.FC = () => {
     const router = useRouter();
     const dispatch = useDispatch();
+    const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState<SignupErrors>({});
+    const [register, { isLoading }] = useRegisterMutation();
     const [formData, setFormData] = useState<SignupFormData>({
         username: '',
         email: '',
         password: '',
     });
-    const [errors, setErrors] = useState<SignupErrors>({});
-    const [register, { isLoading }] = useRegisterMutation();
 
     const validateForm = (): boolean => {
         const newErrors: SignupErrors = {};
@@ -79,8 +81,7 @@ const SignupScreen: React.FC = () => {
                 dispatch(setToken(response.jwt));
                 dispatch(setProfile(response.user));
                 dispatch(showAlert({ type: 'success', message: 'Register successful!' }));
-                router.replace('/register-player');
-
+                router.replace('/(tabs)'); 
             }
         } catch (error: any) {
             dispatch(
@@ -134,14 +135,14 @@ const SignupScreen: React.FC = () => {
                                     elevation: 20,
                                 }}
                             >
-                                <View className="items-center mb-4">
+                                <View className="items-center mb-2">
                                     <Text className="text-2xl font-bold text-gray-900 mb-2">Create Account</Text>
                                     <Text className="text-gray-600 text-center text-base">
                                         Join the game and start your cricket journey
                                     </Text>
                                 </View>
 
-                                <View className="space-y-4">
+                                <View className="space-y-2">
                                     <FloatingLabelInput
                                         label="Username"
                                         value={formData.username}
@@ -160,46 +161,64 @@ const SignupScreen: React.FC = () => {
                                         returnKeyType="next"
                                     />
 
-                                    <FloatingLabelInput
-                                        label="Password"
-                                        value={formData.password}
-                                        onChangeText={updateFormData('password')}
-                                        error={errors.password}
-                                        secureTextEntry
-                                        returnKeyType="done"
-                                    />
+                                    {/* Password Input */}
+                                    <View className="relative">
+                                        <FloatingLabelInput
+                                            label="Password"
+                                            value={formData.password}
+                                            onChangeText={updateFormData('password')}
+                                            error={errors.password}
+                                            secureTextEntry={!showPassword}
+                                            returnKeyType="done"
+                                            autoComplete="password"
+                                        />
+                                        <TouchableOpacity
+                                            className="absolute right-4 top-6"
+                                            onPress={() => setShowPassword(!showPassword)}
+                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                        >
+                                            <Ionicons
+                                                name={showPassword ? "eye-off" : "eye"}
+                                                size={22}
+                                                color="#9CA3AF"
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
 
                                     <FloatingActionButton
                                         label={`Sign Up`}
                                         onPress={handleSignup}
-                                        containerStyle={{ marginTop: 12 }}
+                                        containerStyle={{ marginTop: 8 }}
                                         loading={isLoading}
                                         disabled={isLoading}
                                     />
 
-                                    <View className="mt-6 items-center">
+                                    {/* Footer Links */}
+                                    <View className="flex-row justify-between items-center mt-6 mb-2">
                                         <Text className="text-gray-700 text-base">Already have an account?</Text>
-                                        <TouchableOpacity onPress={() => router.replace('/auth/login')}>
-                                            <Text className="text-blue-600 font-semibold text-base mt-1">Login</Text>
+                                        <TouchableOpacity onPress={() => router.replace('/auth/login')}
+                                            className="py-2 px-4"
+                                        >
+                                            <Text className="text-[#0e7ccb] font-medium text-base">Login</Text>
                                         </TouchableOpacity>
                                     </View>
 
                                     {/* Terms and Privacy */}
                                     <View className="items-center">
                                         <Text
-                                            className="text-xs text-gray-500 text-center px-4"
+                                            className="text-xs text-gray-500 text-center"
                                             style={{ flexWrap: 'wrap', textAlign: 'center' }}
                                         >
                                             By signing in, you agree to our{' '}
                                             <Text
-                                                className="text-blue-600 font-medium"
+                                                className="text-[#0e7ccb] font-medium"
                                                 onPress={() => console.log('Terms pressed')}
                                             >
                                                 Terms of Service
                                             </Text>{' '}
                                             and{' '}
                                             <Text
-                                                className="text-blue-600 font-medium"
+                                                className="text-[#0e7ccb] font-medium"
                                                 onPress={() => console.log('Privacy pressed')}
                                             >
                                                 Privacy Policy

@@ -1,5 +1,6 @@
 import Dropdown from '@/components/ui/Dropdown';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import Header from '@/components/ui/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
@@ -112,12 +113,7 @@ export default function CreateInningsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Innings</Text>
-      </View>
+      <Header heading={'Create Innings'} />
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentPadding}>
         <View style={styles.iconContainer}>

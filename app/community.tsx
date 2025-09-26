@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons"
+import { Entypo, Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect } from "react"
 import { Dimensions, Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
@@ -43,7 +43,7 @@ const CommunityScreen = () => {
                 <View className="px-4 py-3">
                     <View className="flex-row items-center justify-between">
                         <TouchableOpacity onPress={() => router.back()}>
-                            <Ionicons name="arrow-back" size={24} color="black" />
+                             <Entypo name="arrow-bold-left" size={29} color="#3b3b3b" />
                         </TouchableOpacity>
                         <Text className="text-xl font-bold text-black">Community</Text>
                         <View className="flex-row items-center">

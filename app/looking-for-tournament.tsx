@@ -1,5 +1,6 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
+import Header from "@/components/ui/Header";
 import { ballTypes } from "@/constants/match";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -50,14 +51,7 @@ const LookingTournamentScreen = () => {
         <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
                 {/* Header */}
-                <View className="px-4 py-3">
-                    <View className="flex-row items-center">
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Ionicons name="arrow-back" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text className="text-xl font-bold text-black ml-3">Looking for tournament to participate</Text>
-                    </View>
-                </View>
+                <Header heading='Looking for tournament to participate' />
 
                 <ScrollView className="flex-1 px-4 py-6" contentContainerStyle={{ paddingBottom: 100 }}>
                     {/* Name */}

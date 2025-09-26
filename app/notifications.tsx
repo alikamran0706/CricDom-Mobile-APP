@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router, useNavigation } from 'expo-router';
+import Header from '@/components/ui/Header';
+import { useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import {
     RefreshControl,
@@ -25,7 +25,7 @@ interface Notification {
     actionRequired?: boolean;
 }
 
-const NotificationsScreen: React.FC = () => {
+const NotificationsScreen = () => {
     const [notifications, setNotifications] = useState<Notification[]>([
         {
             id: '1',
@@ -166,24 +166,15 @@ const NotificationsScreen: React.FC = () => {
         return `${diffInDays}d ago`;
     };
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
-
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
                 {/* Header */}
-                <View className="flex-row items-center px-4 py-4 bg-white shadow-sm">
-                    <TouchableOpacity
-                        onPress={() => router.back()}
-                        className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
-                    >
-                        <Ionicons name="arrow-back" size={20} color="#374151" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold ml-4 text-gray-900">Notifications</Text>
-                    <View className="flex-1" />
-                </View>
-
-                <ScrollView
+                <Header
+                    heading={`Notifications`}
+                />
+                
+                   <ScrollView
                     style={styles.content}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 50 }}
@@ -257,16 +248,15 @@ const NotificationsScreen: React.FC = () => {
                         ))
                     )}
                 </ScrollView>
+                
             </View>
         </SafeAreaView>
-    );
-};
+    )
+}
+
+export default NotificationsScreen
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F9FAFB',
-    },
     header: {
         backgroundColor: '#FFFFFF',
         paddingHorizontal: 20,
@@ -299,7 +289,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     content: {
-        flex: 1,
         paddingHorizontal: 20,
     },
     emptyState: {
@@ -421,5 +410,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
-export default NotificationsScreen;

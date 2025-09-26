@@ -1,9 +1,11 @@
+import CardWithRating from "@/components/community/CardWithRating"
 import Header from "@/components/community/Header"
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import Tabs from "@/components/ui/Tabs"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect } from "react"
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
+import { useLayoutEffect, useState } from "react"
+import { FlatList, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 interface Coach {
@@ -16,8 +18,11 @@ interface Coach {
 }
 
 const PersonalCoachingScreen = () => {
-    const router = useRouter()
+    const router = useRouter();
+    const [selectedCountry, setSelectedCountry] = useState("Pakistan");
     const navigation = useNavigation();
+
+    const filters = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"]
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
@@ -58,68 +63,65 @@ const PersonalCoachingScreen = () => {
         },
     ]
 
-    const renderCoachCard = ({ item }: { item: Coach }) => (
-        <TouchableOpacity
+    const renderCard = ({ item }: any) => (
+        <CardWithRating
             key={item.id}
-            className="bg-white flex-row items-center p-4 m-2 rounded-xl"
-            style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 3,
-            }}
-        >
-            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300">
-                <Image source={{ uri: item.image }} className="w-[100%] h-[100%]" />
-            </View>
-            <View className="flex-1">
-                <Text className="text-gray-800 text-lg font-bold mb-1">{item.name}</Text>
-                <Text className="text-gray-600 text-sm">{item.location}</Text>
-            </View>
-            <View className="items-end">
-                <View className="bg-[#0e7ccb] px-3 py-1 rounded-full mb-1">
-                    <Text className="text-white text-xs font-bold">{item.rating}/5</Text>
-                </View>
-                <Text className="text-gray-600 text-xs">{item.reviewCount} Review(s)</Text>
-            </View>
-        </TouchableOpacity>
+            id={item.id}
+            title={item.name}
+            subTitle={item.location}
+            image={item.image}
+            rating={item.rating}
+            reviews={item.reviews}
+        />
     )
 
-    return (
-        <SafeAreaView className="flex-1 bg-gray-50">
-            {/* Header */}
-            <Header
-                heading={`Personal Coaching`}
-            />
-
-            {/* Location Filter */}
-            <View className="bg-white px-4 py-3 border-b border-gray-200">
-                <View className="flex-row items-center justify-between">
-                    <Text className="text-base text-gray-600">
-                        Nearby <Text className="text-[#0e7ccb] font-semibold">All Locations</Text>
-                    </Text>
-                    <View className="flex-row items-center">
-                        <Ionicons name="swap-vertical" size={20} color="#666" />
-                        <Text className="text-gray-600 ml-1">1</Text>
+    const HeaderComponent = () => {
+        return (
+            <View>
+                {/* Country Selection */}
+                <View className="bg-white px-4">
+                    <View className="flex-row items-center justify-between">
+                        <Text className="text-lg font-semibold text-gray-800">
+                            Nearby <Text className="text-[#0e7ccb]">{selectedCountry}</Text> - All
+                        </Text>
+                        <TouchableOpacity className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center">
+                            <Ionicons name="swap-vertical" size={20} color="#666" />
+                        </TouchableOpacity>
                     </View>
                 </View>
+
+                {/* Tabs */}
+                <Tabs
+                    tabs={filters}
+                    activeTab='Limited Overs'
+                />
             </View>
+        )
+    }
 
-            {/* Coaches List */}
-            <FlatList
-                data={coaches}
-                renderItem={renderCoachCard}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 8 }}
-            />
+    return (
+        <SafeAreaView className="bg-white flex-1">
+            <View className="flex-1">
+                {/* Header */}
+                <Header heading={`Personal Coaching`} />
+                {/* Scorers List */}
+                <FlatList
+                    data={coaches}
+                    renderItem={renderCard}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
+                    ListHeaderComponent={() => (
+                        <HeaderComponent />
+                    )}
+                />
 
-            {/* Bottom Buttons */}
-            <FloatingActionButton
-                label="REGISTER"
-                onPress={() => router.push('/create-ground')}
-            />
+                {/* Bottom Buttons */}
+                <FloatingActionButton
+                    label="REGISTER"
+                    onPress={() => router.push('/create-coach')}
+                />
+            </View>
         </SafeAreaView>
     )
 }

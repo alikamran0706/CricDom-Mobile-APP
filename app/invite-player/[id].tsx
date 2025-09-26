@@ -1,4 +1,5 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import Header from "@/components/ui/Header"
 import { showAlert } from "@/store/features/alerts/alertSlice"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
@@ -159,12 +160,7 @@ export default function InvitePlayerScreen() {
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-1">
                 {/* Header */}
-                <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="#000" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-semibold ml-4">Invite Player</Text>
-                </View>
+                <Header heading={'Invite Player'} />
 
                 <ScrollView
                     className="flex-1 px-4"
@@ -175,37 +171,39 @@ export default function InvitePlayerScreen() {
                         <View className="flex-row items-center mb-3">
                             <Image source={{ uri: team.logo }} className="w-16 h-16 rounded-full mr-4" />
                             <View className="flex-1">
-                                <Text className="text-xl font-bold text-blue-900">{team.name}</Text>
-                                <Text className="text-blue-700">{team.playerCount} players</Text>
+                                <Text className="text-xl font-bold text-[#0e7ccb]">{team.name}</Text>
+                                <Text className="text-[#0e7ccb]">{team.playerCount} players</Text>
                             </View>
                         </View>
-                        <Text className="text-blue-800 text-sm">{team.description}</Text>
+                        <Text className="text-[#0e7ccb] text-sm">{team.description}</Text>
                     </View>
 
                     {/* Player Information */}
                     <View className="mb-6">
-                        <Text className="text-lg font-semibold mb-4">Player Information</Text>
+                        <Text className="text-lg font-semibold mb-4 text-black">Player Information</Text>
 
                         {/* Player Name */}
                         <View className="mb-4">
-                            <Text className="text-base font-medium mb-2">Player Name *</Text>
+                            <Text className="text-base font-medium mb-2 text-black">Player Name *</Text>
                             <TextInput
                                 className="border border-gray-300 rounded-lg px-4 py-3 text-base"
                                 placeholder="Enter player's full name"
                                 value={playerName}
+                                placeholderTextColor="#A0A0A0"
                                 onChangeText={setPlayerName}
                             />
                         </View>
 
                         {/* Phone Number */}
                         <View className="mb-4">
-                            <Text className="text-base font-medium mb-2">Phone Number *</Text>
+                            <Text className="text-base font-medium mb-2 text-black">Phone Number *</Text>
                             <View className="flex-row items-center border border-gray-300 rounded-lg px-4 py-3">
                                 <Ionicons name="call" size={20} color="#6B7280" />
                                 <TextInput
                                     className="flex-1 ml-3 text-base"
                                     placeholder="(123) 456-7890"
                                     value={phoneNumber}
+                                    placeholderTextColor="#A0A0A0"
                                     onChangeText={handlePhoneChange}
                                     keyboardType="phone-pad"
                                     maxLength={14}
@@ -215,7 +213,7 @@ export default function InvitePlayerScreen() {
 
                         {/* Position Selection */}
                         <View className="mb-4">
-                            <Text className="text-base font-medium mb-2">Position *</Text>
+                            <Text className="text-base font-medium mb-2 text-black">Position *</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
                                 <View className="flex-row gap-x-2">
                                     {positions.map((position) => (
@@ -243,7 +241,7 @@ export default function InvitePlayerScreen() {
 
                     {/* Invitation Message */}
                     <View className="mb-6">
-                        <Text className="text-lg font-semibold mb-4">Invitation Message</Text>
+                        <Text className="text-lg font-semibold mb-4 text-black">Invitation Message</Text>
                         <View className="mb-4">
                             <Text className="text-sm text-gray-600 mb-2">Preview:</Text>
                             <View className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -252,12 +250,13 @@ export default function InvitePlayerScreen() {
                         </View>
 
                         <View>
-                            <Text className="text-base font-medium mb-2">Custom Message (Optional)</Text>
+                            <Text className="text-base font-medium mb-2 text-black">Custom Message (Optional)</Text>
                             <TextInput
                                 className="border border-gray-300 rounded-lg px-4 py-3 text-base"
                                 placeholder="Add a personal message..."
                                 value={inviteMessage}
                                 onChangeText={setInviteMessage}
+                                placeholderTextColor="#A0A0A0"
                                 multiline
                                 numberOfLines={4}
                                 textAlignVertical="top"

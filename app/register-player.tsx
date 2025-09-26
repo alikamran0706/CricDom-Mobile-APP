@@ -1,19 +1,24 @@
 import ImagePickerButton from "@/components/ImagePickerButton"
+import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import Header from "@/components/ui/Header"
 import Input from "@/components/ui/Input"
-import { battingStyles, bowlingStyles, gameTypes, positions } from "@/constants/player"
+import { ballTypes } from "@/constants/match"
+import { battingStyles, bowlingStyles, positions } from "@/constants/player"
 import { getFullStrapiUrl, sanitizeObject } from "@/lib/utils/common"
 import type { RootState } from "@/store"
 import { showAlert } from "@/store/features/alerts/alertSlice"
 import {
-    useCreatePlayerMutation,
-    useGetPlayerByIdQuery,
-    useUpdatePlayerMutation,
+  useCreatePlayerMutation,
+  useGetPlayerByIdQuery,
+  useUpdatePlayerMutation,
 } from "@/store/features/player/playerApi"
 import { useUploadFileMutation } from "@/store/features/upload/uploadApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
-import React, { useEffect, useLayoutEffect, useState } from "react"
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import CountryPicker, { Country, CountryCode } from 'react-native-country-picker-modal'
+import PhoneInput from 'react-native-phone-input'
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -49,7 +54,7 @@ export default function CreatePlayerScreen() {
     batting_style: "",
     bowling_style: "",
     position: "",
-    game_type: "",
+     game_type: [] as string[],
   })
 
   const [showBattingDropdown, setShowBattingDropdown] = useState(false)
@@ -57,9 +62,36 @@ export default function CreatePlayerScreen() {
   const [showPositionDropdown, setShowPositionDropdown] = useState(false)
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false)
 
+  const [countryPickerVisible, setCountryPickerVisible] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [countryCode, setCountryCode] = useState<CountryCode>('US');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const phoneInputRef = useRef<PhoneInput>(null);
+
+
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false })
   }, [navigation])
+
+  const onSelectCountry = (country: any) => {
+    setCountryCode(country.cca2);
+    setSelectedCountry(country);
+    setCountryPickerVisible(false);
+    setPhoneNumber(country.callingCode.toString());
+    if (phoneInputRef.current) {
+      phoneInputRef.current.selectCountry(country.cca2.toLowerCase());
+    }
+  };
+
+  const toggleCountryPicker = () => {
+    setCountryPickerVisible(!countryPickerVisible);
+  };
+
+  useEffect(() => {
+    if (phoneInputRef.current) {
+      phoneInputRef.current.selectCountry(countryCode.toLowerCase());
+    }
+  }, [countryCode]);
 
   useEffect(() => {
     if (player) {
@@ -87,7 +119,7 @@ export default function CreatePlayerScreen() {
           )
           return false
         }
-        if (!formData.phone_number.trim()) {
+        if (!phoneNumber.trim()) {
           dispatch(
             showAlert({
               type: "error",
@@ -138,7 +170,8 @@ export default function CreatePlayerScreen() {
   }
 
   const handleCreatePlayer = async () => {
-    const cleanedData = sanitizeObject(formData)
+    const { game_type, ...rest } = formData;
+    const cleanedData = sanitizeObject(rest)
     if (!cleanedData?.name?.trim()) {
       dispatch(
         showAlert({
@@ -149,7 +182,7 @@ export default function CreatePlayerScreen() {
       return
     }
 
-    if (!cleanedData?.phone_number?.trim()) {
+    if (!phoneNumber?.trim()) {
       dispatch(
         showAlert({
           type: "error",
@@ -270,38 +303,64 @@ export default function CreatePlayerScreen() {
     </View>
   )
 
+  const getStepLabel = (index: number) => {
+    switch (index) {
+      case 0:
+        return "Basic Info";
+      case 1:
+        return "Playing Style";
+      case 2:
+        return "Review";
+      default:
+        return "";
+    }
+  }
+
   const StepIndicator = () => (
     <View
       style={{
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        paddingVertical: 20,
+        paddingTop: 6,
         paddingHorizontal: 16,
       }}
     >
       {Array.from({ length: totalSteps }, (_, index) => (
         <React.Fragment key={index}>
-          <View
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: index <= currentStep ? "#3B82F6" : "#E5E7EB",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
+          <View style={{ alignItems: 'center' }}>
+            <View
               style={{
-                color: index <= currentStep ? "white" : "#9CA3AF",
-                fontSize: 14,
-                fontWeight: "600",
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: index <= currentStep ? "#0e7ccb" : "#E5E7EB",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              {index + 1}
+              <Text
+                style={{
+                  color: index <= currentStep ? "white" : "#9CA3AF",
+                  fontSize: 14,
+                  fontWeight: "600",
+                }}
+              >
+                {index + 1}
+              </Text>
+            </View>
+            {/* Add label under step */}
+            <Text style={{
+              marginTop: 4,
+              fontSize: 12,
+              color: index <= currentStep ? "#0e7ccb" : "#9CA3AF",
+              textAlign: 'center',
+              width: 60,
+            }}>
+              {getStepLabel(index)}
             </Text>
           </View>
+
           {index < totalSteps - 1 && (
             <View
               style={{
@@ -316,6 +375,7 @@ export default function CreatePlayerScreen() {
       ))}
     </View>
   )
+
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -347,14 +407,45 @@ export default function CreatePlayerScreen() {
             />
 
             {/* Phone Number */}
-            <Input
-              label="Phone Number"
-              value={formData.phone_number}
-              onChangeText={(phone_number) => setFormData((prev) => ({ ...prev, phone_number }))}
-              placeholder="Enter phone number"
-              required={true}
-              keyboardType="phone-pad"
-            />
+            {
+              Platform.OS === 'web' ?
+                <Input
+                  label="Phone Number"
+                  value={formData.phone_number}
+                  onChangeText={(phone_number) => setPhoneNumber(phone_number)}
+                  placeholder="Enter phone number"
+                  required={true}
+                  keyboardType="phone-pad"
+                />
+                :
+                <View>
+                  <Text className="text-base font-medium text-gray-800 mb-2">
+                    Phone Number <Text className="text-red-600"> *</Text>
+                  </Text>
+                  <PhoneInput
+                    initialCountry={countryCode.toLowerCase()}
+                    ref={phoneInputRef}
+                    onChangePhoneNumber={(number) => setPhoneNumber(number)}
+                    onPressFlag={toggleCountryPicker}
+                    textProps={{ placeholder: 'Enter a phone number...' }}
+                    style={styles.phoneInput}
+                    textStyle={styles.phoneInputText}
+                  />
+                </View>
+            }
+
+            {countryPickerVisible && (
+              <CountryPicker
+                countryCode={countryCode}
+                withFilter={true}
+                withFlagButton={false}
+                withFlag={true}
+                withCountryNameButton={false}
+                onSelect={onSelectCountry}
+                onClose={() => setCountryPickerVisible(false)}
+                visible={countryPickerVisible}
+              />
+            )}
           </View>
         )
 
@@ -381,21 +472,6 @@ export default function CreatePlayerScreen() {
               }}
             />
 
-            {/* Batting Style */}
-            <Dropdown
-              label="Batting Style"
-              value={formData.batting_style}
-              options={battingStyles}
-              onSelect={(value) => setFormData((prev) => ({ ...prev, batting_style: value }))}
-              showDropdown={showBattingDropdown}
-              onToggle={() => {
-                setShowBattingDropdown(!showBattingDropdown)
-                setShowPositionDropdown(false)
-                setShowBowlingDropdown(false)
-                setShowGameTypeDropdown(false)
-              }}
-            />
-
             {/* Bowling Style */}
             <Dropdown
               label="Bowling Style"
@@ -411,27 +487,77 @@ export default function CreatePlayerScreen() {
               }}
             />
 
-            {/* Game Type */}
-            <Dropdown
-              label="Game Type"
-              value={formData.game_type}
-              options={gameTypes}
-              onSelect={(value) => setFormData((prev) => ({ ...prev, game_type: value }))}
-              showDropdown={showGameTypeDropdown}
-              onToggle={() => {
-                setShowGameTypeDropdown(!showGameTypeDropdown)
-                setShowPositionDropdown(false)
-                setShowBattingDropdown(false)
-                setShowBowlingDropdown(false)
-              }}
-            />
+            {/* Batting Style Selection */}
+            <Text className="text-base font-semibold text-gray-800 mb-3">Batting Style</Text>
+            <View className="flex-row justify-around mb-6">
+              {battingStyles.map((batting) => (
+                <TouchableOpacity
+                  key={batting.value}
+                  className={`items-center p-4 ${formData.batting_style === batting.value ? "bg-blue-100 rounded-lg" : ""}`}
+                  onPress={() => setFormData(prev => ({ ...prev, batting_style: batting.value }))}
+                >
+                  <Image
+                    source={batting.image}
+                    style={{
+                      width: 35,
+                      height: 35,
+                      tintColor: '#6b7280',
+                      resizeMode: 'contain',
+                    }}
+                  />
+                  <Text className="text-xs font-semibold text-gray-700 mt-2">{batting.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Ball Type Selection */}
+            <Text className="text-base font-semibold text-gray-800 mb-3">Game Type</Text>
+            <View className="flex-row justify-around mb-6 flex-wrap">
+              {ballTypes.map((ball) => {
+                const isSelected = formData.game_type.includes(ball.type);
+                const iconName = isSelected ? 'checkmark' : ball.icon;
+
+                return (
+                  <TouchableOpacity
+                    key={ball.type}
+                    className="items-center m-2"
+                    onPress={() => {
+                      setFormData(prev => {
+                        const selected = prev.game_type.includes(ball.type)
+                          ? prev.game_type.filter(t => t !== ball.type)
+                          : [...prev.game_type, ball.type];
+                        return { ...prev, game_type: selected };
+                      });
+                    }}
+                  >
+                    <View
+                      className={`
+                                     w-16 h-16 rounded-full items-center justify-center mb-2 
+                                     ${isSelected ? 'bg-blue-100 border border-[#0e7ccb]' : 'bg-white border border-gray-200'}
+                                   `}
+                    >
+                      <Ionicons
+                        name={iconName as any}
+                        size={24}
+                        color={isSelected ? '#0e7ccb' : ball.color}
+                      />
+                    </View>
+                    <Text className="text-gray-800 font-medium">{ball.type}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         )
 
       case 2:
         return (
           <View>
-            <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 8, textAlign: "center" }}>
+            <Text style={{
+              fontSize: 24, fontWeight: "700", marginBottom: 8,
+              textAlign: "center", color: 'black'
+            }}
+            >
               Review & Confirm
             </Text>
             <Text style={{ fontSize: 16, color: "#6B7280", marginBottom: 32, textAlign: "center" }}>
@@ -465,33 +591,33 @@ export default function CreatePlayerScreen() {
               )}
 
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Name</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.name || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Name</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.name || "Not specified"}</Text>
               </View>
 
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Phone Number</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.phone_number || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Phone Number</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.phone_number || "Not specified"}</Text>
               </View>
 
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Position</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.position || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Position</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.position || "Not specified"}</Text>
               </View>
 
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Batting Style</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.batting_style || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Batting Style</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.batting_style || "Not specified"}</Text>
               </View>
 
               <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Bowling Style</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.bowling_style || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Bowling Style</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.bowling_style || "Not specified"}</Text>
               </View>
 
               <View>
-                <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 4 }}>Game Type</Text>
-                <Text style={{ fontSize: 16, fontWeight: "600" }}>{formData.game_type || "Not specified"}</Text>
+                <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Game Type</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#6B7280" }}>{formData.game_type || "Not specified"}</Text>
               </View>
             </View>
           </View>
@@ -506,23 +632,7 @@ export default function CreatePlayerScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 1 }}>
         {/* Header */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: "#E5E7EB",
-          }}
-        >
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 20, fontWeight: "600", marginLeft: 16 }}>
-            {id ? "Edit Player" : "Create Player"}
-          </Text>
-        </View>
+        <Header heading='Create Player' />
 
         {/* Step Indicator */}
         <StepIndicator />
@@ -538,90 +648,89 @@ export default function CreatePlayerScreen() {
         )}
 
         {/* Navigation Buttons */}
-        <View
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: "white",
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            borderTopWidth: 1,
-            borderTopColor: "#E5E7EB",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          {currentStep > 0 && (
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: "#F3F4F6",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 8,
-                marginRight: 8,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onPress={handlePrevious}
-            >
-              <Ionicons name="chevron-back" size={20} color="#374151" />
-              <Text style={{ fontSize: 16, fontWeight: "600", color: "#374151", marginLeft: 4 }}>Previous</Text>
-            </TouchableOpacity>
-          )}
+        <View >
+          {(currentStep > 0 && currentStep < totalSteps - 1) ? (
+            <View className="bg-white p-4">
+              <View className="flex-row gap-x-3">
+                <TouchableOpacity
+                  className="flex-1 rounded-xl py-4 items-center bg-[#d1d5db] flex-row justify-center"
+                  onPress={handlePrevious}
+                >
+                  <Ionicons name="chevron-back" size={20} color="black" />
+                  <Text className="text-black font-bold ml-2">Previous</Text>
+                </TouchableOpacity>
 
-          {currentStep < totalSteps - 1 ? (
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: "#3B82F6",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 8,
-                marginLeft: currentStep > 0 ? 8 : 0,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onPress={handleNext}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "600", color: "white", marginRight: 4 }}>Next</Text>
-              <Ionicons name="chevron-forward" size={20} color="white" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: "#10B981",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 8,
-                marginLeft: currentStep > 0 ? 8 : 0,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                opacity: isLoading || isUpdating ? 0.7 : 1,
-              }}
-              onPress={handleCreatePlayer}
-              disabled={isLoading || isUpdating}
-            >
-              {isLoading || isUpdating ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <>
-                  <Ionicons name="checkmark" size={20} color="white" />
-                  <Text style={{ fontSize: 16, fontWeight: "600", color: "white", marginLeft: 4 }}>
-                    {id ? "Update Player" : "Create Player"}
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
+                <TouchableOpacity className="flex-1 bg-[#0e7ccb] rounded-xl py-4 items-center flex-row justify-center"
+                  onPress={handleNext}>
+                  <Text className="text-white font-bold mr-2">Next</Text>
+                  <Ionicons name="chevron-forward" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (currentStep < totalSteps - 1) &&
+          <FloatingActionButton
+            label="Next"
+            iconName="chevron-forward"
+            iconPosition='right'
+            backgroundColor='#0e7ccb'
+            textColor='white'
+            iconColor='white'
+            onPress={handleNext}
+            loading={isLoading}
+            disabled={isLoading}
+          />
+          }
+
+          {currentStep === totalSteps - 1 && (
+            <View className="bg-white p-4">
+              <View className="flex-row gap-x-3">
+                <TouchableOpacity
+                  className="flex-1 rounded-xl py-4 items-center bg-[#d1d5db] flex-row justify-center"
+                  onPress={handlePrevious}
+                >
+                  <Ionicons name="chevron-back" size={20} color="black" />
+                  <Text className="text-black font-bold ml-2">Previous</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity disabled={isLoading || isUpdating} className="flex-1 flex-row bg-[#0e7ccb] rounded-xl py-4 items-center justify-center" onPress={handleCreatePlayer}>
+                  {isLoading || isUpdating ? (
+                    <ActivityIndicator size="small" color="white" />
+                  )
+                    :
+                    (
+                      <>
+                        <Ionicons name="checkmark" size={20} color="white" />
+                        <Text className="text-white font-bold"> {id ? "Update Player" : "Create Player"}</Text>
+                      </>
+                    )
+                  }
+                </TouchableOpacity>
+              </View>
+            </View>
           )}
         </View>
       </View>
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  phoneInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: '#C0C0C0',
+    color: 'black',
+    height: 50,
+    padding: 5,
+    marginBottom: 20,
+  },
+  phoneInputText: {
+    color: 'black',
+  },
+});

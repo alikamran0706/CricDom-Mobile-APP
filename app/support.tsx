@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRouter } from 'expo-router';
+import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -18,6 +20,14 @@ interface FAQItem {
 }
 
 const HelpSupportScreen: React.FC = () => {
+
+   const navigation = useNavigation();
+    const router = useRouter();
+  
+    useLayoutEffect(() => {
+      navigation.setOptions({ headerShown: false });
+    }, [navigation]);
+
   const [faqs, setFaqs] = useState<FAQItem[]>([
     {
       id: '1',
@@ -133,11 +143,11 @@ const HelpSupportScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Help & Support</Text>
-        <Text style={styles.headerSubtitle}>
-          We're here to help you with Cricdom
-        </Text>
+      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text className="text-xl font-semibold ml-4 text-black">Help & Support</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>

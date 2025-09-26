@@ -19,7 +19,7 @@ const getRankColor = (rank: number) => {
 const Card = ({ name, matches, points, rank, dailyRate, matchRate, image, link }: any) => {
     const router = useRouter();
     return (
-        <TouchableOpacity
+        <View
             className="bg-white rounded-2xl p-4 mb-4 mx-4 border border-gray-100"
             style={{
                 shadowColor: '#000',
@@ -27,11 +27,6 @@ const Card = ({ name, matches, points, rank, dailyRate, matchRate, image, link }
                 shadowOpacity: 0.1,
                 shadowRadius: 4,
                 elevation: 11,
-            }}
-            onPress={() => {
-                if (link) {
-                    router.push(link as `/`);
-                }
             }}
         >
             <View className="flex-row items-center mb-3">
@@ -60,7 +55,7 @@ const Card = ({ name, matches, points, rank, dailyRate, matchRate, image, link }
                     <Ionicons name="chatbubble" size={20} color="white" />
                 </TouchableOpacity>
             </View>
-        </TouchableOpacity>
+        </View>
     )
 }
 

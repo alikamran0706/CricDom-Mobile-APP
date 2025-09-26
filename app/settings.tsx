@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRouter } from 'expo-router';
+import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -23,6 +25,12 @@ const SettingsScreen: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [offlineMode, setOfflineMode] = useState(false);
+  const navigation = useNavigation();
+  const router = useRouter();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -168,7 +176,7 @@ const SettingsScreen: React.FC = () => {
             <Text style={styles.settingDescription}>{item.description}</Text>
           )}
         </View>
-        
+
         {item.type === 'toggle' && (
           <Switch
             value={item.value}
@@ -178,7 +186,7 @@ const SettingsScreen: React.FC = () => {
             ios_backgroundColor="#E5E7EB"
           />
         )}
-        
+
         {item.type === 'navigation' && (
           <Text style={styles.chevron}>›</Text>
         )}
@@ -188,9 +196,11 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <Text style={styles.headerSubtitle}>Customize your Cricdom experience</Text>
+      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text className="text-xl font-semibold ml-4 text-black">Settings</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>

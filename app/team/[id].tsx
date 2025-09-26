@@ -5,7 +5,7 @@ import SocialShare from "@/components/SocialShare"
 import { getFullStrapiUrl } from "@/lib/utils/common"
 import type { RootState } from "@/store"
 import { useGetTeamQuery } from "@/store/features/team/teamApi"
-import { Ionicons } from "@expo/vector-icons"
+import { Entypo, Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { useEffect, useLayoutEffect, useState } from "react"
 import {
@@ -160,7 +160,7 @@ export default function TeamDetailScreen() {
                     <Ionicons name="person" size={32} color="#9CA3AF" />
                   )}
                 </View>
-                <View className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white items-center justify-center">
+                <View className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#0e7ccb] rounded-full border-2 border-white items-center justify-center">
                   <View className="w-2 h-2 bg-white rounded-full" />
                 </View>
               </View>
@@ -363,13 +363,12 @@ export default function TeamDetailScreen() {
           {/* Back Button */}
           <TouchableOpacity
             onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
           >
-            <Ionicons name="arrow-back" size={20} color="#374151" />
+            <Entypo name="arrow-bold-left" size={29} color="#3b3b3b" />
           </TouchableOpacity>
 
           {/* Right-side Icons */}
-          <View className="flex-row items-center space-x-4">
+          <View className="flex-row items-center gap-x-2">
             <SocialShare
               title="Custom Share Title"
               message="This is a custom share message for this screen!"
@@ -439,7 +438,7 @@ export default function TeamDetailScreen() {
                     {/* Follow / Unfollow Button */}
                     <TouchableOpacity
                       onPress={toggleFollow}
-                      className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-white" : "bg-green-500"
+                      className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-white" : "bg-[#0e7ccb]"
                         }`}
                     >
                       <Text
@@ -475,7 +474,7 @@ export default function TeamDetailScreen() {
                   {/* Follow / Unfollow Button (plain background) */}
                   <TouchableOpacity
                     onPress={toggleFollow}
-                    className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-gray-200" : "bg-green-500"
+                    className={`px-4 py-1.5 rounded-full ${isFollowing ? "bg-gray-200" : "bg-[#0e7ccb]"
                       }`}
                   >
                     <Text

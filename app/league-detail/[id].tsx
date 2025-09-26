@@ -1,10 +1,10 @@
+import Header from '@/components/ui/Header';
 import { useGetLeagueQuery } from '@/store/features/league/leagueApi';
 import { useGetMatchesQuery } from '@/store/features/match/matchApi';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useLayoutEffect } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MatchCard from '../../components/MatchCard';
 
@@ -44,12 +44,7 @@ export default function LeagueDetailScreen() {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             {/* Header */}
-            <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
-                <Text className="text-xl font-semibold ml-4">League </Text>
-            </View>
+            <Header heading='League' />
 
             {
                 leagueLoading ? (

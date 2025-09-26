@@ -1,7 +1,9 @@
 import ImagePickerButton from '@/components/ImagePickerButton';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import Header from '@/components/ui/Header';
 import Input from '@/components/ui/Input';
-import { battingStyles, bowlingStyles, gameTypes, positions } from '@/constants/player';
+import { ballTypes } from '@/constants/match';
+import { battingStyles, bowlingStyles, positions } from '@/constants/player';
 import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
@@ -10,7 +12,7 @@ import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -28,7 +30,7 @@ export default function CreatePlayerScreen() {
   const dispatch = useDispatch();
   const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
   const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
-  const [uploadFile] = useUploadFileMutation(); 
+  const [uploadFile] = useUploadFileMutation();
   const profile = useSelector((state: RootState) => state.user.profile);
 
   const [formData, setFormData] = useState({
@@ -39,7 +41,7 @@ export default function CreatePlayerScreen() {
     batting_style: '',
     bowling_style: '',
     position: '',
-    game_type: '',
+    game_type: [] as string[],
   });
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function CreatePlayerScreen() {
         batting_style: player.batting_style || '',
         bowling_style: player.bowling_style || '',
         position: player.position || '',
-        game_type: player.game_type || '',
+        game_type: Array.isArray(player.game_type) ? player.game_type : [player.game_type].filter(Boolean),
       });
     }
   }, [player]);
@@ -226,21 +228,7 @@ export default function CreatePlayerScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1 }}>
         {/* Header */}
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: '#E5E7EB'
-        }}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 20, fontWeight: '600', marginLeft: 16 }}>
-            Create Player
-          </Text>
-        </View>
+        <Header heading='Create Player' />
         {
           loading ?
             <View className="flex-1 items-center justify-center">
@@ -251,7 +239,7 @@ export default function CreatePlayerScreen() {
               contentContainerStyle={{ paddingBottom: 70 }}>
               <View style={{ paddingVertical: 24 }}>
                 {/* Player Image Upload */}
-                <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                <View style={{ alignItems: 'center', marginBottom: 2 }}>
                   <ImagePickerButton
                     imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
                     onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
@@ -292,21 +280,6 @@ export default function CreatePlayerScreen() {
                   }}
                 />
 
-                {/* Batting Style */}
-                <Dropdown
-                  label="Batting Style"
-                  value={formData.batting_style}
-                  options={battingStyles}
-                  onSelect={(value) => setFormData(prev => ({ ...prev, batting_style: value }))}
-                  showDropdown={showBattingDropdown}
-                  onToggle={() => {
-                    setShowBattingDropdown(!showBattingDropdown);
-                    setShowPositionDropdown(false);
-                    setShowBowlingDropdown(false);
-                    setShowGameTypeDropdown(false);
-                  }}
-                />
-
                 {/* Bowling Style */}
                 <Dropdown
                   label="Bowling Style"
@@ -322,20 +295,67 @@ export default function CreatePlayerScreen() {
                   }}
                 />
 
-                {/* Game Type */}
-                <Dropdown
-                  label="Game Type"
-                  value={formData.game_type}
-                  options={gameTypes}
-                  onSelect={(value) => setFormData(prev => ({ ...prev, game_type: value }))}
-                  showDropdown={showGameTypeDropdown}
-                  onToggle={() => {
-                    setShowGameTypeDropdown(!showGameTypeDropdown);
-                    setShowPositionDropdown(false);
-                    setShowBattingDropdown(false);
-                    setShowBowlingDropdown(false);
-                  }}
-                />
+                {/* Batting Style Selection */}
+                <Text className="text-base font-semibold text-gray-800 mb-3">Batting Style</Text>
+                <View className="flex-row justify-around mb-6">
+                  {battingStyles.map((batting) => (
+                    <TouchableOpacity
+                      key={batting.value}
+                      className={`items-center p-4 ${formData.batting_style === batting.value ? "bg-blue-100 rounded-lg" : ""}`}
+                      onPress={() => setFormData(prev => ({ ...prev, batting_style: batting.value }))}
+                    >
+                      <Image
+                        source={batting.image}
+                        style={{
+                          width: 35,
+                          height: 35,
+                          tintColor: '#6b7280',
+                          resizeMode: 'contain',
+                        }}
+                      />
+                      <Text className="text-xs font-semibold text-gray-700 mt-2">{batting.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Ball Type Selection */}
+                <Text className="text-base font-semibold text-gray-800 mb-3">Game Type</Text>
+                <View className="flex-row justify-around mb-6 flex-wrap">
+                  {ballTypes.map((ball) => {
+                    const isSelected = formData.game_type.includes(ball.type);
+                    const iconName = isSelected ? 'checkmark' : ball.icon;
+
+                    return (
+                      <TouchableOpacity
+                        key={ball.type}
+                        className="items-center m-2"
+                        onPress={() => {
+                          setFormData(prev => {
+                            const selected = prev.game_type.includes(ball.type)
+                              ? prev.game_type.filter(t => t !== ball.type)
+                              : [...prev.game_type, ball.type];
+                            return { ...prev, game_type: selected };
+                          });
+                        }}
+                      >
+                        <View
+                          className={`
+                          w-16 h-16 rounded-full items-center justify-center mb-2 
+                          ${isSelected ? 'bg-blue-100 border border-[#0e7ccb]' : 'bg-white border border-gray-200'}
+                        `}
+                        >
+                          <Ionicons
+                            name={iconName as any}
+                            size={24}
+                            color={isSelected ? '#0e7ccb' : ball.color}
+                          />
+                        </View>
+                        <Text className="text-gray-800 font-medium">{ball.type}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
               </View>
             </ScrollView>
         }

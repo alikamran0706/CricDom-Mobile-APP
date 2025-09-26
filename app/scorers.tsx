@@ -1,14 +1,14 @@
-import Card from "@/components/community/Card"
-import Header from "@/components/community/Header"
-import FloatingActionButton from "@/components/ui/FloatingActionButton"
-import Tabs from "@/components/ui/Tabs"
-import { scorers } from "@/constants/scorer"
-import { Scorer } from "@/lib/types/scorer"
-import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect, useState } from "react"
-import { FlatList, Text, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import Card from "@/components/community/Card";
+import Header from "@/components/community/Header";
+import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import Tabs from "@/components/ui/Tabs";
+import { scorers } from "@/constants/scorer";
+import { Scorer } from "@/lib/types/scorer";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRouter } from "expo-router";
+import { useLayoutEffect, useState } from "react";
+import { FlatList, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ScorersScreen = () => {
   const router = useRouter();
@@ -22,16 +22,18 @@ const ScorersScreen = () => {
   const filters = ["Cricket", "Test Match", "The Hundred", "Pair Cricket"]
 
   const renderScorerCard = ({ item }: { item: Scorer }) => (
-    <Card
-      name={item.name}
-      matches={item.matchesScored}
-      points={item.totalPoints}
-      rank={item.rank}
-      dailyRate={item.dailyRate}
-      matchRate={item.matchRate}
-      image={item.image}
-      link={'/'}
-    />
+    <Pressable onPress={() => router.push(`/player/${item.id}?community=scorer`)}>
+      <Card
+        name={item.name}
+        matches={item.matchesScored}
+        points={item.totalPoints}
+        rank={item.rank}
+        dailyRate={item.dailyRate}
+        matchRate={item.matchRate}
+        image={item.image}
+        link={'/'}
+      />
+    </Pressable>
   )
 
   const HeaderComponent = () => {
@@ -78,7 +80,7 @@ const ScorersScreen = () => {
         {/* Bottom Buttons */}
         <FloatingActionButton
           label="REGISTER"
-          onPress={() => {}}
+          onPress={() => router.push('/create-scorer')}
         />
       </View>
     </SafeAreaView>

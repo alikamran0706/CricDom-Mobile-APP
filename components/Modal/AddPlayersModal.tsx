@@ -132,8 +132,8 @@ export default function AddPlayersModal({
               className="flex-1 ml-2 text-base"
               placeholder="Search by name or position"
               value={searchQuery}
+               placeholderTextColor="#A0A0A0"
               onChangeText={setSearchQuery}
-              placeholderTextColor="#9CA3AF"
             />
           </View>
         </View>
@@ -189,9 +189,9 @@ export default function AddPlayersModal({
             onPress={handleInviteNewPlayer}
           >
             <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mr-3">
-              <Ionicons name="person-add" size={24} color="#3B82F6" />
+              <Ionicons name="person-add" size={24} color="#0e7ccb" />
             </View>
-            <Text className="text-base font-medium text-blue-600">
+            <Text className="text-base font-medium text-[#0e7ccb]">
               Invite New Player
             </Text>
           </TouchableOpacity>
@@ -202,7 +202,7 @@ export default function AddPlayersModal({
             activeOpacity={0.8}
           >
             <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mr-4">
-              <Ionicons name="qr-code-outline" size={26} color="#2563EB" />
+              <Ionicons name="qr-code-outline" size={26} color="#0e7ccb" />
             </View>
             <View>
               <Text className="text-base font-semibold text-gray-900">

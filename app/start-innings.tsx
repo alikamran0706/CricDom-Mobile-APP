@@ -1,7 +1,7 @@
 import InningPlayerSelection from "@/components/Modal/InningPlayerSelection";
 import { Player } from "@/lib/types/match";
 import { getFullStrapiUrl } from "@/lib/utils/common";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -28,7 +28,7 @@ export default function StartInningsScreen() {
     const handleStartScoring = () => {
         console.log('hellooooo')
         if ((player !== undefined && player !== null) && selectedNonStriker && selectedBowler) {
-           router.push("/scoring")
+            router.push("/scoring")
         }
     };
 
@@ -67,12 +67,12 @@ export default function StartInningsScreen() {
             <View className="px-4 py-4 flex-row items-center justify-between">
                 <View className="flex-row items-center">
                     <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
+                        <Entypo name="arrow-bold-left" size={29} color="#3b3b3b" />
                     </TouchableOpacity>
-                    <Text className="text-black text-xl font-semibold ml-4">
-                        Start Innings
-                    </Text>
                 </View>
+                <Text className="text-black text-xl font-semibold">
+                    Start Innings
+                </Text>
                 <TouchableOpacity onPress={() => router.push("/match-help")}>
                     <Ionicons name="help-circle-outline" size={24} color="gray-500" />
                 </TouchableOpacity>

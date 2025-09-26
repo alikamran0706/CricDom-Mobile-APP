@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -104,7 +104,7 @@ export default function HelpScreen() {
                     <TouchableOpacity
                         onPress={() => router.back()}
                     >
-                        <Ionicons name="arrow-back" size={24} color="white" />
+                        <Entypo name="arrow-bold-left" size={29} color="white" />
                     </TouchableOpacity>
                     <Text className="text-white text-xl font-semibold ml-4">
                         Help

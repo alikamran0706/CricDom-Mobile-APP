@@ -1,6 +1,7 @@
 import ImagePickerButton from "@/components/ImagePickerButton";
 import Dropdown from "@/components/ui/Dropdown";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import Header from "@/components/ui/Header";
 import Input from "@/components/ui/Input";
 import { matchOptions } from "@/constants/league";
 import { sanitizeObject } from "@/lib/utils/common";
@@ -8,11 +9,10 @@ import { RootState } from "@/store";
 import { showAlert } from "@/store/features/alerts/alertSlice";
 import { useCreateLeagueMutation } from "@/store/features/league/leagueApi";
 import { useUploadFileMutation } from "@/store/features/upload/uploadApi";
-import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import { Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Platform, ScrollView, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -117,18 +117,12 @@ export default function CreateLeague() {
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-1">
                 {/* Header */}
-                <View className="flex-row items-center px-4 py-4">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="#000" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-semibold ml-4">Create League</Text>
-                </View>
-
+                <Header heading={'Create League'} />
                 <ScrollView className="flex-1"
                     contentContainerStyle={{ paddingBottom: 70 }}
                 >
                     {/* Profile Picture */}
-                    <View className="items-center py-8">
+                    <View className="items-center pt-4">
                         <ImagePickerButton
                             title='Upload League Logo'
                             imageUri={formData.image}

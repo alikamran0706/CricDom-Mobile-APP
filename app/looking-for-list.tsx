@@ -1,3 +1,4 @@
+import Header from "@/components/community/Header";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
@@ -115,33 +116,12 @@ const LookingForListScreen = () => {
     )
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
-            <View className="px-4 py-3">
-                <View className="flex-row items-center justify-between">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold text-black">Looking For</Text>
-                    <View className="flex-row">
-                        <TouchableOpacity className="mr-4">
-                            {/* <Ionicons name="target" size={24} color="white" /> */}
-                        </TouchableOpacity>
-                        <TouchableOpacity className="mr-4" onPress={() => router.push('/direct-messages')}>
-                            <Ionicons name="chatbubbles" size={24} color="black" />
-                        </TouchableOpacity>
-                        <TouchableOpacity className="relative" onPress={() => router.push('/filters')}>
-                            <Ionicons name="funnel" size={24} color="black" />
-                            <View className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full items-center justify-center">
-                                <Text className="text-xs font-bold text-gray-800">1</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
+            <Header heading='Looking For' />
 
             {/* Section Header */}
-            <View className="bg-white px-4 py-4 border-b border-gray-200">
+            <View className="bg-white px-4 py-4">
                 <View className="flex-row items-center justify-between">
                     <Text className="text-lg font-semibold text-gray-800">
                         Looking for <Text className="text-[#0e7ccb]">Ground?</Text>

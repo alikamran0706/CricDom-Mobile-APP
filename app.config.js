@@ -14,11 +14,17 @@ export default ({ config }) => {
     },
     android: {
       package: "com.techlaud.cricdom",
+      permissions: ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#000000"
       },
-      edgeToEdgeEnabled: true
+      edgeToEdgeEnabled: true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDjLd8-m49Y7IDVT4VfR6sMX_lugEajnVA"
+        }
+      }
     },
     web: {
       bundler: "metro",
@@ -43,7 +49,7 @@ export default ({ config }) => {
     extra: {
       appEnv: process.env.APP_ENV,
       eas: {
-        projectId: "7517fea4-2956-49d0-9b7f-37b7880cbf14"
+        projectId: "bf8f307d-36a8-435e-889c-766cc5e10a20"
       }
     }
   };

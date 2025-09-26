@@ -204,8 +204,9 @@ export default function MatchesScreen() {
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 pt-4">
           <Text className="text-xl font-semibold text-black">Matches</Text>
-          <TouchableOpacity className="w-8 h-8 items-center justify-center" onPress={() => router.push('/create-match')}>
-            <Ionicons name="add" size={24} color="#000" />
+          <TouchableOpacity className="items-center justify-center bg-[#0e7ccb] px-2 py-1 rounded-full" onPress={() => router.push('/create-match')}>
+            {/* <Ionicons name="add" size={24} color="#000" /> */}
+            <Text className="text-white">Start Match</Text>
           </TouchableOpacity>
         </View>
 

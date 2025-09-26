@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 
 const upcomingActivities = [
@@ -12,6 +12,24 @@ const upcomingActivities = [
 
 const MoreComponentsBelow = () => {
     const router = useRouter();
+    const [viewMode, setViewMode] = useState('list');
+    const [playersData, setPlayersData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const recentActivities = [
+        {
+            id: 1,
+            title: "Team Titans vs Warriors",
+            description: "Match scheduled for tomorrow",
+            route: "/match/1"
+        },
+        {
+            id: 2,
+            title: "New player added to Strikers",
+            description: "John Doe joined the team",
+            route: "/match/1"
+        }
+    ];
 
     return (
         <View className="px-4">
@@ -50,7 +68,43 @@ const MoreComponentsBelow = () => {
 
             {/* Recent Activity */}
             <View className="mb-6">
-                <Text className="text-lg font-semibold mb-3 text-black">Recent Activity</Text>
+                {/* <Text className="text-lg font-semibold mb-3 text-black">Recent Activity</Text>
+                <View className="gap-y-3">
+                    <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
+                        <Text className="font-medium text-black">Team Titans vs Warriors</Text>
+                        <Text className="text-gray-600 text-sm">Match scheduled for tomorrow</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
+                        <Text className="font-medium text-black">New player added to Strikers</Text>
+                        <Text className="text-gray-600 text-sm">John Doe joined the team</Text>
+                    </TouchableOpacity>
+                </View> */}
+
+                <View className="flex-row justify-between items-center mb-4 px-4">
+                    <Text className="text-lg font-semibold text-black">Recent Activity</Text>
+
+                    <View className="flex-row bg-gray-200 rounded-lg p-1">
+                        <TouchableOpacity
+                            className={`px-4 py-2 rounded-md ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+                            onPress={() => router.push(`/teams`)}
+                        >
+                            <Text className={`font-medium ${viewMode === 'list' ? 'text-blue-600' : 'text-gray-600'}`}>
+                                List
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            className={`px-4 py-2 rounded-md ${viewMode === 'map' ? 'bg-white shadow-sm' : ''}`}
+                            onPress={() => router.push(`/find-on-map`)}
+                        >
+                            <Text className={`font-medium ${viewMode === 'map' ? 'text-blue-600' : 'text-gray-600'}`}>
+                                Map
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Conditional Rendering based on view mode */}
                 <View className="gap-y-3">
                     <TouchableOpacity className="bg-white border border-gray-200 rounded-lg p-4" onPress={() => router.push(`/match/1`)}>
                         <Text className="font-medium text-black">Team Titans vs Warriors</Text>
@@ -61,6 +115,7 @@ const MoreComponentsBelow = () => {
                         <Text className="text-gray-600 text-sm">John Doe joined the team</Text>
                     </TouchableOpacity>
                 </View>
+
             </View>
         </View>
     )

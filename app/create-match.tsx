@@ -1,6 +1,7 @@
 import BottomSheetWrapper, { BottomSheetRef } from "@/components/BottomSheetWrapper";
 import SelectTeamModal from "@/components/Modal/SelectTeamModal";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import Header from "@/components/ui/Header";
 import Input from "@/components/ui/Input";
 import { ballTypes, matchTypes, pitchTypes } from "@/constants/match";
 import { sanitizeObject } from "@/lib/utils/common";
@@ -262,12 +263,7 @@ export default function CreateMatch() {
                                 >
 
                                     {/* Header */}
-                                    <View className="flex-row items-center px-4 py-4">
-                                        <TouchableOpacity onPress={() => router.back()}>
-                                            <Ionicons name="arrow-back" size={24} color="black" />
-                                        </TouchableOpacity>
-                                        <Text className="text-xl font-semibold ml-4 text-black">Satart a Match</Text>
-                                    </View>
+                                    <Header heading='Start Match' />
                                     <View className="flex-row items-center justify-center">
                                         {/* Team A */}
                                         <View className="items-center">

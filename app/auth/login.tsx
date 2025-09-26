@@ -142,14 +142,14 @@ const LoginScreen: React.FC = () => {
                                     elevation: 20,
                                 }}
                             >
-                                <View className="items-center mb-4">
+                                <View className="items-center mb-2">
                                     <Text className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</Text>
                                     <Text className="text-gray-600 text-center text-base">
                                         Sign in to continue your cricket journey
                                     </Text>
                                 </View>
 
-                                <View className="space-y-4">
+                                <View className="gap-y-2">
                                     {/* Email Input */}
                                     <View>
                                         <FloatingLabelInput
@@ -191,22 +191,22 @@ const LoginScreen: React.FC = () => {
                                     <FloatingActionButton
                                         label={`Login`}
                                         onPress={handleLogin}
-                                        containerStyle={{ marginTop: 12 }}
+                                        containerStyle={{ marginTop: 6 }}
                                         loading={isLoading}
                                         disabled={isLoading}
                                     />
 
                                     {/* Footer Links */}
-                                    <View className="flex-row justify-between items-center my-6">
+                                    <View className="flex-row justify-between items-center mt-6 mb-2">
                                         <TouchableOpacity
                                             onPress={handleCreateAccount}
-                                            className="py-2 px-4"
+                                            className="px-4"
                                         >
                                             <Text className="text-[#0e7ccb] font-semibold text-base">Create Account</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={handleForgotPassword}
-                                            className="py-2 px-4"
+                                            className="px-4"
                                         >
                                             <Text className="text-gray-600 font-medium text-base">Forgot Password?</Text>
                                         </TouchableOpacity>
@@ -215,19 +215,19 @@ const LoginScreen: React.FC = () => {
                                     {/* Terms and Privacy */}
                                     <View className="items-center">
                                         <Text
-                                            className="text-xs text-gray-500 text-center px-4"
+                                            className="text-xs text-gray-500 text-center"
                                             style={{ flexWrap: 'wrap', textAlign: 'center' }}
                                         >
                                             By signing in, you agree to our{' '}
                                             <Text
-                                                className="text-blue-600 font-medium"
+                                                className="text-[#0e7ccb] font-medium"
                                                 onPress={() => console.log('Terms pressed')}
                                             >
                                                 Terms of Service
                                             </Text>{' '}
                                             and{' '}
                                             <Text
-                                                className="text-blue-600 font-medium"
+                                                className="text-[#0e7ccb] font-medium"
                                                 onPress={() => console.log('Privacy pressed')}
                                             >
                                                 Privacy Policy

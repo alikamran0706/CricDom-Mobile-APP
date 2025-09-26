@@ -135,10 +135,10 @@ const OtherComponentsAbove = () => {
             </View>
 
             {/* Manage Players Card */}
-            <TouchableOpacity className="bg-blue-50 rounded-lg p-4 mb-6" onPress={() => router.push("/create-inning")}>
+            <TouchableOpacity className="bg-blue-50 rounded-lg p-4 mb-6" onPress={() => router.push("/find-on-map")}>
                 <View className="flex-row items-center mb-2">
                     <Ionicons name="people" size={20} color="#0e7ccb" />
-                    <Text className="text-[#0e7ccb] font-semibold ml-2">Create inning</Text>
+                    <Text className="text-[#0e7ccb] font-semibold ml-2">Find Cricketers</Text>
                 </View>
                 <Text className="text-gray-600 text-sm mb-3">Track team performance easily!</Text>
             </TouchableOpacity>

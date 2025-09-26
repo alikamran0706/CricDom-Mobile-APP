@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    StyleSheet,
-    Text,
-    TextInput,
-    TextInputProps,
-    TextStyle,
-    View,
+  Animated,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  TextStyle,
+  View,
 } from 'react-native';
 
 interface FloatingLabelInputProps extends TextInputProps {
@@ -64,7 +64,7 @@ export default function FloatingLabelInput({
         ? '#DC2626' 
         : isFocused 
           ? '#9CA3AF' 
-          : '#E5E7EB',
+          : '#9CA3AF',
       borderWidth: 0.5,
       backgroundColor: isFocused ? '#F9FAFB' : 'transparent',
     },
@@ -97,7 +97,7 @@ export default function FloatingLabelInput({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 4,
     paddingTop: 3, 
   },
   input: {

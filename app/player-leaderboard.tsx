@@ -1,15 +1,9 @@
-import Header from "@/components/community/Header";
+import Header from "@/components/ui/Header";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import {
-    Image,
-    SafeAreaView,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Player {
     id: string;
@@ -49,18 +43,19 @@ interface Challenge {
 }
 
 const LeaderboardScreen = () => {
-    const [selectedBallType, setSelectedBallType] = useState("BOX CRICKET");
+    const router = useRouter();
     const [selectedCategory, setSelectedCategory] = useState("Batting");
+    const ballTypes = ["LEATHER", "TENNIS", "BOX CRICKET"];
+     const categories = ["Batting", "Bowling", "Fielding"];
+    const [selectedBallType, setSelectedBallType] = useState("BOX CRICKET");
+
     const navigation = useNavigation();
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const ballTypes = ["LEATHER", "TENNIS", "BOX CRICKET"];
-    const categories = ["Batting", "Bowling", "Fielding"];
-
-    const battingPlayers: Player[] = [
+   const battingPlayers: Player[] = [
         {
             id: "1",
             name: "Atta Jan",
@@ -123,7 +118,7 @@ const LeaderboardScreen = () => {
         },
     ];
 
-    const fieldingPlayers: Player[] = [
+     const fieldingPlayers: Player[] = [
         {
             id: "1",
             name: "Muhammad Anas",
@@ -186,7 +181,32 @@ const LeaderboardScreen = () => {
         },
     ];
 
-    const challenges: Challenge[] = [
+     const getRankColor = (rank: number) => {
+        switch (rank) {
+            case 1:
+                return "text-yellow-400";
+            case 2:
+                return "text-orange-400";
+            case 3:
+                return "text-orange-500";
+            default:
+                return "text-orange-600";
+        }
+    };
+
+    const getCurrentPlayers = () =>
+        selectedCategory === "Batting" ? battingPlayers : fieldingPlayers;
+
+    const getLeaderboardTitle = () => {
+        if (selectedCategory === "Batting") {
+            return "Most runs in Pakistan (All Time, All Overs)";
+        } else if (selectedCategory === "Fielding") {
+            return "Most dismissals in Pakistan (All Time)";
+        }
+        return "Most wickets in Pakistan (All Time)";
+    };
+
+     const challenges: Challenge[] = [
         {
             id: "1",
             title: "3 50s",
@@ -210,32 +230,7 @@ const LeaderboardScreen = () => {
         },
     ];
 
-    const getCurrentPlayers = () =>
-        selectedCategory === "Batting" ? battingPlayers : fieldingPlayers;
-
-    const getLeaderboardTitle = () => {
-        if (selectedCategory === "Batting") {
-            return "Most runs in Pakistan (All Time, All Overs)";
-        } else if (selectedCategory === "Fielding") {
-            return "Most dismissals in Pakistan (All Time)";
-        }
-        return "Most wickets in Pakistan (All Time)";
-    };
-
-    const getRankColor = (rank: number) => {
-        switch (rank) {
-            case 1:
-                return "text-yellow-400";
-            case 2:
-                return "text-orange-400";
-            case 3:
-                return "text-orange-500";
-            default:
-                return "text-orange-600";
-        }
-    };
-
-    const renderPlayerStats = (player: Player) => {
+     const renderPlayerStats = (player: Player) => {
         if (selectedCategory === "Batting" && player.stats.batting) {
             const { innings, runs, average, strikeRate } = player.stats.batting;
             return (
@@ -262,36 +257,31 @@ const LeaderboardScreen = () => {
     };
 
     return (
-        <SafeAreaView className="bg-white flex-1">
-            <View className="flex-1">
+        <SafeAreaView className="flex-1 bg-white">
+            {/* Header */}
+            <Header heading="Leaderboard" />
 
-                {/* Header */}
-                <Header
-                    heading="Leaderboard"
-                />
-
-                {/* Ball Type Tabs */}
-                <View className="flex-row px-4 pb-4">
-                    {ballTypes.map((type) => (
-                        <TouchableOpacity
-                            key={type}
-                            className={`flex-1 items-center py-2 ${selectedBallType === type ? "border-b border-black" : ""
+            <View className="flex-row px-4 pb-4">
+                {ballTypes.map((type) => (
+                    <TouchableOpacity
+                        key={type}
+                        className={`flex-1 items-center py-2 ${selectedBallType === type ? "border-b border-black" : ""
+                            }`}
+                        onPress={() => setSelectedBallType(type)}
+                    >
+                        <Text
+                            className={`text-sm font-medium ${selectedBallType === type ? "text-black font-semibold" : "text-black/70"
                                 }`}
-                            onPress={() => setSelectedBallType(type)}
                         >
-                            <Text
-                                className={`text-sm font-medium ${selectedBallType === type ? "text-black font-semibold" : "text-black/70"
-                                    }`}
-                            >
-                                {type}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
+                            {type}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
 
-                <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                  <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                     {/* Category Tabs */}
-                    <View className="flex-row px-4 py-4 space-x-3">
+                    <View className="flex-row px-4 py-4 gap-x-3">
                         {categories.map((category) => (
                             <TouchableOpacity
                                 key={category}
@@ -387,9 +377,8 @@ const LeaderboardScreen = () => {
                         </View>
                     )}
                 </ScrollView>
-            </View>
         </SafeAreaView>
-    );
-};
+    )
+}
 
-export default LeaderboardScreen;
+export default LeaderboardScreen

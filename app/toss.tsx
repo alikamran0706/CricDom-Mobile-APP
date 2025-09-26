@@ -1,3 +1,4 @@
+import Header from "@/components/ui/Header"
 import { showAlert } from "@/store/features/alerts/alertSlice"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
@@ -187,14 +188,7 @@ const TossScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             {/* Header */}
-            <View className="px-4 py-3">
-                <View className="flex-row items-center gap-x-4">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-bold text-black">Toss</Text>
-                </View>
-            </View>
+            <Header heading='Toss' />
 
             {/* Scrollable Content */}
             <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>

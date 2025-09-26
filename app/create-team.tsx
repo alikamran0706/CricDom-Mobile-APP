@@ -2,6 +2,7 @@ import ImagePickerButton from '@/components/ImagePickerButton';
 import AddPlayersModal from '@/components/Modal/AddPlayersModal';
 import Dropdown from '@/components/ui/Dropdown';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import Header from '@/components/ui/Header';
 import Input from '@/components/ui/Input';
 import { gameTypeOptions } from '@/constants/team';
 import { sanitizeObject } from '@/lib/utils/common';
@@ -197,32 +198,17 @@ export default function CreateTeamScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={{ flex: 1 }}>
           {/* Header */}
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: '#E5E7EB'
-          }}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#000" />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 20, fontWeight: '600', marginLeft: 16, color: '#000' }}>
-              {team ? "Update Team" : 'Create Team'}
-            </Text>
-          </View>
+          <Header heading={'Create Team'} />
 
           <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}
             contentContainerStyle={{ paddingBottom: 70 }}
           >
-            <View style={{ paddingVertical: 24 }}>
               {/* Team Image Upload */}
-              <View style={{ alignItems: 'center', marginBottom: 24 }}>
+              <View className="items-center pt-4">
                 <ImagePickerButton
-                  title={team?.image ? 'Update Team Logo' : 'Upload Team Logo'}
-                  imageUri={formData.image || team?.image?.formats?.thumbnail?.url}
-                  onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
+                  title='Upload Team Logo'
+                  imageUri={formData.image}
+                  onChangeImage={(uri) => setFormData((prev: any) => ({ ...prev, image: uri }))}
                 />
               </View>
 
@@ -271,8 +257,6 @@ export default function CreateTeamScreen() {
               </View>
 
               {/* Game Type */}
-
-
               <Dropdown
                 label=" Game Type"
                 value={formData.game_type}
@@ -390,7 +374,6 @@ export default function CreateTeamScreen() {
                   </View>
                 )}
               </View>
-            </View>
           </ScrollView>
 
           {/* Floating Create Button */}

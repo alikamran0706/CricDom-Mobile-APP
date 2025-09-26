@@ -1,3 +1,4 @@
+import Header from "@/components/ui/Header"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect } from "react"
@@ -121,14 +122,7 @@ const CreateLookingOptionsScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             {/* Header */}
-            <View className="px-4 py-3">
-                <View className="flex-row items-center">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-lg font-bold text-black ml-4">What are you looking for?</Text>
-                </View>
-            </View>
+            <Header heading='What are you looking for?' />
 
             {/* Options Grid */}
             <ScrollView className="flex-1 px-2 py-6" contentContainerStyle={{ paddingBottom: 40 }}>
