@@ -1,15 +1,15 @@
 import ImagePickerButton from '@/components/ImagePickerButton';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
+import Header from '@/components/ui/Header';
 import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
 import { useCreatePlayerMutation, useGetPlayerByIdQuery, useUpdatePlayerMutation } from '@/store/features/player/playerApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -134,14 +134,7 @@ export default function RegisterUmpireScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <View style={{ flex: 1 }}>
                 {/* Header */}
-                <View className="flex-row items-center px-4 py-4">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-semibold ml-4 text-black">
-                        Register Umpire
-                    </Text>
-                </View>
+                <Header heading='Register Umpire' />
                 {
                     loading ?
                         <View className="flex-1 items-center justify-center">
@@ -150,9 +143,9 @@ export default function RegisterUmpireScreen() {
                         :
                         <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}
                             contentContainerStyle={{ paddingBottom: 70 }}>
-                            <View style={{ paddingVertical: 24 }}>
+                            <View>
                                 {/* Player Image Upload */}
-                                <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                                <View style={{ alignItems: 'center' }}>
                                     <ImagePickerButton
                                         imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
                                         onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
@@ -195,7 +188,7 @@ export default function RegisterUmpireScreen() {
                                 <View className="flex-row justify-between mb-6">
                                     <View className="w-[48%]">
 
-                                        <Text className="text-sm text-gray-600 mt-1">Per match (20 Ov.)</Text>
+                                        <Text className="text-sm text-gray-600 mt-1 mb-2">Per match (20 Ov.)</Text>
                                         <FloatingLabelInputBorderBottom
                                             label="Fees"
                                             value={formData.feesPerMatch}
@@ -205,7 +198,7 @@ export default function RegisterUmpireScreen() {
                                     </View>
 
                                     <View className="w-[48%]">
-                                        <Text className="text-sm text-gray-600 mt-1">Per day</Text>
+                                        <Text className="text-sm text-gray-600 mt-1 mb-2">Per day</Text>
                                         <FloatingLabelInputBorderBottom
                                             label="Fees"
                                             value={formData.feesPerDay}

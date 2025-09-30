@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
@@ -11,79 +12,110 @@ interface ShortcutItem {
     onPress: () => void
 }
 
-const ShortcutsComponent = ({ navigation }: any) => {
+interface ShortcutsComponentProps {
+    shortcutHandler: (key: string) => void
+}
+
+const ShortcutsComponent = ({ shortcutHandler }: ShortcutsComponentProps) => {
+
+    const router = useRouter();
+
     const shortcuts: ShortcutItem[] = [
         {
             id: "1",
             title: "Need Help",
             icon: "help-circle-outline",
-            onPress: () => navigation.navigate("Help"),
+            onPress: () => router.push("/match-help"),
         },
         {
             id: "2",
             title: "Match Rules",
             icon: "settings-outline",
-            onPress: () => navigation.navigate("MatchRules"),
+            onPress: () => router.push("/match-rules"),
         },
         {
             id: "3",
             title: "Change Scorer",
             image: require("../../assets/images/scoring/replace scorer.png"),
-            onPress: () => console.log("Change Scorer"),
+            onPress: () => shortcutHandler('Change Scorer'),
         },
         {
             id: "4",
             title: "Change Squad",
             image: require("../../assets/images/scoring/change player.png"),
-            onPress: () => console.log("Change Squad"),
+            onPress: () => router.push("/change-playing-squad"),
         },
         {
             id: "5",
             title: "Full Scorecard",
             image: require("../../assets/images/score.png"),
-            onPress: () => console.log("Full Scorecard"),
+            onPress: () => router.push("/match/1"),
         },
         {
             id: "6",
             title: "Match Overs",
             icon: "time-outline",
-            onPress: () => console.log("Match Overs"),
+            onPress: () => shortcutHandler("Change Match Overs"),
         },
         {
             id: "7",
             title: "Replace Batters",
             image: require("../../assets/images/scoring/change player.png"),
-            onPress: () => console.log("Replace Batters"),
+            onPress: () => {
+                router.push({
+                    pathname: "/replace",
+                    params: {
+                        heading: "Select Batter to replace",
+                        title: "Playing Squad"
+                    }
+                });
+            }
         },
         {
             id: "8",
             title: "Bonus Runs",
             icon: "add-circle-outline",
-            onPress: () => console.log("Bonus Runs"),
+            onPress: () => router.push("/bonus-runs"),
         },
         {
             id: "11",
             title: "Change Keeper",
-            icon: "shield-outline",
-            onPress: () => console.log("Change Keeper"),
+            image: require("../../assets/images/scoring/game.png"),
+            onPress: () => {
+                router.push({
+                    pathname: "/replace",
+                    params: {
+                        heading: "Select Keeper to replace",
+                        title: "Playing Squad"
+                    }
+                });
+            }
         },
         {
             id: "12",
             title: "Match Breaks",
             image: require("../../assets/images/scoring/coffe-break.png"),
-            onPress: () => console.log("Match Breaks"),
+            onPress: () => shortcutHandler("Match Breaks"),
         },
         {
             id: "13",
             title: "Power Play",
             image: require("../../assets/images/scoring/power play.png"),
-            onPress: () => console.log("Power Play"),
+            onPress: () => router.push("/power-play"),
         },
         {
             id: "15",
             title: "Change Bowler",
             image: require("../../assets/images/scoring/replace bowler.png"),
-            onPress: () => console.log("Change Bowler"),
+            onPress: () => {
+                router.push({
+                    pathname: "/replace",
+                    params: {
+                        heading: "Change Bowler",
+                        title: "Playing Squad"
+                    }
+                });
+            }
         },
     ]
 
@@ -126,7 +158,7 @@ const ShortcutsComponent = ({ navigation }: any) => {
             </View>
 
             {/* Shortcuts Grid */}
-            <ScrollView className="flex-1 px-4">
+            <ScrollView showsVerticalScrollIndicator={false} className="max-h-96 px-4">
                 <View className="flex-row flex-wrap justify-between">
                     {shortcuts.map((item, index) => {
                         if (index % 2 === 0) {

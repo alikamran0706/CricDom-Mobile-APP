@@ -4,9 +4,10 @@ import { Text, TouchableOpacity, View } from "react-native"
 
 interface NoBallComponentProps {
   onNoBall: (runs: number, type: "bat" | "bye" | "legbye") => void
+  openSettingHandler: () => void
 }
 
-export default function NoBallComponent({ onNoBall }: NoBallComponentProps) {
+export default function NoBallComponent({ onNoBall, openSettingHandler }: NoBallComponentProps) {
   const [selectedType, setSelectedType] = useState<"bat" | "bye" | "legbye">("bat")
 
   const handleNoBall = (runs: number) => {
@@ -17,7 +18,7 @@ export default function NoBallComponent({ onNoBall }: NoBallComponentProps) {
     <View className="p-4">
       <View className="flex-row items-center justify-between mb-6">
         <Text className="text-xl font-semibold text-gray-800">No Ball (NB=1)</Text> 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openSettingHandler}>
           <Ionicons name="settings-outline" size={24} color="#6b7280" />
         </TouchableOpacity>
       </View>

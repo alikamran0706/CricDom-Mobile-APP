@@ -3,13 +3,13 @@ import { useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import {
     RefreshControl,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Notification {
     id: string;
@@ -170,11 +170,9 @@ const NotificationsScreen = () => {
         <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
                 {/* Header */}
-                <Header
-                    heading={`Notifications`}
-                />
-                
-                   <ScrollView
+                <Header heading={`Notifications`} />
+
+                <ScrollView
                     style={styles.content}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 50 }}
@@ -248,7 +246,7 @@ const NotificationsScreen = () => {
                         ))
                     )}
                 </ScrollView>
-                
+
             </View>
         </SafeAreaView>
     )

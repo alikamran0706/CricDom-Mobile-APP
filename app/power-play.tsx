@@ -1,6 +1,6 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import Header from "@/components/ui/Header"
 import { showAlert } from "@/store/features/alerts/alertSlice"
-import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect, useState } from "react"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
@@ -240,14 +240,7 @@ const PowerPlayScreen = () => {
         <SafeAreaView className="flex-1 bg-gray-50">
             <View className="flex-1">
                 {/* Header */}
-                <View className="px-4 py-3">
-                    <View className="flex-row items-center">
-                        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-                            <Ionicons name="arrow-back" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text className="text-xl font-bold text-black">Select Power Play Overs</Text>
-                    </View>
-                </View>
+                <Header heading='Select Power Play Overs' />
 
                 <ScrollView className="flex-1 px-4"
                     contentContainerStyle={{ paddingBottom: 100 }}

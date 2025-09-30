@@ -1,10 +1,11 @@
 import InningPlayerSelection from "@/components/Modal/InningPlayerSelection";
+import PlayerCard from "@/components/PlayerCard";
 import { Player } from "@/lib/types/match";
 import { getFullStrapiUrl } from "@/lib/utils/common";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function StartInningsScreen() {
@@ -31,35 +32,6 @@ export default function StartInningsScreen() {
         }
     };
 
-    const PlayerCard = ({
-        title,
-        iconSource,
-        onPress,
-        isSelected,
-    }: {
-        title: string;
-        iconSource: any;
-        onPress: () => void;
-        isSelected: boolean;
-    }) => {
-        return (
-            <TouchableOpacity
-                className={`flex-1 mx-2 items-center p-4 rounded-xl ${isSelected ? "bg-red-100 border-2 border-red-600" : "bg-gray-100"
-                    }`}
-                onPress={onPress}
-            >
-                <Image
-                    source={iconSource}
-                    style={{ width: 80, height: 80 }}
-                    resizeMode="contain"
-                    className="mb-3"
-                />
-                <Text className="text-base font-semibold text-gray-700 text-center">
-                    {title}
-                </Text>
-            </TouchableOpacity>
-        );
-    }
     return (
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}

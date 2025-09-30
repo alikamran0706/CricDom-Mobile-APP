@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Animated,
-    Platform,
-    Text,
-    TextInput,
-    TextInputProps,
-    View,
+  Animated,
+  Platform,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
 } from "react-native";
 
 interface FloatingLabelInputProps extends TextInputProps {
@@ -13,6 +13,7 @@ interface FloatingLabelInputProps extends TextInputProps {
   value: string;
   onChangeText: (text: string) => void;
   required?: boolean;
+  customBoxClass?: string
 }
 
 const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
@@ -20,6 +21,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
   value,
   onChangeText,
   required,
+  customBoxClass,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -51,7 +53,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
   };
 
   return (
-    <View className="mb-6">
+    <View className={`mb-6 ${customBoxClass}`}>
       <View className="relative border-b border-gray-300 pb-1">
         <Animated.Text style={labelStyle}>
           {label}

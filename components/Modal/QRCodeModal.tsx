@@ -29,7 +29,7 @@ const QRCodeModal = ({
 }: QRCodeModalProps) => {
 
     const qrRef = useRef(null);
-    const shareUrl = `https://yourapp.com/team/${teamId}`;
+    const shareUrl = `https://cricdom.com/team/${teamId}`;
 
     const handleShareCode = async () => {
         try {

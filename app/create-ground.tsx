@@ -1,5 +1,6 @@
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
+import Header from '@/components/ui/Header';
 import { sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
@@ -159,14 +160,7 @@ export default function RegisterGroundScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <View style={{ flex: 1 }}>
                 {/* Header */}
-                <View className="flex-row items-center px-4 py-4">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="black" />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-semibold ml-4 text-black">
-                        Register your Ground
-                    </Text>
-                </View>
+                <Header heading='Register your Ground' />
                 {
                     loading ?
                         <View className="flex-1 items-center justify-center">
@@ -266,7 +260,7 @@ export default function RegisterGroundScreen() {
                                                 onPress={() => togglePitchType(type)}
                                             >
                                                 <View
-                                                    className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${checked ? "bg-teal-500 border-teal-500" : "border-gray-300"
+                                                    className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${checked ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-300"
                                                         }`}
                                                 >
                                                     {checked && <Ionicons name="checkmark" size={16} color="white" />}
@@ -292,7 +286,7 @@ export default function RegisterGroundScreen() {
                                                 onPress={() => togglePitchType(type)}
                                             >
                                                 <View
-                                                    className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${checked ? "bg-teal-500 border-teal-500" : "border-gray-300"
+                                                    className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${checked ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-300"
                                                         }`}
                                                 >
                                                     {checked && <Ionicons name="checkmark" size={16} color="white" />}
@@ -315,14 +309,14 @@ export default function RegisterGroundScreen() {
                                             keyboardType="numeric"
                                         />
                                     </View>
-                                     <View className="w-[48%]">
+                                    <View className="w-[48%]">
                                         <FloatingLabelInputBorderBottom
                                             label="Max Fees"
                                             value={formData.maxFee}
                                             onChangeText={(text) => setFormData({ ...formData, shortestLength: text })}
                                             keyboardType="numeric"
                                         />
-                                     </View>
+                                    </View>
                                 </View>
                             </View>
                         </ScrollView>

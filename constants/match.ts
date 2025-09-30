@@ -91,7 +91,7 @@ export const matchData = {
 };
 
 export const matchTypes = [{ label: "Limited Overs", value: 'League' }, { label: "Box/turf Cricket", value: 'Semi' }, { label: "Pair Cricket", value: 'Pair-Final' },
-  { label: "Test Match", value: 'Test Match' },   { label: "T20", value: 'Final' },
+{ label: "Test Match", value: 'Test Match' }, { label: "T20", value: 'Final' },
 ];
 
 export const ballTypes = [
@@ -303,3 +303,9 @@ export const manOfTheMatch: ManOfTheMatch = {
   description:
     "Outstanding batting performance with 53 runs off 55 balls including 4 fours and 3 sixes, plus 2 crucial catches in the field.",
 }
+
+export const matchHoursOptions: any[] = [
+  { label: '10', value: '10' },
+  { label: '20', value: '20' },
+  { label: 'Other', value: 'other' },
+];

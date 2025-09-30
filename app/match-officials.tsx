@@ -1,4 +1,5 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import Header from "@/components/ui/Header"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect, useState } from "react"
@@ -72,14 +73,7 @@ const MatchOfficialsScreen = () => {
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-1">
                 {/* Header */}
-                <View className="px-4 py-3">
-                    <View className="flex-row items-center">
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Ionicons name="arrow-back" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text className="text-xl font-bold text-black ml-4">Match Officials</Text>
-                    </View>
-                </View>
+                <Header heading='Match Officials' />
 
                 <ScrollView className="flex-1 px-4 py-6"
                     contentContainerStyle={{ paddingBottom: 80 }}

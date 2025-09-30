@@ -3,14 +3,15 @@ import { Text, TouchableOpacity, View } from "react-native"
 
 interface WideBallComponentProps {
   onWide: (runs: number) => void
+    openSettingHandler: () => void
 }
 
-export default function WideBallComponent({ onWide }: WideBallComponentProps) {
+export default function WideBallComponent({ onWide, openSettingHandler }: WideBallComponentProps) {
   return (
     <View className="p-4">
       <View className="flex-row items-center justify-between mb-6">
         <Text className="text-xl font-semibold text-gray-800">Wide Ball (WD=1)</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openSettingHandler}>
           <Ionicons name="settings-outline" size={24} color="#6b7280" />
         </TouchableOpacity>
       </View>

@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
+import Header from '@/components/ui/Header';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface SettingItem {
   id: string;
@@ -196,12 +196,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-xl font-semibold ml-4 text-black">Settings</Text>
-      </View>
+      <Header heading={`Settings`} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {settingSections.map((section) => (

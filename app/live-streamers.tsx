@@ -145,7 +145,7 @@ const LiveStreamersScreen = () => {
                 {/* Bottom Buttons */}
                 <FloatingActionButton
                     label="REGISTER"
-                    onPress={() => router.push('/looking-for-list')}
+                    onPress={() => router.push('/create-livestreamer')}
                 />
             </View>
         </SafeAreaView>

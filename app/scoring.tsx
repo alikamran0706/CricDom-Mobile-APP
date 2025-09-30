@@ -1,13 +1,20 @@
 import BottomSheetWrapper, { BottomSheetRef } from "@/components/BottomSheetWrapper";
 import ByeComponent from "@/components/scoring/Byecomponent";
+import ChangeScorer from "@/components/scoring/ChangeScorer";
 import LegByeComponent from "@/components/scoring/LegByeComponent";
 import MatchSettingsSidebar from "@/components/scoring/MatchSettingsSidebar";
+import MatchStatusComponent from "@/components/scoring/MatchStatusComponent";
+import ChangeMatchOvers from "@/components/scoring/modal/ChangeMatchOvers";
+import EndInnings from "@/components/scoring/modal/EndInnings";
+import MatchResult from "@/components/scoring/modal/MatchResult";
 import NoBallComponent from "@/components/scoring/NoBallComponent";
 import OutTypeComponent from "@/components/scoring/OutTypeComponent";
+import PlayerBottomSheetComponent from "@/components/scoring/PlayerBottomSheetComponent";
 import ShortcutsComponent from "@/components/scoring/ShortcutsComponent";
 import ShotTypeComponent from "@/components/scoring/ShotTypeComponent";
 import WideBallComponent from "@/components/scoring/WideBallComponent";
 import SocialShare from "@/components/SocialShare";
+import Modal from "@/components/ui/Modal";
 import { RootState } from "@/store";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -89,6 +96,8 @@ export default function CreateMatch() {
     const [currentOver, setCurrentOver] = useState<string[]>(["1", "4", "W", "2"]);
     const user = useSelector((state: RootState) => state.user.profile);
     const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [activeModal, setActiveModal] = useState<string | null>(null);
+    const [formData, setFormData] = useState(null)
     const bottomSheetRef = useRef<BottomSheetRef>(null);
 
     const navigation = useNavigation();
@@ -170,7 +179,7 @@ export default function CreateMatch() {
         }))
 
         setCurrentOver((prev) => [...prev, `NB+${runs}`])
-        // closeBottomSheet()
+        closeBottomSheet()
         setActiveTab(null)
     }
 
@@ -182,7 +191,7 @@ export default function CreateMatch() {
         }))
 
         setCurrentOver((prev) => [...prev, `WD+${runs}`])
-        // closeBottomSheet()
+        closeBottomSheet()
         setActiveTab(null)
     }
 
@@ -194,7 +203,7 @@ export default function CreateMatch() {
         }))
 
         setCurrentOver((prev) => [...prev, `LB${runs}`])
-        // closeBottomSheet()
+        closeBottomSheet()
         setActiveTab(null)
     }
 
@@ -215,14 +224,35 @@ export default function CreateMatch() {
             wickets: prev.wickets + 1,
             balls: prev.balls + 1,
         }))
-
-        setCurrentOver((prev) => [...prev, "W"])
-        closeBottomSheet()
+        if (type === 'run_out') {
+            router.push('/run-out');
+            closeBottomSheet();
+        } else {
+            setActiveTab(type);
+            setCurrentOver((prev) => [...prev, "W"]);
+        }
+        // closeBottomSheet()
     }
 
     const handleShotType = (type: string) => {
         // Handle shot type selection
-        closeBottomSheet()
+        closeBottomSheet();
+    }
+
+    const shortcutHandler = (type: string) => {
+        if (type === 'Match Breaks' || type === 'wicket') {
+            setActiveTab(type)
+            setShowSettings(false)
+        }
+        else if(type === 'Change Scorer'){
+            setActiveTab(type)
+            setShowSettings(false)
+        }
+        else{
+            closeBottomSheet();
+            setActiveModal(type);
+            setShowSettings(false)
+        }
     }
 
     const switchStrike = () => {
@@ -515,7 +545,7 @@ export default function CreateMatch() {
 
                     {
                         showSettings &&
-                        <MatchSettingsSidebar isVisible={showSettings} onClose={() => setShowSettings(false)} />
+                        <MatchSettingsSidebar isVisible={showSettings} onClose={() => setShowSettings(false)} onPress={shortcutHandler} />
                     }
 
                     {activeTab && (
@@ -528,14 +558,50 @@ export default function CreateMatch() {
                         ref={bottomSheetRef}
                         onClose={closeBottomSheet}
                     >
-                        {activeTab === "noball" && <NoBallComponent onNoBall={handleNoBall} />}
-                        {activeTab === "wide" && <WideBallComponent onWide={handleWide} />}
+                        {activeTab === "noball" && <NoBallComponent onNoBall={handleNoBall} openSettingHandler={() => setShowSettings(true)} />}
+                        {activeTab === "wide" && <WideBallComponent onWide={handleWide} openSettingHandler={() => setShowSettings(true)} />}
                         {activeTab === "legbye" && <LegByeComponent onLegBye={handleLegBye} />}
                         {activeTab === "bye" && <ByeComponent onBye={handleBye} currentBowler={bowler.name} />}
                         {activeTab === "wicket" && <OutTypeComponent onOutType={handleOutType} />}
                         {activeTab === "shottype" && <ShotTypeComponent onShotType={handleShotType} />}
-                        {activeTab === "shortcuts" && <ShortcutsComponent />}
+                        {activeTab === "shortcuts" && <ShortcutsComponent shortcutHandler={shortcutHandler} />}
+                        {activeTab === "Match Breaks" && <MatchStatusComponent />}
+                        {activeTab === "caught" && <PlayerBottomSheetComponent onPress={() => {
+                            setActiveTab(null);
+                            closeBottomSheet()
+                        }} />}
+
+                        {
+                            activeTab === "Change Scorer"  && 
+                            <ChangeScorer selectHours={formData} setSelectHours={setFormData} />
+                        }
                     </BottomSheetWrapper>
+
+                    <Modal visible={activeModal !== null} onClose={() => setActiveModal(null)} showCloseButton={false}
+                        customClass={"z-50 bg-black/60 max-w-xl rounded-2xl w-[90%]"}
+                    >
+                        <View className="flex-row justify-between items-center px-6 pt-6">
+                            <Text className="text-lg font-semibold mb-3 text-black">{activeModal}</Text>
+                            <TouchableOpacity
+                                onPress={() => setActiveModal(null)}
+                            >
+                                <Ionicons name="close" size={24} color="#374151" />
+                            </TouchableOpacity>
+                        </View>
+                        {
+                            activeModal === "Change Match Overs" && 
+                            <ChangeMatchOvers selectHours={formData} setSelectHours={setFormData} />
+                        }
+                        {
+                             activeModal === "End Innings"  && 
+                             <EndInnings selectHours={formData} setSelectHours={setFormData} />
+                        }
+
+                        {
+                            activeModal === "End Match"  && 
+                            <MatchResult selectHours={formData} setSelectHours={setFormData} />
+                        }
+                    </Modal>
                 </View>
             </SafeAreaView>
         </GestureHandlerRootView>

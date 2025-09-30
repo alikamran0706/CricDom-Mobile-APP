@@ -17,7 +17,7 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Location from 'expo-location';
 import { useNavigation, useRouter } from "expo-router";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -88,7 +88,6 @@ export default function CreateMatch() {
     };
 
     const openLeagueSheet = () => {
-        bottomSheetRef.current?.open();
         setActiveTab('league');
     };
 
@@ -104,6 +103,14 @@ export default function CreateMatch() {
         page: teamPage,
         pageSize: 12,
     });
+
+    useEffect(() => {
+        if (activeTab) {
+            setTimeout(() => {
+                bottomSheetRef.current?.open();
+            }, 100);
+        }
+    }, [activeTab]);
 
     const loadMoreTeams = () => {
         if (!isFetchingTeams && teamPage < teamsData.meta?.pageCount)
@@ -254,8 +261,6 @@ export default function CreateMatch() {
                     <GestureHandlerRootView style={{ flex: 1 }}>
                         <SafeAreaView className="flex-1 bg-white">
                             <View className="flex-1">
-
-
                                 <LinearGradient colors={['#ffffff', '#a9d3f2', '#a9d3f2']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 1 }}
@@ -489,10 +494,12 @@ export default function CreateMatch() {
                                         <View>
                                             <Text className="text-black py-3">Assign Match Officials</Text>
                                             <View className="flex-row flex-wrap mb-4">
-                                                <TouchableOpacity className="items-center flex-1" onPress={() => {
-                                                    setFormData((prev) => ({ ...prev, officials: "umpires" }))
-                                                    router.push('/match-officials')
-                                                }}>
+                                                <TouchableOpacity className="items-center flex-1"
+                                                    onPress={() => {
+                                                        setFormData((prev) => ({ ...prev, officials: "umpires" }))
+                                                        router.push('/match-officials')
+                                                    }}
+                                                >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-blue-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
                                                             <Image
@@ -528,7 +535,12 @@ export default function CreateMatch() {
                                                     </View>
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Scorers</Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity className="items-center flex-1" onPress={() => setFormData((prev) => ({ ...prev, officials: "streamers" }))}>
+                                                <TouchableOpacity className="items-center flex-1"
+                                                    onPress={() => {
+                                                        setFormData((prev) => ({ ...prev, officials: "umpires" }))
+                                                        router.push('/match-officials')
+                                                    }}
+                                                >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-red-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
                                                             <Ionicons name="videocam" size={28} color="#ef4444" />
@@ -542,7 +554,12 @@ export default function CreateMatch() {
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Live Stream</Text>
                                                 </TouchableOpacity>
 
-                                                <TouchableOpacity className="items-center flex-1" onPress={() => setFormData((prev) => ({ ...prev, officials: "others" }))}>
+                                                <TouchableOpacity className="items-center flex-1"
+                                                    onPress={() => {
+                                                        setFormData((prev) => ({ ...prev, officials: "others" }))
+                                                        router.push('/match-officials')
+                                                    }}
+                                                >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-orange-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
                                                             <Image
@@ -642,9 +659,10 @@ export default function CreateMatch() {
                                     onClose={closePerformanceForm}
                                 >
                                     {activeTab === "league" && (
-                                        <>
+                                        <View className="flex-1">
                                             <Text style={styles.sheetTitle}>Select League</Text>
-                                            <ScrollView className="max-h-80">
+
+                                            <ScrollView showsVerticalScrollIndicator={false} className="max-h-80 px-4">
                                                 {leagues.map((l: any) => {
                                                     const isSelected = l.documentId === formData.league;
                                                     return (
@@ -669,57 +687,60 @@ export default function CreateMatch() {
                                                         </Pressable>
                                                     );
                                                 })}
+                                                <Text className="text-gray-500">No League Found!</Text>
                                             </ScrollView>
-                                        </>
+                                        </View>
                                     )}
 
                                     {activeTab === "location" && (
-                                        <>
+                                        <View className="flex-1">
                                             <Text style={styles.sheetTitle}>Enter Location Manually</Text>
-                                            <View className="space-y-4">
-                                                <Input
-                                                    label="Address"
-                                                    value={formData.location.address}
-                                                    onChangeText={(val) =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            location: { ...prev.location, address: val },
-                                                        }))
-                                                    }
-                                                    placeholder="Enter address"
-                                                />
-                                                <Input
-                                                    label="Latitude"
-                                                    value={formData.location.latitude?.toString() || ""}
-                                                    onChangeText={(val) =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            location: {
-                                                                ...prev.location,
-                                                                latitude: val ? parseFloat(val) : null,
-                                                            },
-                                                        }))
-                                                    }
-                                                    placeholder="Enter latitude"
-                                                    keyboardType="numeric"
-                                                />
-                                                <Input
-                                                    label="Longitude"
-                                                    value={formData.location.longitude?.toString() || ""}
-                                                    onChangeText={(val) =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            location: {
-                                                                ...prev.location,
-                                                                longitude: val ? parseFloat(val) : null,
-                                                            },
-                                                        }))
-                                                    }
-                                                    placeholder="Enter longitude"
-                                                    keyboardType="numeric"
-                                                />
-                                            </View>
-                                        </>
+                                            <ScrollView showsVerticalScrollIndicator={false} className="max-h-96 px-4">
+                                                <View className="space-y-4">
+                                                    <Input
+                                                        label="Address"
+                                                        value={formData.location.address}
+                                                        onChangeText={(val) =>
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                location: { ...prev.location, address: val },
+                                                            }))
+                                                        }
+                                                        placeholder="Enter address"
+                                                    />
+                                                    <Input
+                                                        label="Latitude"
+                                                        value={formData.location.latitude?.toString() || ""}
+                                                        onChangeText={(val) =>
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                location: {
+                                                                    ...prev.location,
+                                                                    latitude: val ? parseFloat(val) : null,
+                                                                },
+                                                            }))
+                                                        }
+                                                        placeholder="Enter latitude"
+                                                        keyboardType="numeric"
+                                                    />
+                                                    <Input
+                                                        label="Longitude"
+                                                        value={formData.location.longitude?.toString() || ""}
+                                                        onChangeText={(val) =>
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                location: {
+                                                                    ...prev.location,
+                                                                    longitude: val ? parseFloat(val) : null,
+                                                                },
+                                                            }))
+                                                        }
+                                                        placeholder="Enter longitude"
+                                                        keyboardType="numeric"
+                                                    />
+                                                </View>
+                                            </ScrollView>
+                                        </View>
                                     )}
                                 </BottomSheetWrapper>
 
