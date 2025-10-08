@@ -5,7 +5,8 @@ import Header from '@/components/ui/Header';
 import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
-import { useCreatePlayerMutation, useGetPlayerByIdQuery, useUpdatePlayerMutation } from '@/store/features/player/playerApi';
+import { useCreateCommunityMutation, useUpdateCommunityMutation } from '@/store/features/community/communityApi';
+import { useGetPlayerByIdQuery } from '@/store/features/player/playerApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
@@ -25,20 +26,24 @@ export default function RegisterTrainerScreen() {
     });
     const player = data?.data
     const dispatch = useDispatch();
-    const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
-    const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+    const [createCommunity, { isLoading, isError, error, isSuccess }] = useCreateCommunityMutation();
+    const [updateCommunity, { isLoading: isUpdating }] = useUpdateCommunityMutation();
     const [uploadFile] = useUploadFileMutation();
     const profile = useSelector((state: RootState) => state.user.profile);
 
     const [formData, setFormData] = useState({
-        image: '',
+        photo: '',
         name: "",
         address: "",
+        country: "",
         city: "",
         phone_number: '',
-        contactPersonName: "Ali Kamran",
-        contactNumber: "",
-        serviceDetails: "",
+        player: player?.id,
+        description: "",
+        per_match_fees: "",
+        per_day_fees: "",
+        experience: "",
+        community_type: "coach",
         youtubeLink: "",
         facebookLink: "",
     })
@@ -55,10 +60,10 @@ export default function RegisterTrainerScreen() {
 
 
     const uploadImageAndGetId = async (): Promise<number | null> => {
-        if (!formData.image) return null;
+        if (!formData.photo) return null;
 
         try {
-            const imageId = await uploadFile({ image: formData.image }).unwrap().then(res => res[0]?.id);
+            const imageId = await uploadFile({ image: formData.photo }).unwrap().then(res => res[0]?.id);
             return imageId;
         } catch (uploadError) {
             dispatch(
@@ -71,7 +76,7 @@ export default function RegisterTrainerScreen() {
         }
     };
 
-    const handleCreatePlayer = async () => {
+    const handleCreateTrainer = async () => {
         const cleanedData = sanitizeObject(formData);
         if (!cleanedData?.name?.trim()) {
             dispatch(
@@ -94,26 +99,25 @@ export default function RegisterTrainerScreen() {
         }
 
         let imageId: number | null = null;
-        if (cleanedData?.image) {
+        if (cleanedData?.photo) {
             imageId = await uploadImageAndGetId();
-            if (!imageId) return; // Stop if upload failed
+            if (!imageId) return;
         }
 
-        const playerData = {
+        const trainerData = {
             ...cleanedData,
-            ...(imageId && { image: imageId }),
-            ...(profile && { user: profile.documentId }),
+            ...(imageId && { photo: imageId }),
         };
 
         try {
             if (id)
-                await updatePlayer({ id, data: playerData }).unwrap();
+                await updateCommunity({ id, data: trainerData }).unwrap();
             else
-                await createPlayer({ data: playerData }).unwrap();
+                await createCommunity({ data: trainerData }).unwrap();
 
-            dispatch(showAlert({ type: 'success', message: id ? 'Player updated successfully!' : 'Player created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: id ? 'Trainer updated successfully!' : 'Trainer created successfully!' }));
             router.replace({
-                pathname: '/profile',
+                pathname: '/trainers',
                 params: { refetch: 'true' }
             });
         }
@@ -133,7 +137,7 @@ export default function RegisterTrainerScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <View style={{ flex: 1 }}>
                 {/* Header */}
-                 <Header heading='Register Fitness Trainer' />
+                <Header heading='Register Fitness Trainer' />
                 {
                     loading ?
                         <View className="flex-1 items-center justify-center">
@@ -144,9 +148,9 @@ export default function RegisterTrainerScreen() {
                             contentContainerStyle={{ paddingBottom: 70 }}>
                             <View style={{ paddingBottom: 24 }}>
                                 {/* Player Image Upload */}
-                                <View style={{ alignItems: 'center'}}>
+                                <View style={{ alignItems: 'center' }}>
                                     <ImagePickerButton
-                                        imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
+                                        imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.photo}
                                         onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
                                         title='Upload Photo'
                                     />
@@ -165,25 +169,18 @@ export default function RegisterTrainerScreen() {
                                     onChangeText={(text) => setFormData({ ...formData, city: text })}
                                     required={true}
                                 />
-                                {/* Contact Person Name */}
-                                <FloatingLabelInputBorderBottom
-                                    label="Contact Person Name"
-                                    value={formData.contactNumber}
-                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
-                                    required={true}
-                                />
                                 <FloatingLabelInputBorderBottom
                                     label="Contact Number"
-                                    value={formData.contactNumber}
-                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
+                                    value={formData.phone_number}
+                                    onChangeText={(text) => setFormData({ ...formData, phone_number: text })}
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
                                 />
                                 <FloatingLabelInputBorderBottom
                                     label="Add more details"
-                                    value={formData.serviceDetails}
-                                    onChangeText={(text) => setFormData({ ...formData, serviceDetails: text })}
+                                    value={formData.description}
+                                    onChangeText={(text) => setFormData({ ...formData, description: text })}
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
@@ -206,7 +203,7 @@ export default function RegisterTrainerScreen() {
                 <FloatingActionButton
                     label={player ? "Update Trainer" : "Create Trainer"}
                     iconName="person-add"
-                    onPress={handleCreatePlayer}
+                    onPress={handleCreateTrainer}
                     loading={isLoading || isUpdating}
                     disabled={isLoading || isUpdating}
                 />

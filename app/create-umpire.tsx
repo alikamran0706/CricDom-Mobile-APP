@@ -5,7 +5,8 @@ import Header from '@/components/ui/Header';
 import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
-import { useCreatePlayerMutation, useGetPlayerByIdQuery, useUpdatePlayerMutation } from '@/store/features/player/playerApi';
+import { useCreateCommunityMutation, useUpdateCommunityMutation } from '@/store/features/community/communityApi';
+import { useGetPlayerByIdQuery } from '@/store/features/player/playerApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
@@ -25,23 +26,24 @@ export default function RegisterUmpireScreen() {
     });
     const player = data?.data
     const dispatch = useDispatch();
-    const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
-    const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+    const [createCommunity, { isLoading, isError, error, isSuccess }] = useCreateCommunityMutation();
+    const [updateCommunity, { isLoading: isUpdating }] = useUpdateCommunityMutation();
     const [uploadFile] = useUploadFileMutation();
     const profile = useSelector((state: RootState) => state.user.profile);
 
     const [formData, setFormData] = useState({
-        image: '',
+        photo: '',
         name: "",
         address: "",
         city: "",
         phone_number: '',
-        contactPersonName: "Ali Kamran",
-        contactNumber: "",
-        serviceDetails: "",
-        feesPerMatch: "",
-        feesPerDay: "",
+        player: player?.id,
+        country: "",
+        description: "",
+        per_match_fees: "",
+        per_day_fees: "",
         experience: "",
+        community_type: "umpire"
     })
 
     useEffect(() => {
@@ -56,10 +58,10 @@ export default function RegisterUmpireScreen() {
 
 
     const uploadImageAndGetId = async (): Promise<number | null> => {
-        if (!formData.image) return null;
+        if (!formData.photo) return null;
 
         try {
-            const imageId = await uploadFile({ image: formData.image }).unwrap().then(res => res[0]?.id);
+            const imageId = await uploadFile({ image: formData.photo }).unwrap().then(res => res[0]?.id);
             return imageId;
         } catch (uploadError) {
             dispatch(
@@ -95,26 +97,25 @@ export default function RegisterUmpireScreen() {
         }
 
         let imageId: number | null = null;
-        if (cleanedData?.image) {
+        if (cleanedData?.photo) {
             imageId = await uploadImageAndGetId();
             if (!imageId) return; // Stop if upload failed
         }
 
         const playerData = {
             ...cleanedData,
-            ...(imageId && { image: imageId }),
-            ...(profile && { user: profile.documentId }),
+            ...(imageId && { photo: imageId }),
         };
 
         try {
             if (id)
-                await updatePlayer({ id, data: playerData }).unwrap();
+                await updateCommunity({ id, data: playerData }).unwrap();
             else
-                await createPlayer({ data: playerData }).unwrap();
+                await createCommunity({ data: playerData }).unwrap();
 
-            dispatch(showAlert({ type: 'success', message: id ? 'Player updated successfully!' : 'Player created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: id ? 'Umpire updated successfully!' : 'Umpire created successfully!' }));
             router.replace({
-                pathname: '/profile',
+                pathname: '/umpires',
                 params: { refetch: 'true' }
             });
         }
@@ -147,8 +148,8 @@ export default function RegisterUmpireScreen() {
                                 {/* Player Image Upload */}
                                 <View style={{ alignItems: 'center' }}>
                                     <ImagePickerButton
-                                        imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
-                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
+                                        imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.photo}
+                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, photo: uri }))}
                                         title='Upload Photo'
                                     />
                                 </View>
@@ -157,6 +158,13 @@ export default function RegisterUmpireScreen() {
                                     label="Scorer Name"
                                     value={formData.name}
                                     onChangeText={(text) => setFormData({ ...formData, name: text })}
+                                    required={true}
+                                />
+                                {/* Country */}
+                                <FloatingLabelInputBorderBottom
+                                    label="Country"
+                                    value={formData.country}
+                                    onChangeText={(text) => setFormData({ ...formData, country: text })}
                                     required={true}
                                 />
                                 {/* City */}
@@ -168,16 +176,16 @@ export default function RegisterUmpireScreen() {
                                 />
                                 <FloatingLabelInputBorderBottom
                                     label="Contact Number"
-                                    value={formData.contactNumber}
-                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
+                                    value={formData.phone_number}
+                                    onChangeText={(text) => setFormData({ ...formData, phone_number: text })}
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
                                 />
                                 <FloatingLabelInputBorderBottom
                                     label="Add more details"
-                                    value={formData.serviceDetails}
-                                    onChangeText={(text) => setFormData({ ...formData, serviceDetails: text })}
+                                    value={formData.description}
+                                    onChangeText={(text) => setFormData({ ...formData, description: text })}
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
@@ -191,9 +199,8 @@ export default function RegisterUmpireScreen() {
                                         <Text className="text-sm text-gray-600 mt-1 mb-2">Per match (20 Ov.)</Text>
                                         <FloatingLabelInputBorderBottom
                                             label="Fees"
-                                            value={formData.feesPerMatch}
-                                            onChangeText={(text) => setFormData({ ...formData, feesPerMatch: text })}
-                                            required={true}
+                                            value={formData.per_match_fees}
+                                            onChangeText={(text) => setFormData({ ...formData, per_match_fees: text })}
                                         />
                                     </View>
 
@@ -201,9 +208,8 @@ export default function RegisterUmpireScreen() {
                                         <Text className="text-sm text-gray-600 mt-1 mb-2">Per day</Text>
                                         <FloatingLabelInputBorderBottom
                                             label="Fees"
-                                            value={formData.feesPerDay}
-                                            onChangeText={(text) => setFormData({ ...formData, feesPerDay: text })}
-                                            required={true}
+                                            value={formData.per_day_fees}
+                                            onChangeText={(text) => setFormData({ ...formData, per_day_fees: text })}
                                         />
                                     </View>
                                 </View>

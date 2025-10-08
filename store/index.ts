@@ -1,7 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import alertReducer from './features/alerts/alertSlice';
+import { communityApi } from './features/community/communityApi';
 import { leagueApi } from './features/league/leagueApi';
 import loadingReducer from './features/loading/loadingSlice';
+import { lookingForApi } from './features/lookingFor/lookingForApi';
 import { matchApi } from './features/match/matchApi';
 import { playerApi } from './features/player/playerApi'; // Import playerApi
 import { teamApi } from './features/team/teamApi';
@@ -17,6 +19,8 @@ export const store = configureStore({
     [matchApi.reducerPath]: matchApi.reducer,  
     [teamApi.reducerPath]: teamApi.reducer,  
     [uploadApi.reducerPath]: uploadApi.reducer,  
+    [communityApi.reducerPath]: communityApi.reducer,  
+    [lookingForApi.reducerPath]: lookingForApi.reducer,  
 
     user: userReducer,
     alert: alertReducer,
@@ -31,6 +35,8 @@ export const store = configureStore({
       leagueApi.middleware,
       teamApi.middleware,
       uploadApi.middleware,
+      communityApi.middleware,
+      lookingForApi.middleware,
     );
   },
 });

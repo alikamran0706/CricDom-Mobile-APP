@@ -4,7 +4,8 @@ import Header from '@/components/ui/Header';
 import { sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
-import { useCreatePlayerMutation, useGetPlayerByIdQuery, useUpdatePlayerMutation } from '@/store/features/player/playerApi';
+import { useCreateCommunityMutation, useUpdateCommunityMutation } from '@/store/features/community/communityApi';
+import { useGetPlayerByIdQuery } from '@/store/features/player/playerApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -24,26 +25,25 @@ export default function RegisterGroundScreen() {
         skip: !id,
     });
     const dispatch = useDispatch();
-    const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
-    const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+    const [createCommunity, { isLoading, isError, error, isSuccess }] = useCreateCommunityMutation();
+    const [updateCommunity, { isLoading: isUpdating }] = useUpdateCommunityMutation();
     const [uploadFile] = useUploadFileMutation();
     const profile = useSelector((state: RootState) => state.user.profile);
 
     const [formData, setFormData] = useState({
         image: '',
-        groundName: "",
+        name: "",
         address: "",
         city: "",
         email: "",
         phone_number: '',
-        contactPersonName: "Ali Kamran",
-        contactNumber: "",
-        serviceDetails: "",
-        shortestLength: "",
-        longestLength: "",
-        minFee: "",
-        maxFee: "",
-        pitchTypes: {
+        description: "",
+        shortest_length: "",
+        longest_length: "",
+        per_match_fees: "",
+        per_day_fees: "",
+        community_type: "ground",
+        pitch_types: {
             turf: false,
             mud: false,
             cement: false,
@@ -90,7 +90,7 @@ export default function RegisterGroundScreen() {
 
     const handleCreatePlayer = async () => {
         const cleanedData = sanitizeObject(formData);
-        if (!cleanedData?.groundName?.trim()) {
+        if (!cleanedData?.name?.trim()) {
             dispatch(
                 showAlert({
                     type: 'error',
@@ -116,21 +116,20 @@ export default function RegisterGroundScreen() {
             if (!imageId) return; // Stop if upload failed
         }
 
-        const playerData = {
+        const groundData = {
             ...cleanedData,
             ...(imageId && { image: imageId }),
-            ...(profile && { user: profile.documentId }),
         };
 
         try {
             if (id)
-                await updatePlayer({ id, data: playerData }).unwrap();
+                await updateCommunity({ id, data: groundData }).unwrap();
             else
-                await createPlayer({ data: playerData }).unwrap();
+                await createCommunity({ data: groundData }).unwrap();
 
-            dispatch(showAlert({ type: 'success', message: id ? 'Player updated successfully!' : 'Player created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: id ? 'Ground updated successfully!' : 'Ground created successfully!' }));
             router.replace({
-                pathname: '/profile',
+                pathname: '/grounds',
                 params: { refetch: 'true' }
             });
         }
@@ -149,9 +148,19 @@ export default function RegisterGroundScreen() {
     const togglePitchType = (type: string) => {
         setFormData({
             ...formData,
-            pitchTypes: {
-                ...formData.pitchTypes,
-                [type]: !formData.pitchTypes[type as keyof typeof formData.pitchTypes],
+            pitch_types: {
+                ...formData.pitch_types,
+                [type]: !formData.pitch_types[type as keyof typeof formData.pitch_types],
+            },
+        });
+    };
+
+       const toggleFacilities = (type: string) => {
+        setFormData({
+            ...formData,
+            facilities: {
+                ...formData.facilities,
+                [type]: !formData.facilities[type as keyof typeof formData.facilities],
             },
         });
     };
@@ -173,8 +182,8 @@ export default function RegisterGroundScreen() {
                                 {/* Address */}
                                 <FloatingLabelInputBorderBottom
                                     label="Ground Name"
-                                    value={formData.groundName}
-                                    onChangeText={(text) => setFormData({ ...formData, groundName: text })}
+                                    value={formData.name}
+                                    onChangeText={(text) => setFormData({ ...formData, name: text })}
                                     required={true}
                                 />
                                 {/* Address */}
@@ -191,33 +200,23 @@ export default function RegisterGroundScreen() {
                                     onChangeText={(text) => setFormData({ ...formData, city: text })}
                                     required={true}
                                 />
-                                {/* Contact Person Name */}
-                                <FloatingLabelInputBorderBottom
-                                    label="Contact Person Name"
-                                    value={formData.contactNumber}
-                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
-                                    required={true}
-                                />
                                 <FloatingLabelInputBorderBottom
                                     label="Contact Number"
-                                    value={formData.contactNumber}
-                                    onChangeText={(text) => setFormData({ ...formData, contactNumber: text })}
-                                    multiline
-                                    numberOfLines={6}
-                                    textAlignVertical="top"
+                                    value={formData.phone_number}
+                                    onChangeText={(text) => setFormData({ ...formData, phone_number: text })}
+                                    keyboardType='numeric'
                                 />
                                 <FloatingLabelInputBorderBottom
                                     label="Email"
                                     value={formData.email}
                                     onChangeText={(text) => setFormData({ ...formData, email: text })}
                                     multiline
-                                    numberOfLines={6}
                                     textAlignVertical="top"
                                 />
                                 <FloatingLabelInputBorderBottom
                                     label="Add more details"
-                                    value={formData.serviceDetails}
-                                    onChangeText={(text) => setFormData({ ...formData, serviceDetails: text })}
+                                    value={formData.description}
+                                    onChangeText={(text) => setFormData({ ...formData, description: text })}
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
@@ -231,16 +230,16 @@ export default function RegisterGroundScreen() {
                                         <View className="w-[48%]">
                                             <FloatingLabelInputBorderBottom
                                                 label="Shortest Length"
-                                                value={formData.shortestLength}
-                                                onChangeText={(text) => setFormData({ ...formData, shortestLength: text })}
+                                                value={formData.shortest_length}
+                                                onChangeText={(text) => setFormData({ ...formData, shortest_length: text })}
                                                 keyboardType="numeric"
                                             />
                                         </View>
                                         <View className="w-[48%]">
                                             <FloatingLabelInputBorderBottom
                                                 label="Longest Length"
-                                                value={formData.longestLength}
-                                                onChangeText={(text) => setFormData({ ...formData, longestLength: text })}
+                                                value={formData.longest_length}
+                                                onChangeText={(text) => setFormData({ ...formData, longest_length: text })}
                                                 keyboardType="numeric"
                                             />
                                         </View>
@@ -253,7 +252,7 @@ export default function RegisterGroundScreen() {
                                         Available Pitch Type(s)<Text className="text-red-700">*</Text>
                                     </Text>
                                     <View className="flex-row flex-wrap justify-between gap-4">
-                                        {Object.entries(formData.pitchTypes).map(([type, checked]) => (
+                                        {Object.entries(formData.pitch_types).map(([type, checked]) => (
                                             <TouchableOpacity
                                                 key={type}
                                                 className="flex-row items-center w-[45%] mb-3"
@@ -273,7 +272,7 @@ export default function RegisterGroundScreen() {
                                     </View>
                                 </View>
 
-                                {/* Facilities (Placeholder) */}
+                                {/* Facilities (Placeholder) */} 
                                 <View className="mb-6">
                                     <Text className="text-base text-gray-600 mb-2">
                                         Facilities<Text className="text-red-700">*</Text>
@@ -283,7 +282,7 @@ export default function RegisterGroundScreen() {
                                             <TouchableOpacity
                                                 key={type}
                                                 className="flex-row items-center w-[45%] mb-3"
-                                                onPress={() => togglePitchType(type)}
+                                                onPress={() => toggleFacilities(type)}
                                             >
                                                 <View
                                                     className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${checked ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-300"
@@ -304,16 +303,16 @@ export default function RegisterGroundScreen() {
                                     <View className="w-[48%]">
                                         <FloatingLabelInputBorderBottom
                                             label="Min Fees"
-                                            value={formData.minFee}
-                                            onChangeText={(text) => setFormData({ ...formData, shortestLength: text })}
+                                            value={formData.per_match_fees}
+                                            onChangeText={(text) => setFormData({ ...formData, per_match_fees: text })}
                                             keyboardType="numeric"
                                         />
                                     </View>
                                     <View className="w-[48%]">
                                         <FloatingLabelInputBorderBottom
                                             label="Max Fees"
-                                            value={formData.maxFee}
-                                            onChangeText={(text) => setFormData({ ...formData, shortestLength: text })}
+                                            value={formData.per_day_fees}
+                                            onChangeText={(text) => setFormData({ ...formData, per_day_fees: text })}
                                             keyboardType="numeric"
                                         />
                                     </View>
