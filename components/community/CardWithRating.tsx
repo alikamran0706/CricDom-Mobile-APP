@@ -1,3 +1,4 @@
+import { getFullStrapiUrl } from '@/lib/utils/common'
 import React from 'react'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 
@@ -14,8 +15,8 @@ const CardWithRating = ({id, title, subTitle, image, rating, reviews}: any) => {
                 elevation: 3,
             }}
         >
-            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300 overflow-hidden">
-                <Image source={{ uri: image }} className="w-[100%] h-[100%]" />
+            <View className="w-16 h-16 rounded-full mr-4 border border-gray-300 overflow-hidden"> 
+                <Image source={{ uri: getFullStrapiUrl(image) }} className="w-[100%] h-[100%]" />
             </View>
             <View className="flex-1">
                 <Text className="text-gray-800 text-lg font-bold mb-1">{title}</Text>

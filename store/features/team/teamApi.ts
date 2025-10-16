@@ -1,4 +1,4 @@
-import { baseQuery } from '@/app/services/api';
+import { baseQuery } from '@/services/api';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const teamApi = createApi({

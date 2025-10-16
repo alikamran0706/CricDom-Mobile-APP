@@ -1,4 +1,4 @@
-import { baseQuery } from '@/app/services/api';
+import { baseQuery } from '@/services/api';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const lookingForApi = createApi({
@@ -7,7 +7,7 @@ export const lookingForApi = createApi({
     endpoints: (builder) => ({
         getLookingFors: builder.query<any, { page?: number; pageSize?: number; creatorId?: string }>({
             query: ({ page = 1, pageSize = 10, creatorId  }) => ({
-                url: `lookingFors`,
+                url: `looking-fors`,
                 params: {
                     'pagination[page]': page,
                     'pagination[pageSize]': pageSize,
@@ -17,7 +17,7 @@ export const lookingForApi = createApi({
         }),
         getLookingFor: builder.query<any, string>({
             query: (id) => ({
-                url: `lookingFors/${id}`,
+                url: `looking-fors/${id}`,
                 method: 'GET',
                 headers: {},
                 params: {
@@ -27,7 +27,7 @@ export const lookingForApi = createApi({
         }),
         createLookingFor: builder.mutation<any, { data: any }>({
             query: (newLookingFor) => ({
-                url: 'lookingFors',
+                url: 'looking-fors',
                 method: 'POST',
                 body: newLookingFor,
             }),

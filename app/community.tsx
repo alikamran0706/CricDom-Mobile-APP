@@ -29,7 +29,7 @@ const CommunityScreen = () => {
         { id: "2", title: "Umpires", image: require('../assets/images/umpire.png'), color: "#b6b3b3", link: "/umpires" },
         { id: "3", title: "Commentators", image: require('../assets/images/cricket-commentator.png'), color: "#b6b3b3", link: "/commentators" },
         { id: "4", title: "Streamers", icon: "videocam", color: "#b6b3b3", link: "/live-streamers" },
-        { id: "5", title: "Organisers", icon: "people", color: "#b6b3b3" },
+        { id: "5", title: "Organisers", icon: "people", color: "#b6b3b3", link: "/organizers" },
         { id: "7", title: "Grounds", image: require('../assets/images/stadium.png'), color: "#b6b3b3", link: "/grounds" },
         { id: "9", title: "Physio & Trainers", image: require('../assets/images/physio.png'), color: "#b6b3b3", link: "/trainers" },
         { id: "10", title: "Personal Coaching", icon: "person-circle", color: "#b6b3b3", link: "/personal-coaching" },

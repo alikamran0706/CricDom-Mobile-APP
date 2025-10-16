@@ -2,69 +2,69 @@ import CardWithRating from "@/components/community/CardWithRating"
 import Header from "@/components/community/Header"
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
 import Tabs from "@/components/ui/Tabs"
+import { useGetCommunitiesQuery } from "@/store/features/community/communityApi"
 import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect, useState } from "react"
-import { FlatList, Text, TouchableOpacity, View } from "react-native"
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { useEffect, useLayoutEffect, useState } from "react"
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+
+const tabs = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"]
+const PAGE_SIZE = 10;
 
 const TrainersScreen = () => {
     const router = useRouter();
     const [selectedCountry, setSelectedCountry] = useState("Pakistan");
     const navigation = useNavigation();
 
-    const filters = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"]
+    const params = useLocalSearchParams();
+    const [filters, setFilters] = useState<{ [key: string]: string }>({
+        'filters[community_type][$eq]': 'trainer',
+    });
+
+    const [page, setPage] = useState(1);
+
+    const {
+        data: communities,
+        isLoading,
+        isFetching,
+        refetch,
+    } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters, });
+
+    const communityList = communities?.data || [];
+    const total = communities?.meta?.pagination?.total || 0;
+    const hasMore = communityList.length < total;
+
+    useEffect(() => {
+        if (params?.refetch === 'true') {
+            refetch();
+            router.setParams({ refetch: undefined });
+        }
+    }, [params?.refetch]);
+
+    const handleLoadMore = () => {
+        if (!isFetching && hasMore) {
+            setPage((prev) => prev + 1);
+        }
+    };
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const trainers = [
-        {
-            id: '1',
-            name: "A AHAMED RYAZ",
-            location: "Madurai",
-            rating: 4.8,
-            reviews: 46,
-            image: "/trainer-profile.jpg",
-        },
-        {
-            id: '2',
-            name: "A to Z Rehab",
-            location: "New Delhi",
-            rating: 4.4,
-            reviews: 7,
-            image: "/rehab-center.jpg",
-        },
-        {
-            id: '3',
-            name: "AA CHANGPUNG MAN...",
-            location: "Shillong",
-            rating: 4.9,
-            reviews: 30,
-            image: "/fitness-trainer.jpg",
-        },
-        {
-            id: '4',
-            name: "Aarogya physio Care",
-            location: "Kullu",
-            rating: 4.8,
-            reviews: 5,
-            image: "/physio-care.jpg",
-        },
-    ]
-
-    const renderCard = ({ item }: any) => (
-        <CardWithRating
-            key={item.id}
-            id={item.id}
-            title={item.name}
-            subTitle={item.location}
-            image={item.image}
-            rating={item.rating}
-            reviews={item.reviews}
-        />
-    )
+    const renderCard = ({ item }: any) => {
+        return (
+            <CardWithRating
+                key={item.id}
+                id={item.id}
+                title={item.name}
+                subTitle={item.description}
+                image={item.photo?.formats?.thumbnail?.url}
+                rating={(item.ratings?.length || 0) / 5}
+                reviews={item.ratings?.length || 0}
+            />
+        )
+    }
 
     const HeaderComponent = () => {
         return (
@@ -83,7 +83,7 @@ const TrainersScreen = () => {
 
                 {/* Tabs */}
                 <Tabs
-                    tabs={filters}
+                    tabs={tabs}
                     activeTab='Limited Overs'
                 />
             </View>
@@ -97,14 +97,21 @@ const TrainersScreen = () => {
                 <Header heading={`Fitness Trainer`} />
                 {/* Scorers List */}
                 <FlatList
-                    data={trainers}
+                    data={communityList}
                     renderItem={renderCard}
                     keyExtractor={(item) => item.id}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
                     ListHeaderComponent={() => (
                         <HeaderComponent />
                     )}
+                    ListFooterComponent={
+                        hasMore && !isLoading ? (
+                            <ActivityIndicator size="small" className="mt-4 mb-6" />
+                        ) : null
+                    }
                 />
 
                 {/* Bottom Buttons */}

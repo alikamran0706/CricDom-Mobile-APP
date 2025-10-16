@@ -152,7 +152,7 @@ export default function CreatePlayerScreen() {
                                 <View style={{ alignItems: 'center', }}>
                                     <ImagePickerButton
                                         imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.photo}
-                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
+                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, photo: uri }))}
                                         title='Upload Photo'
                                     />
                                 </View>

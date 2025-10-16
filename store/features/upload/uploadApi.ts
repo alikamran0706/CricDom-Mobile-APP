@@ -1,5 +1,5 @@
-import { baseQuery } from '@/app/services/api';
 import { prepareImageForUpload } from '@/lib/utils/uploadImageToForm';
+import { baseQuery } from '@/services/api';
 import { createApi, FetchBaseQueryError, } from '@reduxjs/toolkit/query/react';
 
 export const uploadApi = createApi({

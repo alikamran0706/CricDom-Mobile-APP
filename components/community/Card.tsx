@@ -1,6 +1,6 @@
+import { getFullStrapiUrl } from '@/lib/utils/common'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import React from 'react'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 
 const getRankColor = (rank: number) => {
@@ -31,8 +31,8 @@ const Card = ({ name, matches, points, rank, dailyRate, matchRate, image, link }
         >
             <View className="flex-row items-center mb-3">
                 <Image
-                    source={{ uri: image }}
-                    className="w-15 h-15 rounded-full bg-gray-200 mr-4"
+                    source={{ uri: getFullStrapiUrl(image) }}
+                    className="w-15 h-15 rounded-full bg-gray-200 mr-4" 
                     style={{ width: 60, height: 60 }}
                 />
                 <View className="flex-1">

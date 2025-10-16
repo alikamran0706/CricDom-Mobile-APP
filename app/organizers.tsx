@@ -9,25 +9,17 @@ import { useEffect, useLayoutEffect, useState } from "react"
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
-interface Coach {
-    id: string
-    name: string
-    location: string
-    image: string
-    rating: number
-    reviewCount: number
-}
-
-const tabs = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"];
+const tabs = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"]
 const PAGE_SIZE = 10;
 
-const PersonalCoachingScreen = () => {
+const OrganizersScreen = () => {
     const router = useRouter();
     const [selectedCountry, setSelectedCountry] = useState("Pakistan");
     const navigation = useNavigation();
+
     const params = useLocalSearchParams();
     const [filters, setFilters] = useState<{ [key: string]: string }>({
-        'filters[community_type][$eq]': 'coach',
+        'filters[community_type][$eq]': 'organizer',
     });
 
     const [page, setPage] = useState(1);
@@ -43,13 +35,12 @@ const PersonalCoachingScreen = () => {
     const total = communities?.meta?.pagination?.total || 0;
     const hasMore = communityList.length < total;
 
-    useEffect
-        (() => {
-            if (params?.refetch === 'true') {
-                refetch();
-                router.setParams({ refetch: undefined });
-            }
-        }, [params?.refetch]);
+    useEffect(() => {
+        if (params?.refetch === 'true') {
+            refetch();
+            router.setParams({ refetch: undefined });
+        }
+    }, [params?.refetch]);
 
     const handleLoadMore = () => {
         if (!isFetching && hasMore) {
@@ -61,17 +52,19 @@ const PersonalCoachingScreen = () => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const renderCard = ({ item }: any) => (
-        <CardWithRating
-            key={item.id}
-            id={item.id}
-            title={item.name}
-            subTitle={item.description}
-            image={item.photo?.formats?.thumbnail?.url}
-            rating={(item.ratings?.length || 0) / 5}
-            reviews={item.ratings?.length || 0}
-        />
-    )
+    const renderCard = ({ item }: any) => {
+        return (
+            <CardWithRating
+                key={item.id}
+                id={item.id}
+                title={item.name}
+                subTitle={item.description}
+                image={item.photo?.formats?.thumbnail?.url}
+                rating={(item.ratings?.length || 0) / 5}
+                reviews={item.ratings?.length || 0}
+            />
+        )
+    }
 
     const HeaderComponent = () => {
         return (
@@ -80,7 +73,7 @@ const PersonalCoachingScreen = () => {
                 <View className="bg-white px-4">
                     <View className="flex-row items-center justify-between">
                         <Text className="text-lg font-semibold text-gray-800">
-                            Nearby <Text className="text-[#0e7ccb]">{selectedCountry}</Text> - All
+                            Top Organizers of <Text className="text-[#0e7ccb]">{selectedCountry}</Text> - All
                         </Text>
                         <TouchableOpacity className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center">
                             <Ionicons name="swap-vertical" size={20} color="#666" />
@@ -101,7 +94,7 @@ const PersonalCoachingScreen = () => {
         <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
                 {/* Header */}
-                <Header heading={`Personal Coaching`} />
+                <Header heading={`Organizers`} />
                 {/* Scorers List */}
                 <FlatList
                     data={communityList}
@@ -124,11 +117,11 @@ const PersonalCoachingScreen = () => {
                 {/* Bottom Buttons */}
                 <FloatingActionButton
                     label="REGISTER"
-                    onPress={() => router.push('/create-coach')}
+                    onPress={() => router.push('/create-organizer')}
                 />
             </View>
         </SafeAreaView>
     )
 }
 
-export default PersonalCoachingScreen
+export default OrganizersScreen;

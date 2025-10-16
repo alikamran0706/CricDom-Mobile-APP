@@ -1,4 +1,5 @@
 import QRCodeModal from "@/components/Modal/QRCodeModal"
+import { useGetCurrentUserQuery } from "@/store/features/user/userApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRouter } from "expo-router"
 import { useLayoutEffect, useState } from "react"
@@ -9,6 +10,7 @@ export default function ProfileDetails() {
   const router = useRouter();
   const navigation = useNavigation();
   const [showQRModal, setShowQRModal] = useState(false);
+  const { data: profile, isLoading, refetch } = useGetCurrentUserQuery();
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -17,14 +19,14 @@ export default function ProfileDetails() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-        <View className="px-4 py-2">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-black text-lg font-semibold">Profile</Text>
-            <TouchableOpacity onPress={() => router.push("/edit-profile")}>
-              <Ionicons name="create-outline" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
+      <View className="px-4 py-2">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-black text-lg font-semibold">Profile</Text>
+          <TouchableOpacity onPress={() => router.push("/edit-profile")}>
+            <Ionicons name="create-outline" size={24} color="black" />
+          </TouchableOpacity>
         </View>
+      </View>
       {/* <StatusBar barStyle="dark-content" backgroundColor="#EFF6FF" /> */}
       <ScrollView className="flex-1">
         <View className="flex-row items-start gap-x-8 px-6 py-4 bg-blue-50 mx-4 mb-4 mt-1 rounded-2xl">
@@ -48,7 +50,7 @@ export default function ProfileDetails() {
             <Text className="text-3xl font-normal text-gray-700 mb-2 max-w-[200px]"
               numberOfLines={1}
               ellipsizeMode="tail">
-              Ali Kamran
+              {profile?.player?.name || profile?.user_name}
             </Text>
             <View className="flex-row items-center mb-2">
               <Ionicons name="location" size={16} color="gray" />
@@ -77,7 +79,7 @@ export default function ProfileDetails() {
 
             {/* Profile Views */}
             <View className="flex-1 items-center py-6">
-              <Text className="text-4xl font-normal text-gray-600 mb-1">0</Text>
+              <Text className="text-4xl font-normal text-gray-600 mb-1">{profile?.player?.views || 0}</Text>
               <Text className="text-gray-600 text-center text-sm">Profile Views</Text>
             </View>
           </View>
@@ -138,8 +140,7 @@ export default function ProfileDetails() {
             <View className="flex-row">
               <View className="flex-1">
                 <Text className="text-gray-500 text-sm mb-1">EMAIL</Text>
-                <Text className="text-gray-800">alikamrantec</Text>
-                <Text className="text-gray-800">hdev@gmail</Text>
+                <Text className="text-gray-800" numberOfLines={1}>{profile?.email}</Text>
               </View>
               <View className="flex-1">
                 <Text className="text-gray-500 text-sm mb-1">PIN</Text>

@@ -2,6 +2,7 @@ import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
 import Header from "@/components/ui/Header";
 import { ballTypes } from "@/constants/match";
+import { sanitizeObject } from "@/lib/utils/common";
 import { showAlert } from "@/store/features/alerts/alertSlice";
 import { useCreateLookingForMutation } from "@/store/features/lookingFor/lookingForApi";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,20 +19,22 @@ const TeamTournamentScreen = () => {
     const navigation = useNavigation();
     const [startDate, setStartDate] = useState('');
     const [showEndDatePicker, setShowEndDatePicker] = useState(false)
+    const [createLookingFor, { isLoading, isError, error, isSuccess }] = useCreateLookingForMutation();
 
     const [formData, setFormData] = useState({
         name: "",
         region: "Lahore",
-        selectedRole: "",
-        area: "",
-        selectedBallType: "",
-        selectedGroundType: "",
-        details: "",
-        notifyEnabled: true,
+        address: "",
+        ball_type: {
+            ball: '',
+            other: ''
+        },
+        ground_type: "",
+        description: "",
+        notify: true,
         match: '',
     });
 
-    const [createLookingFor, { isLoading, isError, error, isSuccess }] = useCreateLookingForMutation();
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
@@ -56,12 +59,12 @@ const TeamTournamentScreen = () => {
     };
 
     const onSave = async () => {
-        console.log('Clickedd')
+        const cleanedData = sanitizeObject(formData);
         try {
-            await createLookingFor({ data: formData }).unwrap();
+            await createLookingFor({ data: cleanedData }).unwrap();
             dispatch(showAlert({ type: 'success', message: 'Looking for team created successfully!' }));
             router.replace({
-                pathname: '/personal-coaching',
+                pathname: '/looking-for-list',
                 params: { refetch: 'true' }
             });
         } catch (error: any) {
@@ -71,11 +74,20 @@ const TeamTournamentScreen = () => {
                     message:
                         error?.response?.data ||
                         error.message ||
-                        isError ||
                         "An unknown error occurred.",
                 })
             );
         }
+    };
+
+    const handleBallTypeChange = (key: "ball" | "other", value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            ball_type: {
+                ...prev.ball_type,
+                [key]: value,
+            }
+        }));
     };
 
     return (
@@ -90,7 +102,7 @@ const TeamTournamentScreen = () => {
                         value={formData.name}
                         onChangeText={(text) => handleChange("name", text)}
                     />
-                    <Text className="text-base font-semibold text-gray-800 mb-3">What is your playing role?</Text>
+                    <Text className="text-base font-semibold text-gray-800 mb-3">What is your playing role?</Text> 
                     <View className="flex-row flex-wrap gap-2 mb-5">
                         {matchesOn.map((match) => (
                             <TouchableOpacity
@@ -99,7 +111,7 @@ const TeamTournamentScreen = () => {
                                 onPress={() => handleChange('match', match)}
                             >
                                 <Text className={`${formData.match === match ? "text-white" : "text-gray-700"} text-sm`}>
-                                    {match}
+                                    {match}  
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -120,24 +132,24 @@ const TeamTournamentScreen = () => {
 
                     <FloatingLabelInputBorderBottom
                         label="Area in this city?"
-                        value={formData.area}
-                        onChangeText={(text) => handleChange("area", text)}
+                        value={formData.address}
+                        onChangeText={(text) => handleChange("address", text)}
                     />
 
                     {/* Team Input */}
                     <FloatingLabelInputBorderBottom
                         label="Select your team (Optional)"
                         value={formData.name}
-                        onChangeText={(text) => {}}
+                        onChangeText={(text) => { }}
                     />
 
                     <Text className="text-base font-semibold text-gray-800 mt-2 mb-3">Any preferences for ball type?</Text>
                     <View className="flex-row justify-around mb-6">
                         {ballTypes.map((ball) => (
-                            <TouchableOpacity key={ball.type} className="items-center" onPress={() => handleChange("selectedBallType", ball.type)}>
+                            <TouchableOpacity key={ball.type} className="items-center" onPress={() => handleBallTypeChange(ball.field as "ball" | "other", ball.type)}>
                                 <View
                                     className={`w-16 h-16 rounded-full items-center justify-center mb-2 
-                    ${formData.selectedBallType === ball.type ? "border border-[#0e7ccb]" : "border border-gray-300"}`}
+                                    ${formData.ball_type[ball.field as "ball" | "other"] === ball.type ? "border border-[#0e7ccb]" : "border border-gray-300"}`}
                                 >
                                     <Ionicons name={ball.icon as any} size={24} color={ball.color} />
                                 </View>
@@ -151,9 +163,9 @@ const TeamTournamentScreen = () => {
                         {groundTypes.map((ground) => (
                             <TouchableOpacity
                                 key={ground.type}
-                                className={`items-center p-4 ${formData.selectedGroundType === ground.type ? "bg-gray-200 rounded-lg" : ""
+                                className={`items-center p-4 ${formData.ground_type === ground.type ? "bg-gray-200 rounded-lg" : ""
                                     }`}
-                                onPress={() => handleChange("selectedGroundType", ground.type)}
+                                onPress={() => handleChange("ground_type", ground.type)}
                             >
                                 <Image
                                     source={ground.image}
@@ -176,13 +188,13 @@ const TeamTournamentScreen = () => {
 
                     <TextInput
                         className="border border-gray-300 rounded-lg p-3 text-sm text-gray-700 h-32 text-top"
-                        value={formData.details}
-                        onChangeText={(text) => handleChange("details", text)}
+                        value={formData.description}
+                        onChangeText={(text) => handleChange("description", text)}
                         placeholder="Write details like your role, playing for a tournament or Friendly match, match fees, etc."
                         multiline
                         maxLength={280}
                     />
-                    <Text className="text-right text-xs text-gray-500 mt-1 mb-6">{formData.details.length}/280</Text>
+                    <Text className="text-right text-xs text-gray-500 mt-1 mb-6">{formData.description.length}/280</Text>
 
                     <View className="flex-row justify-between items-center mb-6">
                         <View className="flex-1 mr-4">
@@ -192,12 +204,12 @@ const TeamTournamentScreen = () => {
                             </Text>
                         </View>
                         <TouchableOpacity
-                            className={`w-12 h-7 rounded-full justify-center px-1 ${formData.notifyEnabled ? "bg-[#0e7ccb]" : "bg-gray-300"
+                            className={`w-12 h-7 rounded-full justify-center px-1 ${formData.notify ? "bg-[#0e7ccb]" : "bg-gray-300"
                                 }`}
-                            onPress={() => handleChange("notifyEnabled", !formData.notifyEnabled)}
+                            onPress={() => handleChange("notify", !formData.notify)}
                         >
                             <View
-                                className={`w-6 h-6 rounded-full bg-white ${formData.notifyEnabled ? "self-end" : "self-start"
+                                className={`w-6 h-6 rounded-full bg-white ${formData.notify ? "self-end" : "self-start"
                                     }`}
                             />
                         </TouchableOpacity>

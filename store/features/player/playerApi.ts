@@ -1,5 +1,5 @@
-import { baseQueryWithReauth } from '@/app/services/api';
 import { buildStrapiFilters } from '@/lib/utils/common';
+import { baseQueryWithReauth } from '@/services/api';
 import { BaseQueryFn, createApi, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
 export const playerApi = createApi({

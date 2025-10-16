@@ -14,7 +14,7 @@ import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
-export default function RegisterTrainerScreen() {
+export default function RegisterOrganizerScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -43,7 +43,7 @@ export default function RegisterTrainerScreen() {
         per_match_fees: "",
         per_day_fees: "",
         experience: "",
-        community_type: "trainer",
+        community_type: "organizer",
         youtubeLink: "",
         facebookLink: "",
     })
@@ -76,7 +76,7 @@ export default function RegisterTrainerScreen() {
         }
     };
 
-    const handleCreateTrainer = async () => {
+    const handleCreateOrganizer = async () => {
         const cleanedData = sanitizeObject(formData);
         if (!cleanedData?.name?.trim()) {
             dispatch(
@@ -104,25 +104,25 @@ export default function RegisterTrainerScreen() {
             if (!imageId) return;
         }
 
-        const trainerData = {
+        const organizerData = {
             ...cleanedData,
             ...(imageId && { photo: imageId }),
         };
 
         try {
             if (id)
-                await updateCommunity({ id, data: trainerData }).unwrap();
+                await updateCommunity({ id, data: organizerData }).unwrap();
             else
-                await createCommunity({ data: trainerData }).unwrap();
+                await createCommunity({ data: organizerData }).unwrap();
 
-            dispatch(showAlert({ type: 'success', message: id ? 'Trainer updated successfully!' : 'Trainer created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: id ? 'Organizers updated successfully!' : 'Organizers created successfully!' }));
             router.replace({
-                pathname: '/trainers',
+                pathname: '/organizers',
                 params: { refetch: 'true' }
             });
         }
         catch (error: any) {
-
+            
             dispatch(
                 showAlert({
                     type: 'error',
@@ -137,7 +137,7 @@ export default function RegisterTrainerScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <View style={{ flex: 1 }}>
                 {/* Header */}
-                <Header heading='Register Fitness Trainer' />
+                <Header heading='Register Organizer' />
                 {
                     loading ?
                         <View className="flex-1 items-center justify-center">
@@ -157,7 +157,7 @@ export default function RegisterTrainerScreen() {
                                 </View>
                                  {/* name */}
                                 <FloatingLabelInputBorderBottom
-                                    label="Trainer Name"
+                                    label="Organizer Name"
                                     value={formData.name}
                                     onChangeText={(text) => setFormData({ ...formData, name: text })}
                                     required={true}
@@ -208,9 +208,9 @@ export default function RegisterTrainerScreen() {
 
                 {/* Floating Create Button */}
                 <FloatingActionButton
-                    label={player ? "Update Trainer" : "Create Trainer"}
+                    label={player ? "Update Organizer" : "Create Organizer"}
                     iconName="person-add"
-                    onPress={handleCreateTrainer}
+                    onPress={handleCreateOrganizer}
                     loading={isLoading || isUpdating}
                     disabled={isLoading || isUpdating}
                 />

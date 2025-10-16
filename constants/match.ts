@@ -95,10 +95,27 @@ export const matchTypes = [{ label: "Limited Overs", value: 'League' }, { label:
 ];
 
 export const ballTypes = [
-  { type: "Tennis", color: "#84cc16", icon: "baseball" },
-  { type: "Leather", color: "#dc2626", icon: "baseball" },
-  { type: "Other", color: "#10b981", icon: "baseball" },
+  { type: "Tennis", color: "#84cc16", icon: "baseball", field: 'ball' },
+  { type: "Leather", color: "#dc2626", icon: "baseball", field: 'ball' },
+  { type: "Other", color: "#10b981", icon: "baseball", field: 'other' },
 ];
+
+export const groundTypes = [
+  { type: "Open Ground", image: require('../assets/images/stadium.png') },
+  { type: "Box Cricket", image: require('../assets/images/net.png') },
+];
+
+export const types = ["Whole day", "Match", "Tournament"];
+export const days = ["1", "2", "3", "4", "5+"];
+export const matchesPerDay = ["1", "2", "3", "4", "5+"];
+export const dailyBudgets = ["500 - 1000", "1100 - 1500", "1600 - 2000", "2000+", "NOT DECIDED"];
+export const matchBudgets = ["100 - 500", "600 - 1000", "1100 - 1500", "1500+", "NOT DECIDED"];
+export const contactMethods = ["Cricdom DM", "Call", "WhatsApp"];
+
+export const match_on = ["Weekdays", "Weekend", "All days"];
+export const matcheTimings = ["Day", "Night", "Day & Night"];
+export const tournament_formats = ["League", "Knockout"];
+export const participateTypes = ["Team", "Player"];
 
 export const pitchTypes = ["ROUGH", "CEMENT", "TURF", "ASTROTURF", "MATTING"]
 

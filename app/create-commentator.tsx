@@ -43,7 +43,7 @@ export default function RegisterCommentatorScreen() {
         per_match_fees: "",
         per_day_fees: "",
         experience: "",
-        community_type: "scorer"
+        community_type: "commentator"
     })
 
     useEffect(() => {

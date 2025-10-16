@@ -1,17 +1,19 @@
-import { baseQuery } from '@/app/services/api';
+import { baseQuery } from '@/services/api';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const communityApi = createApi({
     reducerPath: 'communityApi',
     baseQuery,
     endpoints: (builder) => ({
-        getCommunities: builder.query<any, { page?: number; pageSize?: number; creatorId?: string }>({
-            query: ({ page = 1, pageSize = 10, creatorId  }) => ({
+        getCommunities: builder.query<any, { page?: number; pageSize?: number; filters?: any }>({
+            query: ({ page = 1, pageSize = 10, filters  }) => ({
                 url: `communities`,
                 params: {
                     'pagination[page]': page,
                     'pagination[pageSize]': pageSize,
-                    ...(creatorId && { 'filters[creator][[documentId]][$eq]': creatorId }),
+                    ...(filters && filters),
+                    'sort': 'createdAt:desc',
+                     populate: '*',
                 },
             }),
         }),

@@ -2,39 +2,79 @@ import Card from "@/components/community/Card";
 import Header from "@/components/community/Header";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import Tabs from "@/components/ui/Tabs";
-import { scorers } from "@/constants/scorer";
-import { Scorer } from "@/lib/types/scorer";
+import { useGetCommunitiesQuery } from "@/store/features/community/communityApi";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRouter } from "expo-router";
-import { useLayoutEffect, useState } from "react";
-import { FlatList, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const PAGE_SIZE = 10;
 
 const ScorersScreen = () => {
   const router = useRouter();
-  const [selectedCountry, setSelectedCountry] = useState("Pakistan");
+  const [selectedCountry, setSelectedCountry] = useState("Pakistan"); 
   const navigation = useNavigation();
+  const params = useLocalSearchParams();
+  const [filters, setFilters] = useState<{ [key: string]: string }>({
+    'filters[community_type][$eq]': 'scorer',
+  });
+
+  const [page, setPage] = useState(1);
+
+  const {
+    data: communities,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters, });
+
+  const communityList = communities?.data || [];
+  const total = communities?.meta?.pagination?.total || 0;
+  const hasMore = communityList.length < total;
+
+  useEffect(() => {
+    if (params?.refetch === 'true') {
+      refetch();
+      router.setParams({ refetch: undefined });
+    }
+  }, [params?.refetch]);
+
+  const handleLoadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  const filters = ["Cricket", "Test Match", "The Hundred", "Pair Cricket"]
+  const tabs = ["Cricket", "Test Match", "The Hundred", "Pair Cricket"]
 
-  const renderScorerCard = ({ item }: { item: Scorer }) => (
-    <Pressable onPress={() => router.push(`/player/${item.id}?community=scorer`)}>
-      <Card
-        name={item.name}
-        matches={item.matchesScored}
-        points={item.totalPoints}
-        rank={item.rank}
-        dailyRate={item.dailyRate}
-        matchRate={item.matchRate}
-        image={item.image}
-        link={'/'}
-      />
-    </Pressable>
-  )
+  const renderScorerCard = ({ item }: { item: any }) => {
+
+    const points =
+      (item.matches?.length || 0) * 10 +
+      (item.error_free_matches || 0) * 5 +
+      (item.live_matches || 0) * 2 +
+      (item.fullyScoredMatches || 0) * 3;
+
+    return (
+      <Pressable onPress={() => router.push(`/player/${item.id}?community=scorer`)}>
+        <Card
+          name={item.name}
+          matches={item.matches?.length}
+          points={points}
+          rank={item.rank}
+          dailyRate={item.per_day_fees}
+          matchRate={item.per_match_fees}
+          image={item.photo?.formats?.thumbnail?.url}
+          link={'/'}
+        />
+      </Pressable>
+    )
+  }
 
   const HeaderComponent = () => {
     return (
@@ -52,7 +92,7 @@ const ScorersScreen = () => {
         </View>
         {/* Tabs */}
         <Tabs
-          tabs={filters}
+          tabs={tabs}
           activeTab='Cricket'
         />
       </View>
@@ -68,14 +108,21 @@ const ScorersScreen = () => {
         />
         {/* Scorers List */}
         <FlatList
-          data={scorers}
+          data={communityList}
           renderItem={renderScorerCard}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
           ListHeaderComponent={() => (
             <HeaderComponent />
           )}
+          ListFooterComponent={
+            hasMore && !isLoading ? (
+              <ActivityIndicator size="small" className="mt-4 mb-6" />
+            ) : null
+          }
         />
         {/* Bottom Buttons */}
         <FloatingActionButton

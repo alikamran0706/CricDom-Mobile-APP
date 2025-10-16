@@ -8,9 +8,10 @@ import { useCreateCommunityMutation, useUpdateCommunityMutation } from '@/store/
 import { useGetPlayerByIdQuery } from '@/store/features/player/playerApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -43,6 +44,7 @@ export default function RegisterGroundScreen() {
         per_match_fees: "",
         per_day_fees: "",
         community_type: "ground",
+        photo: "",
         pitch_types: {
             turf: false,
             mud: false,
@@ -70,12 +72,32 @@ export default function RegisterGroundScreen() {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
+    const pickImage = async (type: 'media' | 'photo') => {
+        // Ask for permission
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            dispatch(showAlert({ type: 'error', message: 'Permission to access media library is required!' }));
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: type === 'media' ? [2, 1] : [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled && result.assets?.[0]?.uri) {
+            const uri = result.assets[0].uri;
+            setFormData({ ...formData, photo: uri });
+        }
+    };
 
     const uploadImageAndGetId = async (): Promise<number | null> => {
-        if (!formData.image) return null;
+        if (!formData.photo) return null;
 
         try {
-            const imageId = await uploadFile({ image: formData.image }).unwrap().then(res => res[0]?.id);
+            const imageId = await uploadFile({ image: formData.photo }).unwrap().then(res => res[0]?.id);
             return imageId;
         } catch (uploadError) {
             dispatch(
@@ -94,7 +116,7 @@ export default function RegisterGroundScreen() {
             dispatch(
                 showAlert({
                     type: 'error',
-                    message: 'Please enter player name',
+                    message: 'Please enter name',
                 })
             );
             return;
@@ -111,14 +133,14 @@ export default function RegisterGroundScreen() {
         }
 
         let imageId: number | null = null;
-        if (cleanedData?.image) {
+        if (cleanedData?.photo) {
             imageId = await uploadImageAndGetId();
-            if (!imageId) return; // Stop if upload failed
+            if (!imageId) return; // Stop if upload failed 
         }
 
         const groundData = {
             ...cleanedData,
-            ...(imageId && { image: imageId }),
+            ...(imageId && { photo: imageId }),
         };
 
         try {
@@ -134,7 +156,7 @@ export default function RegisterGroundScreen() {
             });
         }
         catch (error: any) {
-
+            console.log(error?.response?.data || error.message || isError || error || 'An unknown error occurred. tttttttttttt')
             dispatch(
                 showAlert({
                     type: 'error',
@@ -155,7 +177,7 @@ export default function RegisterGroundScreen() {
         });
     };
 
-       const toggleFacilities = (type: string) => {
+    const toggleFacilities = (type: string) => {
         setFormData({
             ...formData,
             facilities: {
@@ -179,6 +201,28 @@ export default function RegisterGroundScreen() {
                         <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}
                             contentContainerStyle={{ paddingBottom: 70 }}>
                             <View style={{ paddingVertical: 24 }}>
+
+                                <View className="relative w-full items-start mb-8">
+                                    <TouchableOpacity onPress={() => pickImage('photo')} className="w-full">
+                                        <View className="w-full h-[180px] bg-gray-100 border-2 border-gray-200 rounded-lg overflow-hidden">
+                                            {formData.photo ? (
+                                                <Image
+                                                    source={{ uri: formData.photo }}
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    resizeMode="cover"
+                                                />
+                                            ) : (
+                                                <View className="flex-1 items-center justify-center h-full">
+                                                    <Ionicons name="image-outline" size={50} color="#999" />
+                                                </View>
+                                            )}
+                                        </View>
+                                        <View className="absolute -bottom-2 -right-2 bg-[#0e7ccb] w-6 h-6 rounded-full items-center justify-center">
+                                            <Ionicons name="camera" size={16} color="white" />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+
                                 {/* Address */}
                                 <FloatingLabelInputBorderBottom
                                     label="Ground Name"
@@ -272,7 +316,7 @@ export default function RegisterGroundScreen() {
                                     </View>
                                 </View>
 
-                                {/* Facilities (Placeholder) */} 
+                                {/* Facilities (Placeholder) */}
                                 <View className="mb-6">
                                     <Text className="text-base text-gray-600 mb-2">
                                         Facilities<Text className="text-red-700">*</Text>

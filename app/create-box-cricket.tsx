@@ -41,7 +41,7 @@ export default function RegisterBoxCricketScreen() {
         per_match_fees: "",
         per_day_fees: "",
         experience: "",
-        community_type: "coach",
+        community_type: "boxcricket",
         youtubeLink: "",
         facebookLink: "",
     });
@@ -104,7 +104,7 @@ export default function RegisterBoxCricketScreen() {
 
         const boxCricketData = {
             ...cleanedData,
-            ...(imageId && { image: imageId }),
+            ...(imageId && { photo: imageId }),
         };
 
         try {
@@ -149,7 +149,7 @@ export default function RegisterBoxCricketScreen() {
                                 <View style={{ alignItems: 'center',}}>
                                     <ImagePickerButton
                                         imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.photo}
-                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
+                                        onChangeImage={(uri) => setFormData((prev) => ({ ...prev, photo: uri }))}
                                         title='Upload Photo'
                                     />
                                 </View>

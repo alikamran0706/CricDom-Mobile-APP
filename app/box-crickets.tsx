@@ -2,69 +2,68 @@ import CardWithRating from "@/components/community/CardWithRating"
 import Header from "@/components/community/Header"
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
 import Tabs from "@/components/ui/Tabs"
+import { useGetCommunitiesQuery } from "@/store/features/community/communityApi"
 import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect, useState } from "react"
-import { FlatList, Text, TouchableOpacity, View } from "react-native"
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { useEffect, useLayoutEffect, useState } from "react"
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+
+const tabs = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"];
+const PAGE_SIZE = 10;
 
 const BoxCricketScreen = () => {
     const router = useRouter();
     const [selectedCountry, setSelectedCountry] = useState("Pakistan");
     const navigation = useNavigation();
+    const params = useLocalSearchParams();
+    const [filters, setFilters] = useState<{ [key: string]: string }>({
+        'filters[community_type][$eq]': 'boxcricket',
+    });
 
-    const filters = ["Limited Overs", "Box/Turf Cricket", "Test Match", "T20"]
+    const [page, setPage] = useState(1);
+
+    const {
+        data: communities,
+        isLoading,
+        isFetching,
+        refetch,
+    } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters, });
+
+    const communityList = communities?.data || [];
+    const total = communities?.meta?.pagination?.total || 0;
+    const hasMore = communityList.length < total;
+
+    useEffect(() => {
+        if (params?.refetch === 'true') {
+            refetch();
+            router.setParams({ refetch: undefined });
+        }
+    }, [params?.refetch]);
+
+    const handleLoadMore = () => {
+        if (!isFetching && hasMore) {
+            setPage((prev) => prev + 1);
+        }
+    };
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const venues = [
-    {
-      id: '1',
-      name: "3 Dimensional ACA Cricket Academy",
-      location: "Gurugram (Gurgaon)",
-      rating: 3.6,
-      reviews: 29,
-      image: "/public/cricket-ground-facility.jpg",
-    },
-    {
-      id: '2',
-      name: "AAI Sportsaal",
-      location: "Chennai",
-      rating: 4.3,
-      reviews: 48,
-      image: "/public/cricket-nets-facility.jpg",
-    },
-    {
-      id: '3',
-      name: "Academy Modasa",
-      location: "Modasa",
-      rating: 4.1,
-      reviews: 16,
-      image: "/public/cricket-academy-logo.jpg",
-    },
-    {
-      id: '4',
-      name: "Adwan Sports Veritas Complex",
-      location: "Noida",
-      rating: 3.3,
-      reviews: 6,
-      image: "/public/sports-complex-logo.jpg",
-    },
-  ];
-
-    const renderCard = ({ item }: any) => (
-        <CardWithRating
-            key={item.id}
-            id={item.id}
-            title={item.name}
-            subTitle={item.location}
-            image={item.image}
-            rating={item.rating}
-            reviews={item.reviews}
-        />
-    )
+    const renderCard = ({ item }: any) => {
+        return (
+            <CardWithRating
+                key={item.id}
+                id={item.id}
+                title={item.name}
+                subTitle={item.description}
+                image={item.photo?.formats?.thumbnail?.url}
+                rating={(item.ratings?.length || 0)/5}
+                reviews={item.ratings?.length || 0}
+            />
+        )
+    }
 
     const HeaderComponent = () => {
         return (
@@ -83,7 +82,7 @@ const BoxCricketScreen = () => {
 
                 {/* Tabs */}
                 <Tabs
-                    tabs={filters}
+                    tabs={tabs}
                     activeTab='Limited Overs'
                 />
             </View>
@@ -97,14 +96,21 @@ const BoxCricketScreen = () => {
                 <Header heading="Box Cricket & Nets" />
                 {/* Scorers List */}
                 <FlatList
-                    data={venues}
+                    data={communityList}
                     renderItem={renderCard}
                     keyExtractor={(item) => item.id}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
                     ListHeaderComponent={() => (
                         <HeaderComponent />
                     )}
+                    ListFooterComponent={
+                        hasMore && !isLoading ? (
+                            <ActivityIndicator size="small" className="mt-4 mb-6" />
+                        ) : null
+                    }
                 />
                 {/* Bottom Buttons */}
                 <FloatingActionButton
