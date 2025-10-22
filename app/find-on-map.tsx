@@ -1,5 +1,4 @@
 import Map from "@/components/Map"
-import Header from "@/components/ui/Header"
 import { players } from "@/constants/payer"
 import { useNavigation } from "expo-router"
 import { useLayoutEffect, useState } from "react"
@@ -24,7 +23,12 @@ const FindPlayerOnMapScreen = () => {
     return (
         <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
-                <Header heading='Find Cricket Players Near You' />
+                {/* <Header heading='Find Cricket Players Near You' /> */}
+                <View className="px-4 py-3">
+                    <View className="flex-row items-center">
+                        <Text className="text-xl font-bold text-black ml-4">Find Cricket Players Near You</Text>
+                    </View>
+                </View>
                 <View className="p-5">
                     {/* Statistics */}
                     <View className="flex-row justify-around mb-5">
@@ -54,10 +58,10 @@ const FindPlayerOnMapScreen = () => {
                 </View>
                 {
                     Platform.OS !== 'web' &&
-                <Map
-                    data={players}
-                    searchTerm={searchTerm}
-                />
+                    <Map
+                        data={players}
+                        searchTerm={searchTerm}
+                    />
                 }
             </View>
         </SafeAreaView>
