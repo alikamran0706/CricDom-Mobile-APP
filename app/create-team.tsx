@@ -8,7 +8,7 @@ import { gameTypeOptions } from '@/constants/team';
 import { sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
-import { useCreateTeamMutation, useGetTeamsQuery } from '@/store/features/team/teamApi';
+import { useCreateTeamMutation, useGetTeamsQuery, useUpdateTeamMutation } from '@/store/features/team/teamApi';
 import { useUploadFileMutation } from '@/store/features/upload/uploadApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -56,6 +56,8 @@ export default function CreateTeamScreen() {
   const [showAddPlayersModal, setShowAddPlayersModal] = useState(false);
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false);
   const [createTeam, { isLoading, error: isError }] = useCreateTeamMutation();
+  const [updateTeam, { isLoading: isUpdateLoading, error: isUpdateError }] = useUpdateTeamMutation();
+
   const [uploadFile] = useUploadFileMutation();
   const { refetch } = useGetTeamsQuery({
     page: 1,
@@ -157,7 +159,12 @@ export default function CreateTeamScreen() {
 
       const payload = { ...cleanedData, ...(imageId && { image: imageId }), ...(playerDocumentIds?.length > 0 && { players: playerDocumentIds }) };
 
-      await createTeam({ data: payload }).unwrap();
+      const id = team?.documentId
+      if (id)
+        await updateTeam({ id, data: payload }).unwrap();
+      else
+        await createTeam({ data: payload }).unwrap();
+      updateTeam
       dispatch(showAlert({ type: 'success', message: true ? 'Team updated successfully!' : 'Team created successfully!' }));
 
       refetch();
@@ -186,8 +193,6 @@ export default function CreateTeamScreen() {
       );
     }
 
-
-
   };
 
   const selectedPlayersCount = players.filter((p: Player) => p.selected).length;
@@ -198,89 +203,164 @@ export default function CreateTeamScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={{ flex: 1 }}>
           {/* Header */}
-          <Header heading={'Create Team'} />
+          <Header heading={team ? 'Update Team' : 'Create Team'} />
 
           <ScrollView style={{ flex: 1, paddingHorizontal: 16 }}
             contentContainerStyle={{ paddingBottom: 70 }}
           >
-              {/* Team Image Upload */}
-              <View className="items-center pt-4">
-                <ImagePickerButton
-                  title='Upload Team Logo'
-                  imageUri={formData.image}
-                  onChangeImage={(uri) => setFormData((prev: any) => ({ ...prev, image: uri }))}
-                />
+            {/* Team Image Upload */}
+            <View className="items-center pt-4">
+              <ImagePickerButton
+                title='Upload Team Logo'
+                imageUri={formData.image}
+                onChangeImage={(uri) => setFormData((prev: any) => ({ ...prev, image: uri }))}
+              />
+            </View>
+
+            {/* Team Name */}
+            <Input
+              label="Team Name"
+              value={formData.name}
+              onChangeText={updateFormData("name")}
+              placeholder="Enter team name"
+            />
+
+            {/* Team Description */}
+            <Input
+              label="Description"
+              value={formData.description}
+              onChangeText={updateFormData("description")}
+              placeholder="Add team description or notes"
+              multiline
+              numberOfLines={4}
+            />
+
+            {/* Privacy Setting */}
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 16,
+              paddingVertical: 8
+            }}>
+              <View>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                  Private Team
+                </Text>
+                <Text style={{ fontSize: 14, color: '#6B7280' }}>
+                  Only invited players can join
+                </Text>
               </View>
-
-              {/* Team Name */}
-              <Input
-                label="Team Name"
-                value={formData.name}
-                onChangeText={updateFormData("name")}
-                placeholder="Enter team name"
+              <Switch
+                value={formData.visibility}
+                onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, visibility: value }));
+                }}
+                trackColor={{ false: '#E5E7EB', true: '#0e7ccb' }}
+                thumbColor={isPrivate ? '#FFFFFF' : '#9CA3AF'}
               />
+            </View>
 
-              {/* Team Description */}
-              <Input
-                label="Description"
-                value={formData.description}
-                onChangeText={updateFormData("description")}
-                placeholder="Add team description or notes"
-                multiline
-                numberOfLines={4}
-              />
+            {/* Game Type */}
+            <Dropdown
+              label=" Game Type"
+              value={formData.game_type}
+              options={gameTypeOptions}
+              onSelect={(data) => {
+                setFormData(prev => ({ ...prev, game_type: data.value }));
+                setShowGameTypeDropdown(!showGameTypeDropdown);
+              }}
+              showDropdown={showGameTypeDropdown}
+              onToggle={() => {
+                setShowGameTypeDropdown(!showGameTypeDropdown);
+              }}
+            />
 
-              {/* Privacy Setting */}
+            {/* Players Section */}
+            <View style={{ marginBottom: 24 }}>
               <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: 16,
-                paddingVertical: 8
+                marginBottom: 16
               }}>
-                <View>
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    Private Team
-                  </Text>
-                  <Text style={{ fontSize: 14, color: '#6B7280' }}>
-                    Only invited players can join
-                  </Text>
-                </View>
-                <Switch
-                  value={formData.visibility}
-                  onValueChange={(value) => {
-                    setFormData((prev) => ({ ...prev, visibility: value }));
+                <Text style={{ fontSize: 16, fontWeight: '500', color: 'black' }}>
+                  Team Players ({selectedPlayersCount}/15)
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#0e7ccb',
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    borderRadius: 8,
+                    flexDirection: 'row',
+                    alignItems: 'center'
                   }}
-                  trackColor={{ false: '#E5E7EB', true: '#0e7ccb' }}
-                  thumbColor={isPrivate ? '#FFFFFF' : '#9CA3AF'}
-                />
+                  onPress={() => setShowAddPlayersModal(true)}
+                >
+                  <Ionicons name="person-add" size={16} color="white" />
+                  <Text style={{ color: 'white', fontWeight: '500', marginLeft: 4 }}>
+                    Add
+                  </Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Game Type */}
-              <Dropdown
-                label=" Game Type"
-                value={formData.game_type}
-                options={gameTypeOptions}
-                onSelect={(data) => {
-                  setFormData(prev => ({ ...prev, game_type: data.value }));
-                  setShowGameTypeDropdown(!showGameTypeDropdown);
-                }}
-                showDropdown={showGameTypeDropdown}
-                onToggle={() => {
-                  setShowGameTypeDropdown(!showGameTypeDropdown);
-                }}
-              />
+              <View style={{ gap: 12 }}>
+                {players.map((player: Player) => (
+                  <Pressable
+                    key={player.id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 12,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: player.selected ? '#0e7ccb' : '#E5E7EB',
+                      backgroundColor: player.selected ? '#EFF6FF' : 'white'
+                    }}
+                    onPress={() => togglePlayer(player.id)}
+                  >
+                    <Image
+                      source={{ uri: player.avatar }}
+                      style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text style={{
+                        fontWeight: '500',
+                        color: player.selected ? '#0e7ccb' : '#1F2937'
+                      }}>
+                        {player.name}
+                      </Text>
+                      <Text style={{
+                        fontSize: 12,
+                        color: player.selected ? '#0e7ccb' : '#6B7280'
+                      }}>
+                        {player.position} • {player.batting_style} • {player.bowling_style}
+                      </Text>
+                    </View>
+                    <View style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      borderWidth: 2,
+                      borderColor: player.selected ? '#0e7ccb' : '#D1D5DB',
+                      backgroundColor: player.selected ? '#0e7ccb' : 'transparent',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {player.selected && (
+                        <Ionicons name="checkmark" size={12} color="white" />
+                      )}
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
 
-              {/* Players Section */}
-              <View style={{ marginBottom: 24 }}>
-                <View style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 16
-                }}>
-                  <Text style={{ fontSize: 16, fontWeight: '500', color: 'black' }}>
-                    Team Players ({selectedPlayersCount}/15)
+              {players.length === 0 && (
+                <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+                  <Ionicons name="people-outline" size={48} color="#9CA3AF" />
+                  <Text style={{ color: '#6B7280', marginTop: 8 }}>
+                    No players added yet
                   </Text>
                   <TouchableOpacity
                     style={{
@@ -288,92 +368,17 @@ export default function CreateTeamScreen() {
                       paddingHorizontal: 16,
                       paddingVertical: 8,
                       borderRadius: 8,
-                      flexDirection: 'row',
-                      alignItems: 'center'
+                      marginTop: 12
                     }}
                     onPress={() => setShowAddPlayersModal(true)}
                   >
-                    <Ionicons name="person-add" size={16} color="white" />
-                    <Text style={{ color: 'white', fontWeight: '500', marginLeft: 4 }}>
-                      Add
+                    <Text style={{ color: 'white', fontWeight: '500' }}>
+                      Add Players
                     </Text>
                   </TouchableOpacity>
                 </View>
-
-                <View style={{ gap: 12 }}>
-                  {players.map((player: Player) => (
-                    <Pressable
-                      key={player.id}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        padding: 12,
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: player.selected ? '#0e7ccb' : '#E5E7EB',
-                        backgroundColor: player.selected ? '#EFF6FF' : 'white'
-                      }}
-                      onPress={() => togglePlayer(player.id)}
-                    >
-                      <Image
-                        source={{ uri: player.avatar }}
-                        style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }}
-                      />
-                      <View style={{ flex: 1 }}>
-                        <Text style={{
-                          fontWeight: '500',
-                          color: player.selected ? '#0e7ccb' : '#1F2937'
-                        }}>
-                          {player.name}
-                        </Text>
-                        <Text style={{
-                          fontSize: 12,
-                          color: player.selected ? '#0e7ccb' : '#6B7280'
-                        }}>
-                          {player.position} • {player.batting_style} • {player.bowling_style}
-                        </Text>
-                      </View>
-                      <View style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: 10,
-                        borderWidth: 2,
-                        borderColor: player.selected ? '#0e7ccb' : '#D1D5DB',
-                        backgroundColor: player.selected ? '#0e7ccb' : 'transparent',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {player.selected && (
-                          <Ionicons name="checkmark" size={12} color="white" />
-                        )}
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-
-                {players.length === 0 && (
-                  <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-                    <Ionicons name="people-outline" size={48} color="#9CA3AF" />
-                    <Text style={{ color: '#6B7280', marginTop: 8 }}>
-                      No players added yet
-                    </Text>
-                    <TouchableOpacity
-                      style={{
-                        backgroundColor: '#0e7ccb',
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        borderRadius: 8,
-                        marginTop: 12
-                      }}
-                      onPress={() => setShowAddPlayersModal(true)}
-                    >
-                      <Text style={{ color: 'white', fontWeight: '500' }}>
-                        Add Players
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
+              )}
+            </View>
           </ScrollView>
 
           {/* Floating Create Button */}
@@ -381,8 +386,8 @@ export default function CreateTeamScreen() {
             label={team ? "Update" : "Create"}
             iconName="checkmark"
             onPress={handleCreateTeam}
-            loading={isLoading}
-            disabled={isLoading}
+            loading={isLoading || isUpdateLoading}
+            disabled={isLoading || isUpdateLoading}
           />
 
           {/* Add Players Modal */}

@@ -1,12 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
 import alertReducer from './features/alerts/alertSlice';
 import { communityApi } from './features/community/communityApi';
+import { inningApi } from './features/inning/inningApi';
 import { leagueApi } from './features/league/leagueApi';
 import loadingReducer from './features/loading/loadingSlice';
 import { lookingForApi } from './features/lookingFor/lookingForApi';
 import { matchApi } from './features/match/matchApi';
 import { playerApi } from './features/player/playerApi'; // Import playerApi
+import { scoringApi } from './features/scoring/scoringApi';
 import { teamApi } from './features/team/teamApi';
+import { tossApi } from './features/toss/tossApi';
 import { uploadApi } from './features/upload/uploadApi';
 import { userApi } from './features/user/userApi';
 import userReducer from './features/user/userSlice';
@@ -21,7 +24,9 @@ export const store = configureStore({
     [uploadApi.reducerPath]: uploadApi.reducer,  
     [communityApi.reducerPath]: communityApi.reducer,  
     [lookingForApi.reducerPath]: lookingForApi.reducer,  
-
+    [tossApi.reducerPath]: tossApi.reducer,  
+    [inningApi.reducerPath]: inningApi.reducer,  
+    [scoringApi.reducerPath]: scoringApi.reducer,  
     user: userReducer,
     alert: alertReducer,
     loading: loadingReducer,
@@ -37,6 +42,9 @@ export const store = configureStore({
       uploadApi.middleware,
       communityApi.middleware,
       lookingForApi.middleware,
+      tossApi.middleware,
+      inningApi.middleware,
+      scoringApi.middleware,
     );
   },
 });

@@ -224,6 +224,21 @@ export default function CreateMatch() {
             return;
         }
 
+        if (selectTeamA?.players?.length < 2 && selectTeamB?.players?.length < 2) {
+            alert("Each team must have at least 2 players.");
+            return;
+        }
+
+        if (selectTeamA?.players?.length < 2) {
+            alert(`Team ${selectTeamA.name} must have at least 2 players.`);
+            return;
+        }
+
+        if (selectTeamB?.players?.length < 2) {
+            alert(`Team ${selectTeamB.name} must have at least 2 players.`);
+            return;
+        }
+
         // Remove empty or null fields
         const cleanedData = sanitizeObject(formData);
 
@@ -237,13 +252,16 @@ export default function CreateMatch() {
 
             const payload = { ...cleanedData, ...(imageId && { image: imageId }) };
 
-             const {data} = await createMatch({ data: payload }).unwrap();
-             console.log('responseresponseresponseresponseresponse', data, 'responseresponseresponseresponseresponseresponseresponse')
+            const { data } = await createMatch({ data: payload }).unwrap();
             dispatch(showAlert({ type: 'success', message: false ? 'Match updated successfully!' : 'Match created successfully!' }));
+
+            const match = {
+                ...data, team_a: selectTeamA, team_b: selectTeamB
+            }
 
             router.replace({
                 pathname: '/toss',
-                params: { match: JSON.stringify(data) }
+                params: { match: JSON.stringify(match) }
             });
 
             // router.replace({

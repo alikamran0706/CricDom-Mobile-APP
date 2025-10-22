@@ -1,5 +1,6 @@
 import Header from "@/components/ui/Header"
 import { showAlert } from "@/store/features/alerts/alertSlice"
+import { useCreateTossMutation } from "@/store/features/toss/tossApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
@@ -18,28 +19,26 @@ const TossScreen = () => {
     const router = useRouter()
     const params: any = useLocalSearchParams();
     const match = params?.match ? JSON.parse(params.match) : null;
-
-        const defaultTeams = [
-        {
-            id: "1",
-            name: "FITNESS TEAM",
-            initials: "FT",
-            color: "#3b82f6",
-        },
-        {
-            id: "2",
-            name: "TESTING",
-            initials: "TE",
-            color: "#0891b2",
-        },
-    ]
+    const [createToss, { isLoading, error }] = useCreateTossMutation();
 
     // Safely parse teams from params
     const [teamA, setTeamA] = useState<any>(null)
     const [teamB, setTeamB] = useState<any>(null)
 
+
+    const [selectedWinner, setSelectedWinner] = useState<any | null>(null);
+    const [selectedChoice, setSelectedChoice] = useState<"Bat" | "Bowl" | null>(null);
+    const [coinResult, setCoinResult] = useState<"HEADS" | "TAILS" | null>(null);
+    const [isFlipping, setIsFlipping] = useState(false);
+    const [showCelebration, setShowCelebration] = useState(false);
+    const dispatch = useDispatch();
+
+    // Animation values
+    const coinRotation = useRef(new Animated.Value(0)).current
+    const celebrationScale = useRef(new Animated.Value(0)).current
+    const navigation = useNavigation()
+
     useEffect(() => {
-        console.log(match?.team_a, 'matchmatchmatch')
         try {
             if (match?.team_a) {
                 setTeamA(match?.team_a)
@@ -51,18 +50,6 @@ const TossScreen = () => {
             // Keep default teams if parsing fails
         }
     }, [params?.match]);
-
-    const [selectedWinner, setSelectedWinner] = useState<any | null>(null);
-    const [selectedChoice, setSelectedChoice] = useState<"BAT" | "BOWL" | null>(null);
-    const [coinResult, setCoinResult] = useState<"HEADS" | "TAILS" | null>(null);
-    const [isFlipping, setIsFlipping] = useState(false);
-    const [showCelebration, setShowCelebration] = useState(false);
-    const dispatch = useDispatch();
-
-    // Animation values
-    const coinRotation = useRef(new Animated.Value(0)).current
-    const celebrationScale = useRef(new Animated.Value(0)).current
-    const navigation = useNavigation()
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false })
@@ -104,26 +91,48 @@ const TossScreen = () => {
         setSelectedWinner(team)
     }
 
-    const handleChoiceSelect = (choice: "BAT" | "BOWL") => {
+    const handleChoiceSelect = (choice: "Bat" | "Bowl") => {
         setSelectedChoice(choice)
     }
 
-    const handleLetsPlay = () => {
-        // if (!selectedWinner || !selectedChoice || !coinResult) {
-        //     Alert.alert("Incomplete Selection", "Please complete the toss selection first.")
-        //     return
-        // }
+    const handleLetsPlay = async () => {
+        if (!selectedWinner || !selectedChoice || !coinResult) {
+            dispatch(showAlert({ type: "error", message: "Please complete the toss selection first." }))
+            return
+        }
 
-        // Show celebration
+        const payload = {
+            team: selectedWinner?.documentId,
+            match: match?.documentId,
+            toss_action: selectedChoice
+        }
+        await createToss({ data: payload }).unwrap();
+
+        const losingTeam =
+            selectedWinner?.documentId === teamA?.documentId ? teamB : teamA;
+        const battingTeam =
+            selectedChoice === "Bat" ? selectedWinner : losingTeam;
+        const bowlingTeam =
+            selectedChoice === "Bat" ? losingTeam : selectedWinner;
+
+        setTimeout(() => {
+            setShowCelebration(false);
+
+            router.replace({
+                pathname: '/start-innings',
+                params: {
+                    match: JSON.stringify(match),
+                    battingTeam: JSON.stringify(battingTeam),
+                    bowlingTeam: JSON.stringify(bowlingTeam),
+                }
+            });
+        }, 3000);
+
         setShowCelebration(true);
         startCelebrationAnimation();
 
         dispatch(showAlert({ type: 'success', message: `🎉 ${selectedWinner?.name} Won the toss! 🎊` }));
-        // Show success alert with party
-        setTimeout(() => {
-            setShowCelebration(false)
-            router.push("/start-innings")
-        }, 4000)
+
     }
 
     const startCelebrationAnimation = () => {
@@ -196,43 +205,49 @@ const TossScreen = () => {
                         <Text className="text-xl font-bold text-gray-800 mb-4">Who won the toss?</Text>
 
                         <View className="flex-row gap-x-4">
-                            <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documenId === teamA?.documenId ? "border-[#0e7ccb]" : "border-gray-200"
-                                    }`}
-                                onPress={() => handleTeamSelect(teamA)}
-                            >
-                                <View
-                                    className="w-20 h-20 rounded-full items-center justify-center mb-4"
-                                    style={{ backgroundColor: '#3b82f6' }}
+                            {
+                                teamA &&
+                                <TouchableOpacity
+                                    className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documentId === teamA?.documentId ? "border-[#0e7ccb]" : "border-gray-200"
+                                        }`}
+                                    onPress={() => handleTeamSelect(teamA)}
                                 >
-                                    <Text className="text-white text-2xl font-bold">{teamA?.name?.slice(0, 2).toUpperCase()}</Text>
-                                </View>
-                                <Text className="text-gray-800 font-bold text-md text-center">{teamA?.name}</Text>
-                                {selectedWinner?.id === teamA?.id && (
-                                    <View className="absolute top-4 right-4">
-                                        <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+                                    <View
+                                        className="w-20 h-20 rounded-full items-center justify-center mb-4"
+                                        style={{ backgroundColor: '#3b82f6' }}
+                                    >
+                                        <Text className="text-white text-2xl font-bold">{teamA?.name?.slice(0, 2).toUpperCase()}</Text>
                                     </View>
-                                )}
-                            </TouchableOpacity>
+                                    <Text className="text-gray-800 font-bold text-md text-center">{teamA?.name}</Text>
+                                    {selectedWinner?.id === teamA?.id && (
+                                        <View className="absolute top-4 right-4">
+                                            <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            }
 
-                            <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documenId === teamB?.documenId ? "border-[#0e7ccb]" : "border-gray-200"
-                                    }`}
-                                onPress={() => handleTeamSelect(teamB)}
-                            >
-                                <View
-                                    className="w-20 h-20 rounded-3xl items-center justify-center mb-4"
-                                    style={{ backgroundColor: '#0891b2' }}
+                            {
+                                teamB &&
+                                <TouchableOpacity
+                                    className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documentId === teamB?.documentId ? "border-[#0e7ccb]" : "border-gray-200"
+                                        }`}
+                                    onPress={() => handleTeamSelect(teamB)}
                                 >
-                                    <Text className="text-white text-2xl font-bold">{teamB?.name?.slice(0, 2).toUpperCase()}</Text>
-                                </View>
-                                <Text className="text-gray-800 font-bold text-md text-center">{teamB?.name}</Text>
-                                {selectedWinner?.documenId === teamB?.documenId && (
-                                    <View className="absolute top-4 right-4">
-                                        <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+                                    <View
+                                        className="w-20 h-20 rounded-3xl items-center justify-center mb-4"
+                                        style={{ backgroundColor: '#0891b2' }}
+                                    >
+                                        <Text className="text-white text-2xl font-bold">{teamB?.name?.slice(0, 2).toUpperCase()}</Text>
                                     </View>
-                                )}
-                            </TouchableOpacity>
+                                    <Text className="text-gray-800 font-bold text-md text-center">{teamB?.name}</Text>
+                                    {selectedWinner?.documentId === teamB?.documentId && (
+                                        <View className="absolute top-4 right-4">
+                                            <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            }
                         </View>
                     </View>
 
@@ -242,15 +257,15 @@ const TossScreen = () => {
 
                         <View className="flex-row gap-x-4">
                             <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedChoice === "BAT" ? "border-[#0e7ccb]" : "border-gray-200"
+                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedChoice === "Bat" ? "border-[#0e7ccb]" : "border-gray-200"
                                     }`}
-                                onPress={() => handleChoiceSelect("BAT")}
+                                onPress={() => handleChoiceSelect("Bat")}
                             >
                                 <View className="w-20 h-20 rounded-full bg-gray-300 items-center justify-center mb-4">
                                     <Text className="text-4xl font-bold">🏏</Text>
                                 </View>
                                 <Text className="text-gray-800 font-bold text-md">BAT</Text>
-                                {selectedChoice === "BAT" && (
+                                {selectedChoice === "Bat" && (
                                     <View className="absolute top-4 right-4">
                                         <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
                                     </View>
@@ -258,15 +273,15 @@ const TossScreen = () => {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedChoice === "BOWL" ? "border-[#0e7ccb]" : "border-gray-200"
+                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedChoice === "Bowl" ? "border-[#0e7ccb]" : "border-gray-200"
                                     }`}
-                                onPress={() => handleChoiceSelect("BOWL")}
+                                onPress={() => handleChoiceSelect("Bowl")}
                             >
                                 <View className="w-20 h-20 rounded-full bg-gray-300 items-center justify-center mb-4">
                                     <Text className="text-4xl font-bold">🥎</Text>
                                 </View>
                                 <Text className="text-gray-800 font-bold text-md">BOWL</Text>
-                                {selectedChoice === "BOWL" && (
+                                {selectedChoice === "Bowl" && (
                                     <View className="absolute top-4 right-4">
                                         <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
                                     </View>

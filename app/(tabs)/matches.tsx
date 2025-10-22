@@ -45,6 +45,8 @@ export default function MatchesScreen() {
   const matches = data?.data || [];
   const meta = data?.meta?.pagination || {};
 
+  console.log('ddddd', matches, 'dddd')
+
   // Filter matches by active tab (status)
   const filteredMatches = matches.filter(
     (match: any) => match?.status_type === activeTab
@@ -80,17 +82,17 @@ export default function MatchesScreen() {
     // Team scores with proper formatting
     const teamAScore = match?.team_a?.score
       ? `${match.team_a.score}${match.team_a.wickets ? `/${match.team_a.wickets}` : ''} ${match.team_a.overs ? `(${match.team_a.overs} OV)` : ''}`
-      : "0/0 (0.0 OV)";
+      : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
     const teamBScore = match?.team_b?.score
       ? `${match.team_b.score}${match.team_b.wickets ? `/${match.team_b.wickets}` : ''} ${match.team_b.overs ? `(${match.team_b.overs} OV)` : ''}`
-      : "0/0 (0.0 OV)";
+      : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
     const statusStyle = getStatusStyle(status);
     return (
       <TouchableOpacity
         className="bg-white rounded-2xl border border-gray-100 p-4 mb-3 shadow-sm"
-        onPress={() => router.push(`/match/${match.id}`)}
+        onPress={() => router.push(`/match/${match.documentId}`)}
         style={{
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
@@ -178,7 +180,7 @@ export default function MatchesScreen() {
               </Text>
             </View>
             <Text className="text-lg font-bold text-gray-900">
-              {teamBScore}
+              {teamBScore} 
             </Text>
           </View>
         </View>

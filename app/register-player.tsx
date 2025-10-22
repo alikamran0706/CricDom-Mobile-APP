@@ -16,9 +16,7 @@ import { useUploadFileMutation } from "@/store/features/upload/uploadApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import React, { useEffect, useLayoutEffect, useState } from "react"
-import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-// import CountryPicker, { Country, CountryCode } from 'react-native-country-picker-modal'
-// import PhoneInput from 'react-native-phone-input'
+import { ActivityIndicator, Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -54,7 +52,7 @@ export default function CreatePlayerScreen() {
     batting_style: "",
     bowling_style: "",
     position: "",
-     game_type: [] as string[],
+    game_type: [] as string[],
   })
 
   const [showBattingDropdown, setShowBattingDropdown] = useState(false)
@@ -62,36 +60,21 @@ export default function CreatePlayerScreen() {
   const [showPositionDropdown, setShowPositionDropdown] = useState(false)
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false)
 
-  const [countryPickerVisible, setCountryPickerVisible] = useState(false);
-  // const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  // const [countryCode, setCountryCode] = useState<CountryCode>('US');
   const [phoneNumber, setPhoneNumber] = useState('');
-  // const phoneInputRef = useRef<PhoneInput>(null);
 
+  const [PhoneNumberInputComp, setPhoneNumberInputComp] = useState<any>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      import('@/components/ui/PhoneNumberInput').then((mod) => {
+        setPhoneNumberInputComp(() => mod.default);
+      });
+    }
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false })
   }, [navigation])
-
-  const onSelectCountry = (country: any) => {
-    // setCountryCode(country.cca2);
-    // setSelectedCountry(country);
-    setCountryPickerVisible(false);
-    setPhoneNumber(country.callingCode.toString());
-    // if (phoneInputRef.current) {
-    //   phoneInputRef.current.selectCountry(country.cca2.toLowerCase());
-    // }
-  };
-
-  const toggleCountryPicker = () => {
-    setCountryPickerVisible(!countryPickerVisible);
-  };
-
-  // useEffect(() => {
-  //   if (phoneInputRef.current) {
-  //     phoneInputRef.current.selectCountry(countryCode.toLowerCase());
-  //   }
-  // }, [countryCode]);
 
   useEffect(() => {
     if (player) {
@@ -418,35 +401,30 @@ export default function CreatePlayerScreen() {
                   keyboardType="phone-pad"
                 />
                 :
-                <View>
-                  <Text className="text-base font-medium text-gray-800 mb-2">
-                    Phone Number <Text className="text-red-600"> *</Text>
-                  </Text>
-                  {/* <PhoneInput
-                    initialCountry={countryCode.toLowerCase()}
-                    ref={phoneInputRef}
-                    onChangePhoneNumber={(number) => setPhoneNumber(number)}
-                    onPressFlag={toggleCountryPicker}
-                    textProps={{ placeholder: 'Enter a phone number...' }}
-                    style={styles.phoneInput}
-                    textStyle={styles.phoneInputText}
-                  /> */}
-                </View>
+
+                <PhoneNumberInputComp
+                  value={phoneNumber}
+                  onChange={(number: string) => setPhoneNumber(number)}
+                  label="Contact Number"
+                  required={true}
+                  placeholder="e.g. +1 123 456 7890"
+                />
+
+              // <View>
+              //   <Text className="text-base font-medium text-gray-800 mb-2">
+              //     Phone Number <Text className="text-red-600"> *</Text>
+              //   </Text>
+              //   <PhoneInput
+              //     initialCountry={countryCode.toLowerCase()}
+              //     ref={phoneInputRef}
+              //     onChangePhoneNumber={(number) => setPhoneNumber(number)}
+              //     onPressFlag={toggleCountryPicker}
+              //     textProps={{ placeholder: 'Enter a phone number...' }}
+              //     style={styles.phoneInput}
+              //     textStyle={styles.phoneInputText}
+              //   />
+              // </View>
             }
-{/*  
-            {countryPickerVisible && (
-              <CountryPicker
-                countryCode={countryCode}
-                withFilter={true}
-                withFlagButton={false}
-                withFlag={true}
-                withCountryNameButton={false}
-                onSelect={onSelectCountry}
-                onClose={() => setCountryPickerVisible(false)}
-                visible={countryPickerVisible}
-              />
-            )}
-*/}
           </View>
         )
 
@@ -715,23 +693,3 @@ export default function CreatePlayerScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phoneInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    borderColor: '#C0C0C0',
-    color: 'black',
-    height: 50,
-    padding: 5,
-    marginBottom: 20,
-  },
-  phoneInputText: {
-    color: 'black',
-  },
-});

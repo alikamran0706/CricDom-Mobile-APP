@@ -1,8 +1,7 @@
 import { getFullStrapiUrl } from "@/lib/utils/common";
-import { useLazyGetPlayersQuery } from "@/store/features/player/playerApi";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Image,
     Modal,
@@ -29,6 +28,7 @@ interface AddPlayersModalProps {
     onAddPlayers: (players: Player) => void;
     existingPlayerIds?: any;
     header?: string;
+    allFetchedPlayers: any
 }
 
 export default function InningPlayerSelection({
@@ -36,39 +36,17 @@ export default function InningPlayerSelection({
     onClose,
     onAddPlayers,
     existingPlayerIds = [],
-    header = "Select Striker"
+    header = "Select Striker",
+    allFetchedPlayers = []
 }: AddPlayersModalProps) {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
-    const [fetchPlayers, { data: allPlayersData, isLoading }] =
-        useLazyGetPlayersQuery();
-
-    useEffect(() => {
-        if (visible) {
-            fetchPlayers({
-                page: 1,
-                pageSize: 100,
-            });
-        }
-    }, [visible]);
-
-    const allFetchedPlayers: Player[] =
-        allPlayersData?.data?.map((p: any) => ({
-            id: p.id.toString(),
-            documentId: p.documentId,
-            name: p.name,
-            position: p.position,
-            bowling_style: p.bowling_style,
-            batting_style: p.batting_style,
-            avatar: p.image?.url || "",
-        })) ?? [];
-
     // Filter players based on search and exclude already-added
     const filteredPlayers = allFetchedPlayers
         .filter(
-            (player) =>
+            (player: any) =>
                 !existingPlayerIds.includes(player.documentId) &&
                 (player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     player.position.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -135,17 +113,15 @@ export default function InningPlayerSelection({
                     className="flex-1 px-4"
                     contentContainerStyle={{ paddingBottom: 100 }}
                 >
-                    {isLoading ? (
-                        <Text className="text-center text-gray-500 mt-6">Loading players...</Text>
-                    ) : filteredPlayers.length > 0 ? (
-                        filteredPlayers.map((player) => (
+                    {filteredPlayers.length > 0 ? (
+                        filteredPlayers.map((player: any) => (
                             <TouchableOpacity
                                 key={player.id}
                                 className="flex-row items-center py-3"
                                 onPress={() => togglePlayerSelection(player)}
                             >
                                 <View className="relative mr-3">
-                                    <View className="relative w-12 h-12 rounded-full items-center justify-center overflow-hidden border border-gray-100 ">
+                                    <View className="relative w-12 h-12 rounded-full items-center justify-center overflow-hidden border border-gray-200 ">
                                         {
                                             player.avatar &&
                                             <Image

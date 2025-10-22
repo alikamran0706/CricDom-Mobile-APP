@@ -43,7 +43,7 @@ export const teamApi = createApi({
       query: ({ id, data }) => ({
         url: `teams/${id}`,
         method: 'PUT',
-        body: data,
+        body: {data: data},
       }),
     }),
     deleteTeam: builder.mutation<any, string>({

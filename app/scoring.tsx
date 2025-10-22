@@ -16,9 +16,11 @@ import WideBallComponent from "@/components/scoring/WideBallComponent";
 import SocialShare from "@/components/SocialShare";
 import Modal from "@/components/ui/Modal";
 import { RootState } from "@/store";
+import { useCreatePlayerScoreMutation, useUpdateBowlerStatsMutation, useUpdatePlayerScoreMutation } from "@/store/features/inning/inningApi";
+import { useCreateBallMutation, useCreateWicketMutation } from "@/store/features/scoring/scoringApi";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Animated, Dimensions, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -33,7 +35,8 @@ interface Player {
     runs: number
     balls: number
     fours: number
-    sixes: number
+    sixes: number,
+    documentId: string,
     isOnStrike: boolean
 }
 
@@ -43,7 +46,8 @@ interface Bowler {
     overs: number
     maidens: number
     runs: number
-    wickets: number
+    wickets: number,
+    documentId: string,
 }
 
 interface MatchState {
@@ -51,49 +55,47 @@ interface MatchState {
     wickets: number
     overs: number
     balls: number
-    target?: number
+    target?: number,
+    documentId: string,
+    overs_limit?: any
+    match_type?: any
 }
 
-export default function CreateMatch() {
+export default function ScoringScreen() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const [striker, setStriker] = useState<Player>({
-        id: "1",
-        name: "Babar Azam",
-        runs: 45,
-        balls: 32,
-        fours: 4,
-        sixes: 1,
-        isOnStrike: true,
-    });
 
-    const [nonStriker, setNonStriker] = useState<Player>({
-        id: "2",
-        name: "Mohammad Rizwan",
-        runs: 28,
-        balls: 24,
-        fours: 2,
-        sixes: 0,
-        isOnStrike: false,
-    });
+    const params: any = useLocalSearchParams();
+    const match = params?.match ? JSON.parse(params.match) : null;
+    const battingTeam = params?.battingTeam ? JSON.parse(params.battingTeam) : null;
+    const bowlingTeam = params?.bowlingTeam ? JSON.parse(params.bowlingTeam) : null;
+    const initialCurrentOver = params?.currentOver ? JSON.parse(params.currentOver) : null;
 
-    const [bowler, setBowler] = useState<Bowler>({
-        id: "1",
-        name: "Jasprit Bumrah",
-        overs: 3,
-        maidens: 0,
-        runs: 18,
-        wickets: 1,
-    });
-    const [matchState, setMatchState] = useState<MatchState>({
-        totalRuns: 125,
-        wickets: 3,
-        overs: 15,
-        balls: 4,
-        target: 180,
-    });
+
+    const strikerScore = params?.strikerScore ? JSON.parse(params.strikerScore) : null;
+    const nonStrikerScore = params?.nonStrikerScore ? JSON.parse(params.nonStrikerScore) : null;
+    const bowlerStats = params?.bowlerStats ? JSON.parse(params.bowlerStats) : null;
+
+    const inning = params?.inning ? JSON.parse(params.inning) : null;
+    const initialStiker = params?.striker ? JSON.parse(params.striker) : null;
+    const initialNonStriker = params?.nonStriker ? JSON.parse(params.nonStriker) : null;
+    const initialBowler = params?.bowler ? JSON.parse(params.bowler) : null;
+
+
+    const [createBall] = useCreateBallMutation();
+    const [createWicket] = useCreateWicketMutation();
+    const [createPlayerScore] = useCreatePlayerScoreMutation();
+    const [updatePlayerScore] = useUpdatePlayerScoreMutation();
+    const [updateBowlerStats] = useUpdateBowlerStatsMutation();
+
+    const [striker, setStriker] = useState<Player>(initialStiker);
+
+    const [nonStriker, setNonStriker] = useState<Player>(initialNonStriker);
+
+    const [bowler, setBowler] = useState<Bowler>(initialBowler);
+    const [matchState, setMatchState] = useState<MatchState>(match);
     const [showSettings, setShowSettings] = useState(false);
-    const [currentOver, setCurrentOver] = useState<string[]>(["1", "4", "W", "2"]);
+    const [currentOver, setCurrentOver] = useState<string[]>([]);
     const user = useSelector((state: RootState) => state.user.profile);
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -147,108 +149,298 @@ export default function CreateMatch() {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-    const handleRunScored = (runs: number) => {
-        setMatchState((prev) => ({
-            ...prev,
-            totalRuns: prev.totalRuns + runs,
-            balls: prev.balls + 1,
-        }))
+    const handleRunScored = async (runs: number) => {
+        try {
+            // Update local state first for instant UI
+            setMatchState((prev) => ({
+                ...prev,
+                totalRuns: prev.totalRuns + runs,
+                balls: prev.balls + 1,
+            }));
 
-        setStriker((prev) => ({
-            ...prev,
-            runs: prev.runs + runs,
-            balls: prev.balls + 1,
-            fours: runs === 4 ? prev.fours + 1 : prev.fours,
-            sixes: runs === 6 ? prev.sixes + 1 : prev.sixes,
-        }))
+            setStriker((prev) => ({
+                ...prev,
+                runs: prev.runs + runs,
+                balls: prev.balls + 1,
+                fours: runs === 4 ? prev.fours + 1 : prev.fours,
+                sixes: runs === 6 ? prev.sixes + 1 : prev.sixes,
+            }));
 
-        // Add to current over
-        setCurrentOver((prev) => [...prev, runs.toString()])
+            setCurrentOver((prev) => [...prev, runs.toString()]);
 
-        // Switch strike on odd runs
-        if (runs % 2 === 1) {
-            switchStrike()
+            // Switch strike if odd runs
+            if (runs % 2 === 1) switchStrike();
+
+            // --- 🧠 Send data to Strapi ---
+            await createBall({
+                data: {
+                    runs,
+                    ball_number: matchState.balls + 1,
+                    over: matchState.overs + 1,
+                    batsman: striker.documentId,
+                    bowler: bowler.documentId,
+                    is_extra: false,
+                },
+            });
+
+            await updatePlayerScore({
+                id: strikerScore.documentId,
+                data: {
+                    runs: striker.runs + runs,
+                    balls_faced: striker.balls + 1,
+                },
+            });
+
+            await updateBowlerStats({
+                id: bowlerStats.documentId,
+                data: {
+                    runs_conceded: bowler.runs + runs,
+                },
+            });
+        } catch (error) {
+            console.error("Failed to save ball data:", error);
         }
-    }
-
-    const handleNoBall = (runs: number, type: "bat" | "bye" | "legbye") => {
-        setMatchState((prev) => ({
-            ...prev,
-            totalRuns: prev.totalRuns + runs + 1, // +1 for no ball penalty
-            balls: prev.balls, // No ball doesn't count as a ball
-        }))
-
-        setCurrentOver((prev) => [...prev, `NB+${runs}`])
-        closeBottomSheet()
-        setActiveTab(null)
-    }
-
-    const handleWide = (runs: number) => {
-        setMatchState((prev) => ({
-            ...prev,
-            totalRuns: prev.totalRuns + runs + 1, // +1 for wide penalty
-            balls: prev.balls, // Wide doesn't count as a ball
-        }))
-
-        setCurrentOver((prev) => [...prev, `WD+${runs}`])
-        closeBottomSheet()
-        setActiveTab(null)
-    }
-
-    const handleLegBye = (runs: number) => {
-        setMatchState((prev) => ({
-            ...prev,
-            totalRuns: prev.totalRuns + runs,
-            balls: prev.balls + 1,
-        }))
-
-        setCurrentOver((prev) => [...prev, `LB${runs}`])
-        closeBottomSheet()
-        setActiveTab(null)
-    }
-
-    const handleBye = (runs: number) => {
-        setMatchState((prev) => ({
-            ...prev,
-            totalRuns: prev.totalRuns + runs,
-            balls: prev.balls + 1,
-        }))
-
-        setCurrentOver((prev) => [...prev, `B${runs}`])
-        closeBottomSheet()
-    }
-
-    const handleOutType = (type: string) => {
-        setMatchState((prev) => ({
-            ...prev,
-            wickets: prev.wickets + 1,
-            balls: prev.balls + 1,
-        }))
-        if (type === 'run_out') {
-            router.push('/run-out');
-            closeBottomSheet();
-        } else {
-            setActiveTab(type);
-            setCurrentOver((prev) => [...prev, "W"]);
-        }
-        // closeBottomSheet()
-    }
+    };
 
     const handleShotType = (type: string) => {
         // Handle shot type selection
         closeBottomSheet();
     }
 
+    // const handleNoBall = (runs: number, type: "bat" | "bye" | "legbye") => {
+    //     setMatchState((prev) => ({
+    //         ...prev,
+    //         totalRuns: prev.totalRuns + runs + 1, // +1 for no ball penalty
+    //         balls: prev.balls, // No ball doesn't count as a ball
+    //     }))
+
+    //     setCurrentOver((prev) => [...prev, `NB+${runs}`])
+    //     closeBottomSheet()
+    //     setActiveTab(null)
+    // }
+
+    const handleNoBall = async (runs: number, type: "bat" | "bye" | "legbye") => {
+        try {
+            setMatchState((prev) => ({
+                ...prev,
+                totalRuns: prev.totalRuns + runs + 1,
+            }));
+
+            setCurrentOver((prev) => [...prev, `NB+${runs}`]);
+
+            await createBall({
+                data: {
+                    runs: runs + 1,
+                    ball_number: matchState.balls,
+                    over: matchState.overs + 1,
+                    batsman: striker.documentId,
+                    bowler: bowler.documentId,
+                    is_extra: true,
+                    extra_type: "no-ball",
+                    extra_subtype: type, // (bat, bye, or legbye)
+                },
+            });
+
+            await updateBowlerStats({
+                id: bowler.documentId,
+                data: { runs_conceded: bowler.runs + runs + 1 },
+            });
+        } catch (err) {
+            console.error("Error saving no-ball:", err);
+        } finally {
+            closeBottomSheet();
+        }
+    };
+
+
+    const handleWide = async (runs: number) => {
+        try {
+            setMatchState((prev) => ({
+                ...prev,
+                totalRuns: prev.totalRuns + runs + 1,
+            }));
+
+            setCurrentOver((prev) => [...prev, `WD+${runs}`]);
+
+            await createBall({
+                data: {
+                    runs: runs + 1,
+                    ball_number: matchState.balls,
+                    over: matchState.overs + 1,
+                    batsman: striker.id,
+                    bowler: bowler.id,
+                    is_extra: true,
+                    extra_type: "wide",
+                },
+            });
+
+            await updateBowlerStats({
+                id: bowler.id,
+                data: { runs_conceded: bowler.runs + runs + 1 },
+            });
+        } catch (err) {
+            console.error("Error saving wide:", err);
+        } finally {
+            closeBottomSheet();
+        }
+    };
+
+
+    // const handleWide = (runs: number) => {
+    //     setMatchState((prev) => ({
+    //         ...prev,
+    //         totalRuns: prev.totalRuns + runs + 1, // +1 for wide penalty
+    //         balls: prev.balls, // Wide doesn't count as a ball
+    //     }))
+
+    //     setCurrentOver((prev) => [...prev, `WD+${runs}`])
+    //     closeBottomSheet()
+    //     setActiveTab(null)
+    // }
+
+    // const handleLegBye = (runs: number) => {
+    //     setMatchState((prev) => ({
+    //         ...prev,
+    //         totalRuns: prev.totalRuns + runs,
+    //         balls: prev.balls + 1,
+    //     }))
+
+    //     setCurrentOver((prev) => [...prev, `LB${runs}`])
+    //     closeBottomSheet()
+    //     setActiveTab(null)
+    // }
+
+    const handleLegBye = async (runs: number) => {
+        try {
+            setMatchState((prev) => ({
+                ...prev,
+                totalRuns: prev.totalRuns + runs,
+                balls: prev.balls + 1,
+            }));
+
+            setCurrentOver((prev) => [...prev, `LB${runs}`]);
+
+            await createBall({
+                data: {
+                    runs,
+                    ball_number: matchState.balls + 1,
+                    over: matchState.overs + 1,
+                    batsman: striker.id,
+                    bowler: bowler.id,
+                    is_extra: true,
+                    extra_type: "leg-bye",
+                },
+            });
+        } catch (err) {
+            console.error("Error saving leg-bye:", err);
+        } finally {
+            closeBottomSheet();
+        }
+    };
+
+    // const handleBye = (runs: number) => {
+    //     setMatchState((prev) => ({
+    //         ...prev,
+    //         totalRuns: prev.totalRuns + runs,
+    //         balls: prev.balls + 1,
+    //     }))
+
+    //     setCurrentOver((prev) => [...prev, `B${runs}`])
+    //     closeBottomSheet()
+    // }
+
+    const handleBye = async (runs: number) => {
+        try {
+            setMatchState((prev) => ({
+                ...prev,
+                totalRuns: prev.totalRuns + runs,
+                balls: prev.balls + 1,
+            }));
+
+            setCurrentOver((prev) => [...prev, `B${runs}`]);
+
+            await createBall({
+                data: {
+                    runs,
+                    ball_number: matchState.balls + 1,
+                    over: matchState.overs + 1,
+                    batsman: striker.id,
+                    bowler: bowler.id,
+                    is_extra: true,
+                    extra_type: "bye",
+                },
+            });
+        } catch (err) {
+            console.error("Error saving bye:", err);
+        } finally {
+            closeBottomSheet();
+        }
+    };
+
+    const handleOutType = async (type: string) => {
+        try {
+            // Update UI
+            setMatchState((prev) => ({
+                ...prev,
+                wickets: prev.wickets + 1,
+                balls: prev.balls + 1,
+            }));
+
+            setCurrentOver((prev) => [...prev, "W"]);
+
+            // 🧠 Save to backend
+            const wicketRes = await createWicket({
+                data: {
+                    batsman_out: striker.documentId,
+                    out_type: type, // e.g. "bowled", "caught", "lbw"
+                },
+            });
+
+            // Link the ball record with this wicket
+            await createBall({
+                data: {
+                    runs: 0,
+                    ball_number: matchState.balls + 1,
+                    over: matchState.overs + 1,
+                    batsman: striker.documentId,
+                    bowler: bowler.documentId,
+                    wicket: wicketRes.data?.documentId,
+                },
+            });
+
+            // Update player stats
+            await updatePlayerScore({
+                id: strikerScore.documentId,
+                data: {
+                    is_out: true,
+                },
+            });
+
+            await updateBowlerStats({
+                id: bowlerStats.documentId,
+                data: {
+                    wickets_taken: bowlerStats.wickets + 1,
+                },
+            });
+
+        } catch (error) {
+            console.error("Error creating wicket:", error);
+        } finally {
+            closeBottomSheet();
+        }
+    };
+
+
     const shortcutHandler = (type: string) => {
         if (type === 'Match Breaks' || type === 'wicket') {
             setActiveTab(type)
             setShowSettings(false)
         }
-        else if(type === 'Change Scorer'){
+        else if (type === 'Change Scorer') {
             setActiveTab(type)
             setShowSettings(false)
         }
-        else{
+        else {
             closeBottomSheet();
             setActiveModal(type);
             setShowSettings(false)
@@ -290,6 +482,7 @@ export default function CreateMatch() {
         }
     }
 
+    console.log('parssmmsmsmdmsd', params)
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -325,10 +518,10 @@ export default function CreateMatch() {
                                     <View className="flex-col justify-between items-center">
                                         <View>
                                             <Text className="text-2xl font-bold text-white">
-                                                {matchState.totalRuns}/{matchState.wickets}
+                                                {inning?.runs || 0}/{inning?.wickets || 0}
                                             </Text>
                                             <Text className="text-sm" style={{ color: '#cac9c9' }}>
-                                                {matchState.overs}.{matchState.balls} overs
+                                                {matchState.overs_limit || 0}.{matchState.balls || 0} overs
                                             </Text>
                                         </View>
                                     </View>
@@ -471,23 +664,23 @@ export default function CreateMatch() {
                                         <View className="flex-row items-center">
                                             <View className="w-1 h-4 bg-[#0e7ccb] mr-2" />
                                             <Text className="text-white text-sm font-medium">{striker.name.split(" ")[0].toUpperCase()}</Text>
-                                            <Text className="text-gray-300 text-sm ml-2">{striker.runs}</Text>
-                                            <Text className="text-gray-400 text-xs ml-1">{striker.balls}</Text>
+                                            <Text className="text-gray-300 text-sm ml-2">{striker?.runs || 0}</Text>
+                                            <Text className="text-gray-400 text-xs ml-1">{striker.balls || 0}</Text>
                                         </View>
                                         <View className="flex-row items-center">
                                             <Text className="text-white text-sm font-medium">{nonStriker.name.split(" ")[0].toUpperCase()}</Text>
-                                            <Text className="text-gray-300 text-sm ml-2">{nonStriker.runs}</Text>
-                                            <Text className="text-gray-400 text-xs ml-1">{nonStriker.balls}</Text>
+                                            <Text className="text-gray-300 text-sm ml-2">{nonStriker?.runs || 0}</Text>
+                                            <Text className="text-gray-400 text-xs ml-1">{nonStriker.balls || 0}</Text>
                                         </View>
                                     </View>
 
                                     {/* Center: Match state */}
                                     <View className="items-center">
                                         <Text className="text-white text-lg font-bold">
-                                            {matchState.totalRuns}-{matchState.wickets}
+                                            {inning?.runs || 0}-{inning?.wickets || 0}
                                         </Text>
                                         <Text className="text-gray-300 text-xs">
-                                            OVERS {matchState.overs}.{matchState.balls}
+                                            OVERS {matchState.overs_limit}.{matchState.balls || 0}
                                         </Text>
                                     </View>
 
@@ -495,7 +688,7 @@ export default function CreateMatch() {
                                     <View className="items-end">
                                         <Text className="text-white text-sm font-medium">{bowler.name.split(" ")[0].toUpperCase()}</Text>
                                         <Text className="text-gray-300 text-xs">
-                                            {bowler.wickets}-{bowler.runs}
+                                            {bowler.wickets || 0}-{bowler?.runs || 0}
                                         </Text>
                                     </View>
                                 </View>
@@ -572,7 +765,7 @@ export default function CreateMatch() {
                         }} />}
 
                         {
-                            activeTab === "Change Scorer"  && 
+                            activeTab === "Change Scorer" &&
                             <ChangeScorer selectHours={formData} setSelectHours={setFormData} />
                         }
                     </BottomSheetWrapper>
@@ -589,16 +782,16 @@ export default function CreateMatch() {
                             </TouchableOpacity>
                         </View>
                         {
-                            activeModal === "Change Match Overs" && 
+                            activeModal === "Change Match Overs" &&
                             <ChangeMatchOvers selectHours={formData} setSelectHours={setFormData} />
                         }
                         {
-                             activeModal === "End Innings"  && 
-                             <EndInnings selectHours={formData} setSelectHours={setFormData} />
+                            activeModal === "End Innings" &&
+                            <EndInnings selectHours={formData} setSelectHours={setFormData} />
                         }
 
                         {
-                            activeModal === "End Match"  && 
+                            activeModal === "End Match" &&
                             <MatchResult selectHours={formData} setSelectHours={setFormData} />
                         }
                     </Modal>
@@ -608,16 +801,6 @@ export default function CreateMatch() {
 
     )
 }
-
-
-const styles = StyleSheet.create({
-
-    sheetContent: { flex: 1, padding: 16 },
-    sheetTitle: { fontSize: 18, fontWeight: '600', marginBottom: 16 },
-    leagueItem: { padding: 12, borderBottomWidth: 1, borderColor: '#E5E7EB' },
-    leagueText: { fontSize: 16 }
-
-});
 
 interface ScoringShortcutsHeaderProps {
     openBottomSheet: (tab: string) => void;

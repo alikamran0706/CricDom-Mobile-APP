@@ -2,8 +2,14 @@ import InningPlayerSelection from "@/components/Modal/InningPlayerSelection";
 import PlayerCard from "@/components/PlayerCard";
 import { Player } from "@/lib/types/match";
 import { getFullStrapiUrl } from "@/lib/utils/common";
+import {
+    useCreateBowlerStatsMutation,
+    useCreateInningMutation,
+    useCreateOverMutation,
+    useCreatePlayerScoreMutation,
+} from "@/store/features/inning/inningApi";
 import { Entypo, Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,26 +18,131 @@ export default function StartInningsScreen() {
     const router = useRouter();
     const navigation = useNavigation();
 
-    const [selectedStriker, setSelectedStriker] = useState<string | null>(null);
-    const [selectedNonStriker, setSelectedNonStriker] = useState<string | null>(null);
-    const [selectedBowler, setSelectedBowler] = useState<string | null>(null);
+    // 🧩 API Hooks
+    const [createInning] = useCreateInningMutation();
+    const [createOver] = useCreateOverMutation();
+    const [createPlayerScore] = useCreatePlayerScoreMutation();
+    const [createBowlerStats] = useCreateBowlerStatsMutation();
+
+    // 🧠 Get Route Params
+    const params: any = useLocalSearchParams();
+    const match = params?.match ? JSON.parse(params.match) : null;
+    const battingTeam = params?.battingTeam ? JSON.parse(params.battingTeam) : null;
+    const bowlingTeam = params?.bowlingTeam ? JSON.parse(params.bowlingTeam) : null;
+
+    // ⚡ Local State
+    const [player, setPlayer] = useState<Player | null>(null);
+    const [nonStriker, setNonStriker] = useState<Player | null>(null);
+    const [bowler, setBowler] = useState<Player | null>(null);
+
+    const [showAddNonStrinkerModal, setShowAddNonStrinkerModal] = useState(false);
+    const [showAddBowlerModal, setShowAddBowlerModal] = useState(false);
     const [showAddPlayersModal, setShowAddPlayersModal] = useState(false);
-    const [player, setPlayers] = useState<Player>();
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
+    // 🎯 Handle Player Selection
     const handleAddPlayer = (newPlayer: any) => {
-        setPlayers(newPlayer);
+        if (showAddNonStrinkerModal) setNonStriker(newPlayer);
+        else if (showAddPlayersModal) setPlayer(newPlayer);
+        else setBowler(newPlayer);
     };
 
-    const handleStartScoring = () => {
-        if ((player !== undefined && player !== null) && selectedNonStriker && selectedBowler) {
-            router.push("/scoring")
+    // 🏏 Start Inning Function
+    const handleStartScoring = async () => {
+        if (!player || !nonStriker || !bowler) return;
+
+        try {
+            // 1️⃣ Create Inning in Strapi
+            const inningPayload = {
+                match: match?.documentId,
+                batting_team: battingTeam?.documentId,
+                bowling_team: bowlingTeam?.documentId,
+                runs: 0,
+                wickets: 0,
+                current_over: 0,
+                innings_number: 1,
+                current_striker: player.documentId,
+                current_non_striker: nonStriker.documentId,
+                current_bowler: bowler.documentId,
+                // status: "Live",
+            };
+
+            const inningRes = await createInning({ data: inningPayload }).unwrap();
+            const inningData = inningRes?.data || inningRes;
+
+            // 2️⃣ Create Player Score for both batsmen and get their IDs
+            const strikerScoreRes = await createPlayerScore({
+                data: {
+                    player: player.documentId,
+                    inning: inningData.documentId,
+                    runs: 0,
+                    balls_faced: 0,
+                    fours: 0,
+                    sixes: 0,
+                },
+            }).unwrap();
+            const strikerScore = strikerScoreRes?.data || strikerScoreRes;
+
+            const nonStrikerScoreRes = await createPlayerScore({
+                data: {
+                    player: nonStriker.documentId,
+                    inning: inningData.documentId,
+                    runs: 0,
+                    balls_faced: 0,
+                    fours: 0,
+                    sixes: 0,
+                },
+            }).unwrap();
+            const nonStrikerScore = nonStrikerScoreRes?.data || nonStrikerScoreRes;
+
+            // 3️⃣ Create Bowler Stats Record
+            const bowlerStatsRes = await createBowlerStats({
+                data: {
+                    bowler: bowler.documentId,
+                    inning: inningData.documentId,
+                    overs_bowled: 0,
+                    maidens: 0,
+                    runs_conceded: 0,
+                    wickets_taken: 0,
+                },
+            }).unwrap();
+            const bowlerStats = bowlerStatsRes?.data || bowlerStatsRes;
+
+            // 4️⃣ Create First Over
+            const overRes = await createOver({
+                data: {
+                    over_number: 1,
+                    inning: inningData.documentId,
+                    bowler: bowler.documentId,
+                    runs_in_over: 0,
+                },
+            }).unwrap();
+            const overData = overRes?.data || overRes;
+
+            // 5️⃣ Navigate to Scoring Screen with all IDs
+            router.replace({
+                pathname: "/scoring",
+                params: {
+                    match: JSON.stringify(match),
+                    battingTeam: JSON.stringify(battingTeam),
+                    bowlingTeam: JSON.stringify(bowlingTeam),
+                    inning: JSON.stringify(inningData),
+                    currentOver: JSON.stringify(overData),
+                    striker: JSON.stringify(player),
+                    nonStriker: JSON.stringify(nonStriker),
+                    bowler: JSON.stringify(bowler),
+                    strikerScore: JSON.stringify(strikerScore),
+                    nonStrikerScore: JSON.stringify(nonStrikerScore),
+                    bowlerStats: JSON.stringify(bowlerStats),
+                },
+            });
+        } catch (error) {
+            console.error("❌ Error starting inning:", error);
         }
     };
-
     return (
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
@@ -60,14 +171,22 @@ export default function StartInningsScreen() {
                         <PlayerCard
                             title={player?.name || "Select Striker"}
                             iconSource={player?.avatar ? { uri: getFullStrapiUrl(player.avatar) } : require("../assets/images/striker-dark.png")}
-                            onPress={() => setShowAddPlayersModal(true)}
+                            onPress={() => {
+                                setShowAddPlayersModal(true)
+                                setShowAddNonStrinkerModal(false)
+                                setShowAddBowlerModal(false)
+                            }}
                             isSelected={player !== undefined && player !== null}
                         />
                         <PlayerCard
                             title="Select Non-striker"
                             iconSource={require("../assets/images/non-striker.png")}
-                            onPress={() => setSelectedNonStriker("nonstriker1")}
-                            isSelected={selectedNonStriker === "nonstriker1"}
+                            onPress={() => {
+                                setShowAddNonStrinkerModal(true)
+                                setShowAddPlayersModal(false)
+                                setShowAddBowlerModal(false)
+                            }}
+                            isSelected={nonStriker !== null}
                         />
                     </View>
                 </View>
@@ -81,8 +200,12 @@ export default function StartInningsScreen() {
                         <PlayerCard
                             title="Select Bowler"
                             iconSource={require("../assets/images/bowler.png")}
-                            onPress={() => setSelectedBowler("bowler1")}
-                            isSelected={selectedBowler === "bowler1"}
+                            onPress={() => {
+                                setShowAddNonStrinkerModal(false)
+                                setShowAddPlayersModal(false)
+                                setShowAddBowlerModal(true)
+                            }}
+                            isSelected={bowler !== null}
                         />
                         <View className="flex-1" />
                     </View>
@@ -119,10 +242,11 @@ export default function StartInningsScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    className={`flex-1 py-4 bg-[#0e7ccb] items-center ${!((player !== undefined && player !== null) && selectedNonStriker && selectedBowler) ? "opacity-50" : ""
+                    className={`flex-1 py-4 bg-[#0e7ccb] items-center ${!((player !== undefined && player !== null) &&
+                        nonStriker !== null && bowler !== null) ? "opacity-50" : ""
                         }`}
                     onPress={handleStartScoring}
-                    disabled={!((player !== undefined && player !== null) && selectedNonStriker && selectedBowler)}
+                    disabled={!((player !== undefined && player !== null) && nonStriker !== null && bowler !== null)}
                 >
                     <Text className="text-white text-base font-semibold">
                         START SCORING
@@ -136,8 +260,26 @@ export default function StartInningsScreen() {
                 onClose={() => setShowAddPlayersModal(false)}
                 onAddPlayers={handleAddPlayer}
                 existingPlayerIds={player?.documentId}
+                allFetchedPlayers={battingTeam?.players?.filter((data: any) => data.documentId !== nonStriker?.documentId)}
             // visible={true}
             />
+
+            <InningPlayerSelection
+                visible={showAddNonStrinkerModal}
+                onClose={() => setShowAddNonStrinkerModal(false)}
+                onAddPlayers={handleAddPlayer}
+                existingPlayerIds={nonStriker?.documentId}
+                allFetchedPlayers={battingTeam?.players?.filter((data: any) => data.documentId !== player?.documentId)}
+            />
+
+            <InningPlayerSelection
+                visible={showAddBowlerModal}
+                onClose={() => setShowAddBowlerModal(false)}
+                onAddPlayers={handleAddPlayer}
+                existingPlayerIds={bowler?.documentId}
+                allFetchedPlayers={bowlingTeam?.players}
+            />
+
         </SafeAreaView>
     );
 }
