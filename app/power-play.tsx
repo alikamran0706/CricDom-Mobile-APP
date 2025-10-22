@@ -233,7 +233,7 @@ const PowerPlayScreen = () => {
                 message: "Power play overs have been configured successfully",
             })
         );
-        router.push("/toss");
+        router.back();
     }
 
     return (

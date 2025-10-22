@@ -26,11 +26,6 @@ const SelectTeamModal = ({
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const handleAddPlayers = () => {
-        setSearchQuery("");
-        onClose();
-    };
-
     const filteredTeams = teamRecords?.filter(
         (team: any) =>
             (team.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -39,11 +34,11 @@ const SelectTeamModal = ({
     const renderItem = ({ item: team }: { item: any }) => (
         <TouchableOpacity
             key={team.id}
-            className={`flex-row items-center p-3 border rounded-xl mb-3 ${selectTeam?.documentId === team.documentId
-                ? "border-blue-500 bg-blue-100"
-                : "border-gray-200"
-                }`}
-            onPress={() => setSelectTeam(team.documentId)}
+            className={`flex-row items-center p-3 border rounded-xl mb-3 border-gray-200`}
+            onPress={() => {
+                setSelectTeam(team)
+                onClose()
+            }}
         >
             <View className="relative mr-3">
                 <View className="relative w-12 h-12 rounded-full items-center justify-center overflow-hidden border border-gray-100">
@@ -105,7 +100,7 @@ const SelectTeamModal = ({
                     </View>
 
                     <FlatList
-                        data={teamRecords}
+                        data={filteredTeams}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id.toString()}
                         onEndReached={() => {

@@ -28,7 +28,7 @@ export default ({ config }) => {
     },
     web: {
       bundler: "metro",
-      output: "static",
+     "output": "server",
       favicon: "./assets/images/favicon.png"
     },
     plugins: [
@@ -49,7 +49,7 @@ export default ({ config }) => {
     extra: {
       appEnv: process.env.APP_ENV,
       eas: {
-        projectId: "bf8f307d-36a8-435e-889c-766cc5e10a20"
+        projectId: "7517fea4-2956-49d0-9b7f-37b7880cbf14"
       }
     }
   };

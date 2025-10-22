@@ -16,10 +16,10 @@ interface Team {
 
 const TossScreen = () => {
     const router = useRouter()
-    const params = useLocalSearchParams()
+    const params: any = useLocalSearchParams();
+    const match = params?.match ? JSON.parse(params.match) : null;
 
-    // Default teams in case params are not available
-    const defaultTeams = [
+        const defaultTeams = [
         {
             id: "1",
             name: "FITNESS TEAM",
@@ -35,25 +35,24 @@ const TossScreen = () => {
     ]
 
     // Safely parse teams from params
-    const [teamA, setTeamA] = useState<Team>(defaultTeams[0])
-    const [teamB, setTeamB] = useState<Team>(defaultTeams[1])
+    const [teamA, setTeamA] = useState<any>(null)
+    const [teamB, setTeamB] = useState<any>(null)
 
     useEffect(() => {
+        console.log(match?.team_a, 'matchmatchmatch')
         try {
-            if (params.teamA && typeof params.teamA === "string") {
-                const parsedTeamA = JSON.parse(params.teamA)
-                setTeamA(parsedTeamA)
+            if (match?.team_a) {
+                setTeamA(match?.team_a)
             }
-            if (params.teamB && typeof params.teamB === "string") {
-                const parsedTeamB = JSON.parse(params.teamB)
-                setTeamB(parsedTeamB)
+            if (match?.team_b) {
+                setTeamB(match?.team_b)
             }
         } catch (error) {
             // Keep default teams if parsing fails
         }
-    }, [params]);
+    }, [params?.match]);
 
-    const [selectedWinner, setSelectedWinner] = useState<Team | null>(null);
+    const [selectedWinner, setSelectedWinner] = useState<any | null>(null);
     const [selectedChoice, setSelectedChoice] = useState<"BAT" | "BOWL" | null>(null);
     const [coinResult, setCoinResult] = useState<"HEADS" | "TAILS" | null>(null);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -198,18 +197,18 @@ const TossScreen = () => {
 
                         <View className="flex-row gap-x-4">
                             <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.id === teamA.id ? "border-[#0e7ccb]" : "border-gray-200"
+                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documenId === teamA?.documenId ? "border-[#0e7ccb]" : "border-gray-200"
                                     }`}
                                 onPress={() => handleTeamSelect(teamA)}
                             >
                                 <View
                                     className="w-20 h-20 rounded-full items-center justify-center mb-4"
-                                    style={{ backgroundColor: teamA.color }}
+                                    style={{ backgroundColor: '#3b82f6' }}
                                 >
-                                    <Text className="text-white text-2xl font-bold">{teamA.initials}</Text>
+                                    <Text className="text-white text-2xl font-bold">{teamA?.name?.slice(0, 2).toUpperCase()}</Text>
                                 </View>
-                                <Text className="text-gray-800 font-bold text-md text-center">{teamA.name}</Text>
-                                {selectedWinner?.id === teamA.id && (
+                                <Text className="text-gray-800 font-bold text-md text-center">{teamA?.name}</Text>
+                                {selectedWinner?.id === teamA?.id && (
                                     <View className="absolute top-4 right-4">
                                         <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
                                     </View>
@@ -217,18 +216,18 @@ const TossScreen = () => {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.id === teamB.id ? "border-[#0e7ccb]" : "border-gray-200"
+                                className={`flex-1 bg-white rounded-2xl p-6 items-center border-2 shadow-sm ${selectedWinner?.documenId === teamB?.documenId ? "border-[#0e7ccb]" : "border-gray-200"
                                     }`}
                                 onPress={() => handleTeamSelect(teamB)}
                             >
                                 <View
-                                    className="w-20 h-20 rounded-full items-center justify-center mb-4"
-                                    style={{ backgroundColor: teamB.color }}
+                                    className="w-20 h-20 rounded-3xl items-center justify-center mb-4"
+                                    style={{ backgroundColor: '#0891b2' }}
                                 >
-                                    <Text className="text-white text-2xl font-bold">{teamB.initials}</Text>
+                                    <Text className="text-white text-2xl font-bold">{teamB?.name?.slice(0, 2).toUpperCase()}</Text>
                                 </View>
-                                <Text className="text-gray-800 font-bold text-md text-center">{teamB.name}</Text>
-                                {selectedWinner?.id === teamB.id && (
+                                <Text className="text-gray-800 font-bold text-md text-center">{teamB?.name}</Text>
+                                {selectedWinner?.documenId === teamB?.documenId && (
                                     <View className="absolute top-4 right-4">
                                         <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
                                     </View>

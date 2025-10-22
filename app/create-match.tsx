@@ -4,7 +4,7 @@ import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import Header from "@/components/ui/Header";
 import Input from "@/components/ui/Input";
 import { ballTypes, matchTypes, pitchTypes } from "@/constants/match";
-import { sanitizeObject } from "@/lib/utils/common";
+import { getFullStrapiUrl, sanitizeObject } from "@/lib/utils/common";
 import { RootState } from "@/store";
 import { showAlert } from "@/store/features/alerts/alertSlice";
 import { useGetLeaguesQuery } from "@/store/features/league/leagueApi";
@@ -29,8 +29,10 @@ export default function CreateMatch() {
     const user = useSelector((state: RootState) => state.user.profile);
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false)
-    const [isTeamAModal, setIsTeamAModal] = useState(false);
-    const [selectTeam, setSelectTeam] = useState<any>(null);
+    const [isTeamAModalA, setIsTeamAModalA] = useState(false);
+    const [isTeamAModalB, setIsTeamAModalB] = useState(false);
+    const [selectTeamA, setSelectTeamA] = useState<any>(null);
+    const [selectTeamB, setSelectTeamB] = useState<any>(null);
     const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [activeTab, setActiveTab] = useState<"league" | "location" | null>(null);
@@ -44,7 +46,7 @@ export default function CreateMatch() {
         overs_limit: string;
         description: string;
         start_date: string;
-        end_date: string;
+        match_date: string;
         team_a: string;
         team_b: string;
         match_type: string;
@@ -52,7 +54,7 @@ export default function CreateMatch() {
         image: string;
         league: string | null;
         overs_per_bowler: string;
-        ball_Type: string;
+        ball_type: any,
         wagon_wheel: boolean;
         pitch_type: string;
         location: {
@@ -64,7 +66,7 @@ export default function CreateMatch() {
         overs_limit: "",
         description: "",
         start_date: "",
-        end_date: "",
+        match_date: "",
         team_a: "",
         team_b: "",
         match_type: "",
@@ -72,7 +74,10 @@ export default function CreateMatch() {
         image: "",
         league: null,
         overs_per_bowler: "",
-        ball_Type: "",
+        ball_type: {
+            ball: 'Leather',
+            other: ''
+        },
         wagon_wheel: false,
         pitch_type: "",
         location: {
@@ -203,12 +208,17 @@ export default function CreateMatch() {
             // Format combined date-time string
             // const formatted = dayjs(combined).format("YYYY-MM-DD HH:mm")
 
-            // setFormData({ ...formData, end_date: formatted })
+            // setFormData({ ...formData, match_date: formatted })
             setSelectedDate(null) // reset temp state
         }
     }
 
     const handleSave = async () => {
+        if (selectTeamA)
+            formData.team_a = selectTeamA.documentId
+        if (selectTeamA)
+            formData.team_b = selectTeamB.documentId
+
         if (formData.team_a === formData.team_b) {
             alert("Team A and Team B must be different.");
             return;
@@ -227,13 +237,22 @@ export default function CreateMatch() {
 
             const payload = { ...cleanedData, ...(imageId && { image: imageId }) };
 
-            await createMatch({ data: payload }).unwrap();
+             const {data} = await createMatch({ data: payload }).unwrap();
+             console.log('responseresponseresponseresponseresponse', data, 'responseresponseresponseresponseresponseresponseresponse')
             dispatch(showAlert({ type: 'success', message: false ? 'Match updated successfully!' : 'Match created successfully!' }));
+
             router.replace({
-                pathname: '/matches',
-                params: { refetch: 'true' }
+                pathname: '/toss',
+                params: { match: JSON.stringify(data) }
             });
-        } catch (err) {
+
+            // router.replace({
+            //     pathname: '/matches',
+            //     params: { refetch: 'true' }
+            // });
+            // router.push("/toss")
+        } catch (error: any) {
+            console.log(error?.response?.data || error.message || error || 'An unknown error occurred. tttttttttttt')
             // Show error feedback if needed
         }
     };
@@ -241,7 +260,18 @@ export default function CreateMatch() {
     const updateFormData = (field: string) => (value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
-    const handleDateChange = (field: "start_date" | "end_date", event: any, selectedDate?: Date) => {
+
+    const handleBallTypeChange = (key: "ball" | "other", value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            ball_type: {
+                ...prev.ball_type,
+                [key]: value,
+            }
+        }));
+    };
+
+    const handleDateChange = (field: "start_date" | "match_date", event: any, selectedDate?: Date) => {
         const currentDate = selectedDate || new Date();
         const formattedDate = currentDate.toISOString().split("T")[0];
         setFormData((prev) => ({ ...prev, [field]: formattedDate }));
@@ -257,7 +287,7 @@ export default function CreateMatch() {
     return (
         <>
             {
-                !isTeamAModal ?
+                (!isTeamAModalA && !isTeamAModalB) ?
                     <GestureHandlerRootView style={{ flex: 1 }}>
                         <SafeAreaView className="flex-1 bg-white">
                             <View className="flex-1">
@@ -272,29 +302,31 @@ export default function CreateMatch() {
                                     <View className="flex-row items-center justify-center">
                                         {/* Team A */}
                                         <View className="items-center">
-                                            <Pressable className="relative" onPress={() => setIsTeamAModal(true)}>
+                                            <Pressable className="relative" onPress={() => setIsTeamAModalA(true)}>
                                                 <View
-                                                    className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg"
+                                                    className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg p-2"
                                                     style={{ backgroundColor: teams[0]?.color }}
                                                 >
-                                                    <Text className="text-black text-2xl font-bold">
-                                                        {!teams[0] ?
-                                                            <Feather name="plus" size={24} color="black" />
-                                                            : teams[0]?.initials}
-                                                    </Text>
+                                                    {!selectTeamA ?
+                                                        <Feather name="plus" size={24} color="black" />
+                                                        :
+                                                        !selectTeamA?.image?.formats?.thumbnail?.url ?
+                                                            <Ionicons name="people" size={24} color="gray" />
+                                                            :
+                                                            <Image
+                                                                source={{
+                                                                    uri: getFullStrapiUrl(selectTeamA?.image?.formats?.thumbnail?.url),
+                                                                }}
+                                                                className="w-full h-full rounded-2xl"
+                                                            />
+                                                    }
                                                 </View>
-                                                {
-                                                    teams[0] &&
-                                                    <View className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full items-center justify-center">
-                                                        <Ionicons name="checkmark" size={16} color="green-500" />
-                                                    </View>
-                                                }
                                             </Pressable>
                                             {
-                                                <Text className="text-black font-bold text-sm mb-2">{teams[0]?.name}</Text>
+                                                <Text className="text-black font-bold text-sm mb-2">{selectTeamA?.name}</Text>
                                             }
-                                            <TouchableOpacity className="bg-gray-100 backdrop-blur-sm px-4 py-2 rounded-full ">
-                                                <Text className="text-black text-xs font-semibold">{!teams[0] ? 'Select Team A' : `Squad (${teams[0].squadCount})`}</Text>
+                                            <TouchableOpacity className="bg-gray-100 backdrop-blur-sm px-4 py-2 rounded-full" onPress={() => setIsTeamAModalA(true)}>
+                                                <Text className="text-black text-xs font-semibold">{!selectTeamA ? 'Select Team A' : `Squad (${selectTeamA.players?.length})`}</Text>
                                             </TouchableOpacity>
                                         </View>
 
@@ -304,29 +336,32 @@ export default function CreateMatch() {
                                                 <Text className="text-black font-bold text-lg">VS</Text>
                                             </View>
                                         </View>
-
                                         {/* Team B */}
                                         <View className="items-center">
-                                            <View className="relative">
+                                            <Pressable className="relative" onPress={() => setIsTeamAModalB(true)}>
                                                 <View
-                                                    className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg"
+                                                    className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg overflow-hidden p-2"
                                                     style={{ backgroundColor: teams[1]?.color }}
                                                 >
-                                                    <Text className="text-black text-2xl font-bold">{!teams[1] ?
-                                                        <Feather name="plus" size={24} color="black" />
-                                                        : teams[1]?.initials}
-                                                    </Text>
+                                                    {
+                                                        !selectTeamB ?
+                                                            <Feather name="plus" size={24} color="black" />
+                                                            :
+                                                            !selectTeamB?.image?.formats?.thumbnail?.url ?
+                                                                <Ionicons name="people" size={24} color="gray" />
+                                                                :
+                                                                <Image
+                                                                    source={{
+                                                                        uri: getFullStrapiUrl(selectTeamB?.image?.formats?.thumbnail?.url),
+                                                                    }}
+                                                                    className="w-full h-full rounded-2xl"
+                                                                />
+                                                    }
                                                 </View>
-                                                {
-                                                    teams[1] &&
-                                                    <View className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full items-center justify-center">
-                                                        <Ionicons name="checkmark" size={16} color="green" />
-                                                    </View>
-                                                }
-                                            </View>
-                                            <Text className="text-black font-bold text-sm mb-2">{teams[1]?.name}</Text>
-                                            <TouchableOpacity className="bg-gray-100 backdrop-blur-sm px-4 py-2 rounded-full">
-                                                <Text className="text-black text-xs font-semibold">{!teams[1] ? 'Select Team B' : `Squad (${teams[1]?.squadCount})`}</Text>
+                                            </Pressable>
+                                            <Text className="text-black font-bold text-sm mb-2">{selectTeamB?.name}</Text>
+                                            <TouchableOpacity className="bg-gray-100 backdrop-blur-sm px-4 py-2 rounded-full" onPress={() => setIsTeamAModalB(true)}>
+                                                <Text className="text-black text-xs font-semibold">{!selectTeamB ? 'Select Team B' : `Squad (${selectTeamB?.players?.length})`}</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -378,7 +413,7 @@ export default function CreateMatch() {
                                         <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
                                             <Input
                                                 label="Schedule match"
-                                                value={formData.end_date}
+                                                value={formData.match_date}
                                                 onChangeText={() => { }}
                                                 placeholder="Select date and time"
                                                 editable={false}
@@ -422,14 +457,12 @@ export default function CreateMatch() {
                                             <Text className="text-lg font-semibold text-gray-800 mb-3">
                                                 Ball Type<Text className="text-red-500">*</Text>
                                             </Text>
-                                            <View className="flex-row justify-around">
+                                            <View className="flex-row justify-around mb-6">
                                                 {ballTypes.map((ball) => (
-                                                    <TouchableOpacity key={ball.type} className="items-center" onPress={() => setFormData(prev => ({ ...prev, ball_Type: ball.type }))}>
+                                                    <TouchableOpacity key={ball.type} className="items-center" onPress={() => handleBallTypeChange(ball.field as "ball" | "other", ball.type)}>
                                                         <View
                                                             className={`w-16 h-16 rounded-full items-center justify-center mb-2 
-                                                        ${formData.ball_Type === ball.type ? "border border-[#0e7ccb]" : "border border-gray-300"
-                                                                }`
-                                                            }
+                                                            ${formData.ball_type[ball.field as "ball" | "other"] === ball.type ? "border border-[#0e7ccb]" : "border border-gray-300"}`}
                                                         >
                                                             <Ionicons name={ball.icon as any} size={24} color={ball.color} />
                                                         </View>
@@ -755,10 +788,10 @@ export default function CreateMatch() {
 
                                 {showEndDatePicker && (
                                     <DateTimePicker
-                                        value={formData.end_date ? new Date(formData.end_date) : new Date()}
+                                        value={formData.match_date ? new Date(formData.match_date) : new Date()}
                                         mode="date"
                                         display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                        onChange={(event, date) => handleDateChange("end_date", event, date)}
+                                        onChange={(event, date) => handleDateChange("match_date", event, date)}
                                     />
                                 )}
 
@@ -779,9 +812,9 @@ export default function CreateMatch() {
                                     <FloatingActionButton
                                         label="Next (TOSS)"
                                         // iconName="calendar-outline"
-                                        emoji={'🪙'}
-                                        // onPress={handleSave}
-                                        onPress={() => router.push("/toss")}
+                                        // emoji={'🪙'}
+                                        onPress={handleSave}
+                                        // onPress={() => router.push("/toss")}
                                         loading={isLoading}
                                         disabled={isLoading}
                                     />
@@ -790,16 +823,26 @@ export default function CreateMatch() {
                             </View>
                         </SafeAreaView>
                     </GestureHandlerRootView>
-                    :
-                    <SelectTeamModal
-                        visible={isTeamAModal}
-                        onClose={() => setIsTeamAModal(false)}
-                        selectTeam={selectTeam}
-                        setSelectTeam={setSelectTeam}
-                        teamRecords={teamRecord}
-                        isFetchingTeams={isFetchingTeams}
-                        loadMoreTeams={loadMoreTeams}
-                    />
+                    : isTeamAModalA ?
+                        <SelectTeamModal
+                            visible={isTeamAModalA}
+                            onClose={() => setIsTeamAModalA(false)}
+                            selectTeam={selectTeamA}
+                            setSelectTeam={setSelectTeamA}
+                            teamRecords={teamRecord?.filter((team: any) => team?.documentId !== selectTeamB?.documentId)}
+                            isFetchingTeams={isFetchingTeams}
+                            loadMoreTeams={loadMoreTeams}
+                        />
+                        : isTeamAModalB &&
+                        <SelectTeamModal
+                            visible={isTeamAModalB}
+                            onClose={() => setIsTeamAModalB(false)}
+                            selectTeam={selectTeamB}
+                            setSelectTeam={setSelectTeamB}
+                            teamRecords={teamRecord?.filter((team: any) => team?.documentId !== selectTeamA?.documentId)}
+                            isFetchingTeams={isFetchingTeams}
+                            loadMoreTeams={loadMoreTeams}
+                        />
             }
         </>
     )

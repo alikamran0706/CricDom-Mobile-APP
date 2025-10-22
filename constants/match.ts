@@ -90,8 +90,8 @@ export const matchData = {
   ] as MatchMoment[]
 };
 
-export const matchTypes = [{ label: "Limited Overs", value: 'League' }, { label: "Box/turf Cricket", value: 'Semi' }, { label: "Pair Cricket", value: 'Pair-Final' },
-{ label: "Test Match", value: 'Test Match' }, { label: "T20", value: 'Final' },
+export const matchTypes = [{ label: "Limited Overs", value: 'Limited Overs' }, { label: "Box/turf Cricket", value: 'Box/turf Cricket' }, { label: "Pair Cricket", value: 'Pair Cricket' },
+{ label: "Test Match", value: 'Test Match' }, { label: "T20", value: 'T20' },
 ];
 
 export const ballTypes = [
@@ -110,14 +110,14 @@ export const days = ["1", "2", "3", "4", "5+"];
 export const matchesPerDay = ["1", "2", "3", "4", "5+"];
 export const dailyBudgets = ["500 - 1000", "1100 - 1500", "1600 - 2000", "2000+", "NOT DECIDED"];
 export const matchBudgets = ["100 - 500", "600 - 1000", "1100 - 1500", "1500+", "NOT DECIDED"];
-export const contactMethods = ["Cricdom DM", "Call", "WhatsApp"];
+export const contactMethods = ["DM", "Call", "WhatsApp"];
 
 export const match_on = ["Weekdays", "Weekend", "All days"];
 export const matcheTimings = ["Day", "Night", "Day & Night"];
 export const tournament_formats = ["League", "Knockout"];
 export const participateTypes = ["Team", "Player"];
 
-export const pitchTypes = ["ROUGH", "CEMENT", "TURF", "ASTROTURF", "MATTING"]
+export const pitchTypes = ["Rough", "Cement", "Turf", "Astroturf", "Matting"]
 
 // Sample data - replace with your actual match data
 export const teamA: TeamInnings = {

@@ -1,7 +1,7 @@
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
 import Header from "@/components/ui/Header";
-import { ballTypes } from "@/constants/match";
+import { ballTypes, matcheTimings, tournament_formats } from "@/constants/match";
 import { sanitizeObject } from "@/lib/utils/common";
 import { showAlert } from "@/store/features/alerts/alertSlice";
 import { useCreateLookingForMutation } from "@/store/features/lookingFor/lookingForApi";
@@ -32,22 +32,26 @@ const TeamTournamentScreen = () => {
         ground_type: "",
         description: "",
         notify: true,
-        match: '',
+        match_on: '',
+        looking_for_type: 'team',
+        tournament_format: "",
+        winning_prize: '',
+        match_timing: ''
     });
-
 
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
     const matchesOn = ["Weekdays", "Weekend", "All days"];
+    const winningPrizes = ["Cash", "Trophies", "Both"];
 
     const groundTypes = [
         { type: "Open Ground", image: require("../assets/images/stadium.png") },
         { type: "Box Cricket", image: require("../assets/images/net.png") },
     ];
 
-    const handleChange = (key: string, value: any) => {
+    const handleInputChange = (key: string, value: any) => {
         setFormData((prev) => ({ ...prev, [key]: value }));
     };
 
@@ -68,6 +72,7 @@ const TeamTournamentScreen = () => {
                 params: { refetch: 'true' }
             });
         } catch (error: any) {
+
             dispatch(
                 showAlert({
                     type: "error",
@@ -100,18 +105,18 @@ const TeamTournamentScreen = () => {
                     <FloatingLabelInputBorderBottom
                         label="Tournament Name?"
                         value={formData.name}
-                        onChangeText={(text) => handleChange("name", text)}
+                        onChangeText={(text) => handleInputChange("name", text)}
                     />
-                    <Text className="text-base font-semibold text-gray-800 mb-3">What is your playing role?</Text> 
+                    <Text className="text-base font-semibold text-gray-800 mb-3">What is your playing role?</Text>
                     <View className="flex-row flex-wrap gap-2 mb-5">
                         {matchesOn.map((match) => (
                             <TouchableOpacity
                                 key={match}
-                                className={`px-4 py-2 rounded-full ${formData.match === match ? "bg-[#0e7ccb]" : "bg-gray-300"}`}
-                                onPress={() => handleChange('match', match)}
+                                className={`px-4 py-2 rounded-full ${formData.match_on === match ? "bg-[#0e7ccb]" : "bg-gray-300"}`}
+                                onPress={() => handleInputChange('match_on', match)}
                             >
-                                <Text className={`${formData.match === match ? "text-white" : "text-gray-700"} text-sm`}>
-                                    {match}  
+                                <Text className={`${formData.match_on === match ? "text-white" : "text-gray-700"} text-sm`}>
+                                    {match}
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -127,13 +132,13 @@ const TeamTournamentScreen = () => {
                     <FloatingLabelInputBorderBottom
                         label="Which region?"
                         value={formData.region}
-                        onChangeText={(text) => handleChange("region", text)}
+                        onChangeText={(text) => handleInputChange("region", text)}
                     />
 
                     <FloatingLabelInputBorderBottom
                         label="Area in this city?"
                         value={formData.address}
-                        onChangeText={(text) => handleChange("address", text)}
+                        onChangeText={(text) => handleInputChange("address", text)}
                     />
 
                     {/* Team Input */}
@@ -165,7 +170,7 @@ const TeamTournamentScreen = () => {
                                 key={ground.type}
                                 className={`items-center p-4 ${formData.ground_type === ground.type ? "bg-gray-200 rounded-lg" : ""
                                     }`}
-                                onPress={() => handleChange("ground_type", ground.type)}
+                                onPress={() => handleInputChange("ground_type", ground.type)}
                             >
                                 <Image
                                     source={ground.image}
@@ -181,6 +186,54 @@ const TeamTournamentScreen = () => {
                         ))}
                     </View>
 
+                    {/* Match Timing */}
+                    <Text className="text-base font-semibold text-gray-800 mb-3">Matches Timing</Text>
+                    <View className="flex-row flex-wrap gap-2 mb-5">
+                        {matcheTimings.map((time) => (
+                            <TouchableOpacity
+                                key={time}
+                                className={`px-4 py-2 rounded-full ${formData.match_timing === time ? "bg-[#0e7ccb]" : "bg-gray-300"}`}
+                                onPress={() => handleInputChange("match_timing", time)}
+                            >
+                                <Text className={`${formData.match_timing === time ? "text-white" : "text-gray-700"} text-sm`}>
+                                    {time}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Winning Prize */}
+                    <Text className="text-base font-semibold text-gray-800 mb-3">Winning Prize</Text>
+                    <View className="flex-row flex-wrap gap-2 mb-5">
+                        {winningPrizes.map((prize) => (
+                            <TouchableOpacity
+                                key={prize}
+                                className={`px-4 py-2 rounded-full ${formData.winning_prize === prize ? "bg-[#0e7ccb]" : "bg-gray-300"}`}
+                                onPress={() => handleInputChange("winning_prize", prize)}
+                            >
+                                <Text className={`${formData.winning_prize === prize ? "text-white" : "text-gray-700"} text-sm`}>
+                                    {prize}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Tournament Format */}
+                    <Text className="text-base font-semibold text-gray-800 mb-3">Tournament Formats</Text>
+                    <View className="flex-row flex-wrap gap-2 mb-5">
+                        {tournament_formats.map((format) => (
+                            <TouchableOpacity
+                                key={format}
+                                className={`px-4 py-2 rounded-full ${formData.tournament_format === format ? "bg-[#0e7ccb]" : "bg-gray-300"}`}
+                                onPress={() => handleInputChange("tournament_format", format)}
+                            >
+                                <Text className={`${formData.tournament_format === format ? "text-white" : "text-gray-700"} text-sm`}>
+                                    {format}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
                     <Text className="text-base font-semibold text-gray-800 mb-3">How do teams contact you?</Text>
                     <TouchableOpacity className="bg-[#0e7ccb] px-5 py-2 rounded-full self-start mb-6">
                         <Text className="text-white text-sm font-semibold">Cricdom DM</Text>
@@ -189,7 +242,7 @@ const TeamTournamentScreen = () => {
                     <TextInput
                         className="border border-gray-300 rounded-lg p-3 text-sm text-gray-700 h-32 text-top"
                         value={formData.description}
-                        onChangeText={(text) => handleChange("description", text)}
+                        onChangeText={(text) => handleInputChange("description", text)}
                         placeholder="Write details like your role, playing for a tournament or Friendly match, match fees, etc."
                         multiline
                         maxLength={280}
@@ -206,7 +259,7 @@ const TeamTournamentScreen = () => {
                         <TouchableOpacity
                             className={`w-12 h-7 rounded-full justify-center px-1 ${formData.notify ? "bg-[#0e7ccb]" : "bg-gray-300"
                                 }`}
-                            onPress={() => handleChange("notify", !formData.notify)}
+                            onPress={() => handleInputChange("notify", !formData.notify)}
                         >
                             <View
                                 className={`w-6 h-6 rounded-full bg-white ${formData.notify ? "self-end" : "self-start"

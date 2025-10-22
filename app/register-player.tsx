@@ -15,10 +15,10 @@ import {
 import { useUploadFileMutation } from "@/store/features/upload/uploadApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useState } from "react"
 import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import CountryPicker, { Country, CountryCode } from 'react-native-country-picker-modal'
-import PhoneInput from 'react-native-phone-input'
+// import CountryPicker, { Country, CountryCode } from 'react-native-country-picker-modal'
+// import PhoneInput from 'react-native-phone-input'
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -63,10 +63,10 @@ export default function CreatePlayerScreen() {
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false)
 
   const [countryPickerVisible, setCountryPickerVisible] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [countryCode, setCountryCode] = useState<CountryCode>('US');
+  // const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  // const [countryCode, setCountryCode] = useState<CountryCode>('US');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const phoneInputRef = useRef<PhoneInput>(null);
+  // const phoneInputRef = useRef<PhoneInput>(null);
 
 
   useLayoutEffect(() => {
@@ -74,24 +74,24 @@ export default function CreatePlayerScreen() {
   }, [navigation])
 
   const onSelectCountry = (country: any) => {
-    setCountryCode(country.cca2);
-    setSelectedCountry(country);
+    // setCountryCode(country.cca2);
+    // setSelectedCountry(country);
     setCountryPickerVisible(false);
     setPhoneNumber(country.callingCode.toString());
-    if (phoneInputRef.current) {
-      phoneInputRef.current.selectCountry(country.cca2.toLowerCase());
-    }
+    // if (phoneInputRef.current) {
+    //   phoneInputRef.current.selectCountry(country.cca2.toLowerCase());
+    // }
   };
 
   const toggleCountryPicker = () => {
     setCountryPickerVisible(!countryPickerVisible);
   };
 
-  useEffect(() => {
-    if (phoneInputRef.current) {
-      phoneInputRef.current.selectCountry(countryCode.toLowerCase());
-    }
-  }, [countryCode]);
+  // useEffect(() => {
+  //   if (phoneInputRef.current) {
+  //     phoneInputRef.current.selectCountry(countryCode.toLowerCase());
+  //   }
+  // }, [countryCode]);
 
   useEffect(() => {
     if (player) {
@@ -422,7 +422,7 @@ export default function CreatePlayerScreen() {
                   <Text className="text-base font-medium text-gray-800 mb-2">
                     Phone Number <Text className="text-red-600"> *</Text>
                   </Text>
-                  <PhoneInput
+                  {/* <PhoneInput
                     initialCountry={countryCode.toLowerCase()}
                     ref={phoneInputRef}
                     onChangePhoneNumber={(number) => setPhoneNumber(number)}
@@ -430,10 +430,10 @@ export default function CreatePlayerScreen() {
                     textProps={{ placeholder: 'Enter a phone number...' }}
                     style={styles.phoneInput}
                     textStyle={styles.phoneInputText}
-                  />
+                  /> */}
                 </View>
             }
-
+{/*  
             {countryPickerVisible && (
               <CountryPicker
                 countryCode={countryCode}
@@ -446,6 +446,7 @@ export default function CreatePlayerScreen() {
                 visible={countryPickerVisible}
               />
             )}
+*/}
           </View>
         )
 

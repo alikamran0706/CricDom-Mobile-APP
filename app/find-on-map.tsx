@@ -3,7 +3,7 @@ import Header from "@/components/ui/Header"
 import { players } from "@/constants/payer"
 import { useNavigation } from "expo-router"
 import { useLayoutEffect, useState } from "react"
-import { Text, TextInput, View } from "react-native"
+import { Platform, Text, TextInput, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 const FindPlayerOnMapScreen = () => {
@@ -52,11 +52,13 @@ const FindPlayerOnMapScreen = () => {
                     />
 
                 </View>
-
+                {
+                    Platform.OS !== 'web' &&
                 <Map
                     data={players}
                     searchTerm={searchTerm}
                 />
+                }
             </View>
         </SafeAreaView>
     )

@@ -156,7 +156,7 @@ export default function RegisterGroundScreen() {
             });
         }
         catch (error: any) {
-            console.log(error?.response?.data || error.message || isError || error || 'An unknown error occurred. tttttttttttt')
+            
             dispatch(
                 showAlert({
                     type: 'error',

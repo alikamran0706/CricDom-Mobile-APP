@@ -22,10 +22,10 @@ const LookingTournamentScreen = () => {
     const [formData, setFormData] = useState({
         name: "",
         region: "Lahore",
-        address: "",
-        team: "",
+        // address: "",
+        // team: "",
         ball_type: {
-            ball: '',
+            ball: 'Leather',
             other: ''
         },
         ground_type: "",
@@ -35,6 +35,7 @@ const LookingTournamentScreen = () => {
         match_timing: "",
         tournament_format: "",
         participate_type: "Team",
+        looking_for_type: 'team'
     });
 
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -71,12 +72,13 @@ const LookingTournamentScreen = () => {
         const cleanedData = sanitizeObject(formData);
         try {
             await createLookingFor({ data: cleanedData }).unwrap();
-            dispatch(showAlert({ type: 'success', message: 'Looking for team created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: 'Looking for tournament created successfully!' }));
             router.replace({
                 pathname: '/looking-for-list',
                 params: { refetch: 'true' }
             });
         } catch (error: any) {
+           
             dispatch(
                 showAlert({
                     type: "error",
@@ -89,18 +91,20 @@ const LookingTournamentScreen = () => {
         }
     };
 
+    console.log(formData)
+
     return (
         <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
-                <Header heading="Looking for tournament to participate" />
+                <Header heading="Looking for tournament to join" />
 
                 <ScrollView className="flex-1 px-4 py-6" contentContainerStyle={{ paddingBottom: 100 }}>
                     {/* Tournament Name */}
-                    <FloatingLabelInputBorderBottom
+                    {/* <FloatingLabelInputBorderBottom
                         label="Tournament Name?"
                         value={formData.name}
                         onChangeText={(text) => handleInputChange("name", text)}
-                    />
+                    /> */}
 
                     {/* Matches On */}
                     <Text className="text-base font-semibold text-gray-800 mb-3">What is your playing role?</Text>
@@ -124,11 +128,11 @@ const LookingTournamentScreen = () => {
                         value={formData.region}
                         onChangeText={(text) => handleInputChange("region", text)}
                     />
-                    <FloatingLabelInputBorderBottom
+                    {/* <FloatingLabelInputBorderBottom
                         label="Area in this city?"
                         value={formData.address}
                         onChangeText={(text) => handleInputChange("address", text)}
-                    />
+                    /> */}
 
                     {/* Participate Type */}
                     <Text className="text-base font-semibold text-gray-800 mb-3">Participate as a:</Text>
@@ -218,11 +222,11 @@ const LookingTournamentScreen = () => {
                     </View>
 
                     {/* Team Selection */}
-                    <FloatingLabelInputBorderBottom
+                    {/* <FloatingLabelInputBorderBottom
                         label="Select your team (Optional)"
                         value={formData.team}
                         onChangeText={(text) => handleInputChange("team", text)}
-                    />
+                    /> */}
 
                     {/* Contact Method */}
                     <Text className="text-base font-semibold text-gray-800 mb-3">How do teams contact you?</Text>

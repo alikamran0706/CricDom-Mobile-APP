@@ -102,6 +102,7 @@ export default function CreateLiveStreamScreen() {
         const playerData = {
             ...cleanedData,
             ...(mediaId && { media: mediaId }),
+            ...(imageId && { photo: imageId }),
         };
 
         try {
@@ -110,10 +111,9 @@ export default function CreateLiveStreamScreen() {
             else
                 await createCommunity({ data: playerData }).unwrap();
 
-
-            dispatch(showAlert({ type: 'success', message: id ? 'Player updated successfully!' : 'Player created successfully!' }));
+            dispatch(showAlert({ type: 'success', message: id ? 'Streamer updated successfully!' : 'Streamer created successfully!' }));
             router.replace({
-                pathname: '/profile',
+                pathname: '/live-streamers',
                 params: { refetch: 'true' }
             });
         }
@@ -214,16 +214,16 @@ export default function CreateLiveStreamScreen() {
                                 <View className="px-4">
                                     {/* Input Group Template */}
                                     <FloatingLabelInputBorderBottom
-                                        label="Company Name"
-                                        value={formData.city}
-                                        onChangeText={(text) => setFormData({ ...formData, city: text })}
+                                        label="Streamer Name"
+                                        value={formData.name}
+                                        onChangeText={(text) => setFormData({ ...formData, name: text })}
                                         required={true}
                                     />
 
                                     <FloatingLabelInputBorderBottom
                                         label="Address"
-                                        value={formData.city}
-                                        onChangeText={(text) => setFormData({ ...formData, city: text })}
+                                        value={formData.address}
+                                        onChangeText={(text) => setFormData({ ...formData, address: text })}
                                         required={true}
                                     />
 
