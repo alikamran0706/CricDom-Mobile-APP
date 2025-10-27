@@ -1,9 +1,9 @@
-import { baseQuery } from '@/services/api';
+import { baseQueryWithReauth } from '@/services/api';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const teamApi = createApi({
   reducerPath: 'teamApi',
-  baseQuery,
+   baseQuery: baseQueryWithReauth, 
   endpoints: (builder) => ({
     getTeams: builder.query<any, { page?: number; pageSize?: number; ownerId?: string }>({
       query: ({ page = 1, pageSize = 10, ownerId }) => ({

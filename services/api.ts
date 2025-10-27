@@ -1,6 +1,5 @@
 import { RootState } from '@/store'; // Import RootState to access the Redux state
 import { logout } from '@/store/features/user/userSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -16,20 +15,25 @@ export const baseQuery = fetchBaseQuery({
     return headers;
   }
 });
- 
+
 
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions);
+  try {
+    const result = await baseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
-    api.dispatch(logout());
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('profile');
+    const error = result.error as FetchBaseQueryError & { originalStatus?: number };
+    if (error && (error.status === 401 || error.originalStatus === 401)) {
+      api.dispatch(logout());
+      return result;
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Unexpected error in baseQueryWithReauth:', error);
+    return { error: { status: 'CUSTOM_ERROR', data: error } } as any;
   }
-
-  return result;
 };

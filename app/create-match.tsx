@@ -194,25 +194,6 @@ export default function CreateMatch() {
         }
     };
 
-    const onTimeChange = (event: any, time?: Date) => {
-        setShowTimePicker(Platform.OS === "ios") // iOS behavior
-
-        if (time && selectedDate) {
-            // Combine date + time into one Date object
-            const combined = new Date(selectedDate)
-            combined.setHours(time.getHours())
-            combined.setMinutes(time.getMinutes())
-            combined.setSeconds(0)
-            combined.setMilliseconds(0)
-
-            // Format combined date-time string
-            // const formatted = dayjs(combined).format("YYYY-MM-DD HH:mm")
-
-            // setFormData({ ...formData, match_date: formatted })
-            setSelectedDate(null) // reset temp state
-        }
-    }
-
     const handleSave = async () => {
         if (selectTeamA)
             formData.team_a = selectTeamA.documentId
@@ -252,6 +233,8 @@ export default function CreateMatch() {
 
             const payload = { ...cleanedData, ...(imageId && { image: imageId }) };
 
+            console.log(payload, 'payloadpayloadpayload')
+
             const { data } = await createMatch({ data: payload }).unwrap();
             dispatch(showAlert({ type: 'success', message: false ? 'Match updated successfully!' : 'Match created successfully!' }));
 
@@ -290,12 +273,49 @@ export default function CreateMatch() {
     };
 
     const handleDateChange = (field: "start_date" | "match_date", event: any, selectedDate?: Date) => {
-        const currentDate = selectedDate || new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
-        setFormData((prev) => ({ ...prev, [field]: formattedDate }));
+        if (event.type === "dismissed") {
+            setShowStartDatePicker(false);
+            setShowEndDatePicker(false);
+            return;
+        }
+
+        const date = selectedDate || new Date();
+        setSelectedDate(date);
+
+        // Hide date picker, show time picker next
         if (field === "start_date") setShowStartDatePicker(false);
         else setShowEndDatePicker(false);
-        setShowTimePicker(true)
+
+        setShowTimePicker(true);
+    };
+
+    const onTimeChange = (event: any, selectedTime?: Date) => {
+        if (event.type === "dismissed") {
+            setShowTimePicker(false);
+            return;
+        }
+
+        if (selectedDate && selectedTime) {
+            // Combine date and time
+            const combined = new Date(selectedDate);
+            combined.setHours(selectedTime.getHours());
+            combined.setMinutes(selectedTime.getMinutes());
+            combined.setSeconds(0);
+            combined.setMilliseconds(0);
+
+            // Convert to ISO string (UTC format for Strapi)
+            const isoString = combined.toISOString();
+
+            // Save to formData
+            setFormData((prev) => ({
+                ...prev,
+                match_date: isoString,
+            }));
+
+            // reset temporary states
+            setSelectedDate(null);
+            setShowTimePicker(false);
+        }
     };
 
     const teams: any[] = [
@@ -431,7 +451,17 @@ export default function CreateMatch() {
                                         <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
                                             <Input
                                                 label="Schedule match"
-                                                value={formData.match_date}
+                                                value={
+                                                    formData.match_date
+                                                        ? new Date(formData.match_date).toLocaleString(undefined, {
+                                                            day: '2-digit',
+                                                            month: 'short',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })
+                                                        : ''
+                                                }
                                                 onChangeText={() => { }}
                                                 placeholder="Select date and time"
                                                 editable={false}

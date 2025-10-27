@@ -72,8 +72,8 @@ export default function ScoringScreen() {
     const initialCurrentOver = params?.currentOver ? JSON.parse(params.currentOver) : null;
 
 
-    const strikerScore = params?.strikerScore ? JSON.parse(params.strikerScore) : null;
-    const nonStrikerScore = params?.nonStrikerScore ? JSON.parse(params.nonStrikerScore) : null;
+    const initialStrikerScore = params?.strikerScore ? JSON.parse(params.strikerScore) : null;
+    const initialNonStrikerScore = params?.nonStrikerScore ? JSON.parse(params.nonStrikerScore) : null;
     const bowlerStats = params?.bowlerStats ? JSON.parse(params.bowlerStats) : null;
 
     const inning = params?.inning ? JSON.parse(params.inning) : null;
@@ -90,10 +90,14 @@ export default function ScoringScreen() {
 
     const [striker, setStriker] = useState<Player>(initialStiker);
 
+    const [strikerScore, setStrikerScore] = useState<any>(initialStrikerScore);
+    const [nonStrikerScore, setNonStrikerScore] = useState<any>(initialNonStrikerScore);
+
     const [nonStriker, setNonStriker] = useState<Player>(initialNonStriker);
 
     const [bowler, setBowler] = useState<Bowler>(initialBowler);
     const [matchState, setMatchState] = useState<MatchState>(match);
+    const [bowlerState, setBowlerState] = useState<any>(bowlerStats);
     const [showSettings, setShowSettings] = useState(false);
     const [currentOver, setCurrentOver] = useState<string[]>([]);
     const user = useSelector((state: RootState) => state.user.profile);
@@ -169,7 +173,11 @@ export default function ScoringScreen() {
             setCurrentOver((prev) => [...prev, runs.toString()]);
 
             // Switch strike if odd runs
-            if (runs % 2 === 1) switchStrike();
+            if (currentOver?.length >= 5) {
+                setTimeout(() => {
+                    setCurrentOver([]);
+                }, 100);
+            }
 
             // --- 🧠 Send data to Strapi ---
             await createBall({
@@ -177,19 +185,74 @@ export default function ScoringScreen() {
                     runs,
                     ball_number: matchState.balls + 1,
                     over: matchState.overs + 1,
-                    batsman: striker.documentId,
+                    batsman: strikerScore?.isStriker ? striker.documentId : nonStriker.documentId,
                     bowler: bowler.documentId,
                     is_extra: false,
                 },
             });
 
-            await updatePlayerScore({
-                id: strikerScore.documentId,
-                data: {
-                    runs: striker.runs + runs,
-                    balls_faced: striker.balls + 1,
-                },
-            });
+            const updatedScore = (playerStrike: any, strikerStatus = true) => {
+                const { id, updatedAt, documentId, createdAt, inning, player, ...restStrikerScore } =
+                    playerStrike;
+
+                return {
+                    ...restStrikerScore,
+                    runs: restStrikerScore?.isStriker ? ((restStrikerScore.runs || 0) + runs) : restStrikerScore.runs,
+                    balls_faced: restStrikerScore?.isStriker ? ((restStrikerScore.balls_faced || 0) + 1) : restStrikerScore.balls_faced,
+                    isStriker: strikerStatus,
+                    strike_rate: (((restStrikerScore.runs / restStrikerScore.balls_faced) || 0) * 100).toFixed(2),
+                    fours:
+                        runs === 4
+                            ? (restStrikerScore.fours || 0) + 1
+                            : restStrikerScore.fours || 0,
+                    sixes:
+                        runs === 6
+                            ? (restStrikerScore.sixes || 0) + 1
+                            : restStrikerScore.sixes || 0,
+                };
+            }
+
+
+           
+            if (strikerScore?.isStriker) {
+                // Update the backend
+                //  if (currentOver?.length > 5) {
+                await updatePlayerScore({
+                    id: initialStrikerScore?.documentId,
+                    data: updatedScore(strikerScore,
+                        currentOver?.length < 5 ? (runs !== 1 && runs !== 3) : (runs === 1 || runs === 3)
+                    ),
+                });
+                setStrikerScore(updatedScore(strikerScore,
+                    currentOver?.length < 5 ? (runs !== 1 && runs !== 3) : (runs === 1 || runs === 3))
+                );
+                if (currentOver?.length < 5 ? (runs === 1 || runs === 3) : (runs !== 1 && runs !== 3)) {
+                    await updatePlayerScore({
+                        id: initialNonStrikerScore?.documentId,
+                        data: updatedScore(nonStrikerScore, true),
+                    });
+                    setNonStrikerScore(updatedScore(nonStrikerScore, true));
+                }
+            }
+            else {
+                await updatePlayerScore({
+                    id: initialNonStrikerScore?.documentId,
+                    data: updatedScore(nonStrikerScore,
+                        currentOver?.length < 5 ? (runs !== 1 && runs !== 3) : (runs === 1 || runs === 3)
+                    ),
+                });
+                setNonStrikerScore(updatedScore(nonStrikerScore,
+                    currentOver?.length < 5 ? (runs !== 1 && runs !== 3) : (runs === 1 || runs === 3)
+                ));
+                if (currentOver?.length < 5 ? (runs === 1 || runs === 3) : (runs !== 1 && runs !== 3)) {
+                    await updatePlayerScore({
+                        id: initialStrikerScore?.documentId,
+                        data: updatedScore(strikerScore, true),
+                    });
+                    setStrikerScore(updatedScore(strikerScore, true));
+                }
+            }
+
 
             await updateBowlerStats({
                 id: bowlerStats.documentId,
@@ -482,8 +545,6 @@ export default function ScoringScreen() {
         }
     }
 
-    console.log('parssmmsmsmdmsd', params)
-
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView className="flex-1 bg-white">
@@ -573,12 +634,13 @@ export default function ScoringScreen() {
                                 zIndex: 10,
                             }}
                         >
-                            <View className="flex-row justify-between items-center w-full px-6">
+                            {/* Note: Tesst after */}
+                            {/* <View className="flex-row justify-between items-center w-full px-6">
                                 <Text className="text-sm" style={{ color: '#cac9c9' }}>Target: {matchState.target}</Text>
                                 <Text className="text-sm font-medium" style={{ color: '#b2adad' }}>
                                     Need {matchState.target! - matchState.totalRuns} runs
                                 </Text>
-                            </View>
+                            </View> */}
                         </View>
 
                     </View>
@@ -662,15 +724,22 @@ export default function ScoringScreen() {
                                     {/* Left: Batsmen */}
                                     <View className="flex-row items-center gap-x-4">
                                         <View className="flex-row items-center">
-                                            <View className="w-1 h-4 bg-[#0e7ccb] mr-2" />
+                                            {
+                                                strikerScore?.isStriker &&
+                                                <View className="w-1 h-4 bg-[#0e7ccb] mr-2" />
+                                            }
                                             <Text className="text-white text-sm font-medium">{striker.name.split(" ")[0].toUpperCase()}</Text>
-                                            <Text className="text-gray-300 text-sm ml-2">{striker?.runs || 0}</Text>
-                                            <Text className="text-gray-400 text-xs ml-1">{striker.balls || 0}</Text>
+                                            <Text className="text-gray-300 text-sm ml-2">{strikerScore?.runs || 0}</Text>
+                                            <Text className="text-gray-400 text-xs ml-1">{strikerScore.balls_faced || 0}</Text>
                                         </View>
                                         <View className="flex-row items-center">
+                                            {
+                                                nonStrikerScore?.isStriker &&
+                                                <View className="w-1 h-4 bg-[#0e7ccb] mr-2" />
+                                            }
                                             <Text className="text-white text-sm font-medium">{nonStriker.name.split(" ")[0].toUpperCase()}</Text>
-                                            <Text className="text-gray-300 text-sm ml-2">{nonStriker?.runs || 0}</Text>
-                                            <Text className="text-gray-400 text-xs ml-1">{nonStriker.balls || 0}</Text>
+                                            <Text className="text-gray-300 text-sm ml-2">{nonStrikerScore?.runs || 0}</Text>
+                                            <Text className="text-gray-400 text-xs ml-1">{nonStrikerScore.balls_faced || 0}</Text>
                                         </View>
                                     </View>
 
@@ -843,4 +912,3 @@ export function ScoringShortcutsHeader({ openBottomSheet }: ScoringShortcutsHead
         </Pressable>
     );
 }
-

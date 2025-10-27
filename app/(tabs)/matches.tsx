@@ -45,8 +45,6 @@ export default function MatchesScreen() {
   const matches = data?.data || [];
   const meta = data?.meta?.pagination || {};
 
-  console.log('ddddd', matches, 'dddd')
-
   // Filter matches by active tab (status)
   const filteredMatches = matches.filter(
     (match: any) => match?.status_type === activeTab
@@ -180,7 +178,7 @@ export default function MatchesScreen() {
               </Text>
             </View>
             <Text className="text-lg font-bold text-gray-900">
-              {teamBScore} 
+              {teamBScore}
             </Text>
           </View>
         </View>
@@ -235,8 +233,9 @@ export default function MatchesScreen() {
             <FlatList
               data={filteredMatches}
               keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ paddingVertical: 20 }}
+              contentContainerStyle={{ paddingVertical: 20, paddingBottom: 80 }}
               renderItem={renderMatchItem}
+              showsVerticalScrollIndicator={false}
               onEndReached={loadMore}
               onEndReachedThreshold={0.5}
               ListFooterComponent={

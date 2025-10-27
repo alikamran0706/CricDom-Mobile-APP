@@ -77,7 +77,7 @@ export default function StartInningsScreen() {
             const strikerScoreRes = await createPlayerScore({
                 data: {
                     player: player.documentId,
-                    inning: inningData.documentId,
+                    inning: inningData.documentId, 
                     runs: 0,
                     balls_faced: 0,
                     fours: 0,

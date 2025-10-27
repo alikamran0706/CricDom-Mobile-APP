@@ -2,6 +2,7 @@
 "use client";
 
 import { matchData } from '@/constants/match';
+import { getFullStrapiUrl } from '@/lib/utils/common';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -12,11 +13,13 @@ type PlayerRole = 'All Rounder' | 'Bowler' | 'Batsman' | 'Wicket Keeper' | strin
 
 interface Player {
   name: string;
-  role: PlayerRole;
+  position: PlayerRole;
   image: string;
   isCaptain?: boolean;
-  battingStyle?: string;
-  bowlingStyle?: string;
+  batting_style?: string;
+  bowling_style?: string;
+  avatar?: string;
+  role?: any
 }
 
 // --- Helper Functions ---
@@ -41,24 +44,24 @@ const getRoleColor = (role: PlayerRole): string => {
 };
 
 // --- Component ---
-const ProfessionalMatchInfo: React.FC = () => {
+const ProfessionalMatchInfo = ({ match }: any) => {
   const renderPlayerCard = (player: Player, idx: number, isReversed = false) => (
     <TouchableOpacity key={idx} className="mb-3 rounded-xl bg-white shadow" style={{ elevation: 2 }} activeOpacity={0.7}>
       <View className={`flex-row items-center p-3 ${isReversed ? 'flex-row-reverse' : ''}`}>
         <View className="relative mr-3">
-          <Image source={{ uri: player.image }} className="w-12 h-12 rounded-full bg-gray-200" />
+          <Image source={{ uri: getFullStrapiUrl(player.avatar) }} className="w-12 h-12 rounded-full bg-gray-200" />
           {player.isCaptain && <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-yellow-400 border-2 border-white items-center justify-center"><Text className="text-xs font-bold text-gray-800">C</Text></View>}
         </View>
         <View className={`flex-1 ${isReversed ? 'items-end mr-3' : ''}`}>
           <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>{player.name}</Text>
           <View className="flex-row items-center mb-1">
-            <View className="w-5 h-5 rounded-full justify-center items-center mr-2" style={{ backgroundColor: getRoleColor(player.role) }}>
-              <Ionicons name={getRoleIcon(player.role)} size={12} color="white" />
+            <View className="w-5 h-5 rounded-full justify-center items-center mr-2" style={{ backgroundColor: getRoleColor(player.position) }}>
+              <Ionicons name={getRoleIcon(player.position)} size={12} color="white" />
             </View>
-            <Text className="text-xs font-medium" style={{ color: getRoleColor(player.role) }}>{player.role}</Text>
+            <Text className="text-xs font-medium" style={{ color: getRoleColor(player.position) }}>{player.position}</Text>
           </View>
-          {player.battingStyle && <Text className="text-xs text-gray-500">{player.battingStyle}</Text>}
-          {player.bowlingStyle && <Text className="text-xs text-gray-500">{player.bowlingStyle}</Text>}
+          {player.batting_style && <Text className="text-xs text-gray-500">{player.batting_style}</Text>}
+          {player.bowling_style && <Text className="text-xs text-gray-500">{player.bowling_style}</Text>}
         </View>
       </View>
     </TouchableOpacity>
@@ -73,17 +76,17 @@ const ProfessionalMatchInfo: React.FC = () => {
           </View>
           <View className={`${isReversed ? 'items-end mr-3' : ''} flex-1`}>
             <Text className="text-xl font-bold text-gray-600">{teamName}</Text>
-            <Text className="text-xs text-gray-600/80">{players.length} Players</Text>
+            <Text className="text-xs text-gray-600/80">{players?.length} Players</Text>
           </View>
         </View>
       </LinearGradient>
-      <View className="p-4">{players.map((player, index) => renderPlayerCard(player, index, isReversed))}</View>
+      <View className="p-4">{players?.map((player, index) => renderPlayerCard(player, index, isReversed))}</View>
       <View className="flex-row justify-around bg-gray-100 border-t border-gray-200 py-4">
         {[
-          ['Batsmen', players.filter(p => p.role === 'Batsman').length],
-          ['All Rounders', players.filter(p => p.role === 'All Rounder').length],
-          ['Bowlers', players.filter(p => p.role === 'Bowler').length],
-          ['Keepers', players.filter(p => p.role === 'Wicket Keeper').length],
+          ['Batsmen', players?.filter(p => p.role === 'Batsman').length],
+          ['All Rounders', players?.filter(p => p.role === 'All Rounder').length],
+          ['Bowlers', players?.filter(p => p.role === 'Bowler').length],
+          ['Keepers', players?.filter(p => p.role === 'Wicket Keeper').length],
         ].map(([label, count]) => (
           <View key={label as string} className="items-center">
             <Text className="text-lg font-bold text-gray-800">{count}</Text>
@@ -104,12 +107,12 @@ const ProfessionalMatchInfo: React.FC = () => {
       </View> */}
 
 
-          {/* Match Details Header */}
+      {/* Match Details Header */}
       <View className="mb-6 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-        <LinearGradient 
-          colors={['#ffffff', '#f5faff', '#a9d3f2']} 
-          start={{ x: 0, y: 0 }} 
-          end={{ x: 1, y: 1 }} 
+        <LinearGradient
+          colors={['#ffffff', '#f5faff', '#a9d3f2']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           className="p-6 items-center"
         >
           <Text className="text-2xl font-bold text-gray-800 mb-1">Match Details</Text>
@@ -122,7 +125,7 @@ const ProfessionalMatchInfo: React.FC = () => {
       {/* Basic Match Info */}
       <View className="bg-white rounded-2xl p-4 mb-6 shadow-sm border border-gray-100">
         <Text className="text-lg font-bold text-gray-800 mb-4">Match Information</Text>
-        
+
         <View className="flex-row justify-between mb-4">
           <View className="flex-1 mr-2">
             <Text className="text-sm font-medium text-gray-600 mb-1">Match Id</Text>
@@ -136,7 +139,7 @@ const ProfessionalMatchInfo: React.FC = () => {
 
         <View className="border-t border-gray-200 pt-4 mb-4">
           <Text className="text-sm font-medium text-gray-600 mb-2">Toss</Text>
-          <Text className="text-base font-semibold text-gray-900">{matchData.toss}</Text>
+          <Text className="text-base font-semibold text-gray-900">{match?.toss?.team?.name} won the toss and select to {match?.toss?.toss_action?.toLowerCase()}</Text>
         </View>
 
         <View className="border-t border-gray-200 pt-4 mb-4">
@@ -157,13 +160,13 @@ const ProfessionalMatchInfo: React.FC = () => {
       </View>
 
       <View>
-        {renderTeamSection('Warriors', enhancedWarriorsPlayers, '#fff1f2')}
+        {renderTeamSection(match?.team_a?.name, match?.team_b?.players, '#fff1f2')}
         <View className="items-center my-4">
           <LinearGradient colors={['#f5f5f5', '#cce5ff']} className="w-16 h-16 rounded-full justify-center items-center shadow" style={{ elevation: 4 }}>
             <Text className="text-lg font-bold text-gray-600">VS</Text>
           </LinearGradient>
         </View>
-        {renderTeamSection('STARS', enhancedStarsPlayers, '#a9d3f2', false)}
+        {renderTeamSection(match?.team_b?.name, match?.team_b?.players, '#a9d3f2', false)}
       </View>
       <View className="my-4 p-4 bg-white rounded-xl shadow" style={{ elevation: 3 }}>
         <Text className="text-xl font-semibold text-gray-800 mb-3">Match Officials</Text>
