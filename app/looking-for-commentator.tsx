@@ -1,22 +1,28 @@
+import BottomSheetWrapper, { BottomSheetRef } from "@/components/BottomSheetWrapper";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
 import Header from "@/components/ui/Header";
+import Input from "@/components/ui/Input";
 import { ballTypes } from "@/constants/match";
 import { sanitizeObject } from "@/lib/utils/common";
 import { showAlert } from "@/store/features/alerts/alertSlice";
 import { useCreateLookingForMutation } from "@/store/features/lookingFor/lookingForApi";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { BlurView } from "expo-blur";
+import * as Location from 'expo-location';
 import { useNavigation, useRouter } from "expo-router";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
+    ActivityIndicator,
     Image,
     Platform,
     ScrollView,
+    StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
@@ -26,7 +32,7 @@ const LookingForCommentatorScreen = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
-    const [createLookingFor] = useCreateLookingForMutation();
+    const [createLookingFor, { isLoading, isError, error, isSuccess }] = useCreateLookingForMutation();
 
     const [formData, setFormData] = useState({
         region: "Lahore",
@@ -47,7 +53,69 @@ const LookingForCommentatorScreen = () => {
         },
         notify: true,
         looking_for_type: "commentator",
+        address: "",
+        city: "",
+        location: {
+            latitude: null,
+            longitude: null,
+        },
     });
+    const [activeTab, setActiveTab] = useState<"location" | null>(null);
+    const bottomSheetRef = useRef<BottomSheetRef>(null);
+    const [isLocationLoading, setIsLocationLoading] = useState(false);
+
+    const openLocationSheet = () => {
+        setActiveTab("location");
+        bottomSheetRef.current?.open();
+    };
+
+    const closePerformanceForm = () => {
+        bottomSheetRef.current?.close();
+        setActiveTab(null);
+    };
+
+    const getCurrentLocation = async () => {
+
+        // Ask for permission
+        let { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status !== 'granted') {
+            alert('Permission to access location was denied. Please enable it in settings to use this feature.');
+            return;
+        }
+        setIsLocationLoading(true);
+
+        try {
+            const location = await Location.getCurrentPositionAsync({});
+            const address = await Location.reverseGeocodeAsync({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+            });
+
+            const locationInfo = {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+            };
+
+
+
+            setFormData((prev: any) => ({
+                ...prev,
+                location: locationInfo,
+                address: address?.[0]
+                    ? `${address[0].name}, ${address[0].region}`
+                    : "Unknown Location",
+                city: address?.[0]
+                    ? `${address[0].city}`
+                    : "Unknown Location",
+            }));
+
+        } catch (err) {
+            alert("Could not fetch your location. Try again.");
+        } finally {
+            setIsLocationLoading(false);
+        }
+    };
 
     const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -99,7 +167,7 @@ const LookingForCommentatorScreen = () => {
             router.replace({ pathname: '/looking-for-list', params: { refetch: 'true' } });
         } catch (error: any) {
 
-             console.log(error?.response?.data || error.message || error || 'An unknown error occurred. tttttttttttt')
+            console.log(error?.response?.data || error.message || error || 'An unknown error occurred. tttttttttttt')
             dispatch(showAlert({
                 type: "error",
                 message: error?.response?.data || error.message || "Something went wrong.",
@@ -257,7 +325,7 @@ const LookingForCommentatorScreen = () => {
                     </View>
 
                     {/* Description */}
-                    <View className="mb-8">
+                    <View className="mb-6">
                         <TextInput
                             className="border border-gray-300 rounded-lg p-4 text-base text-gray-800 min-h-32"
                             value={formData.description}
@@ -269,6 +337,51 @@ const LookingForCommentatorScreen = () => {
                         />
                         <Text className="text-right text-gray-400 text-sm mt-1">{formData.description.length}/280</Text>
                     </View>
+
+                    <View className="space-y-2 mb-4">
+                        <Text className="text-base font-medium text-gray-800">Location</Text>
+
+                        {/* Show current location if already set */}
+                        {formData.address ? (
+                            <Text className="text-sm text-gray-600">📍 {formData.address}</Text>
+                        ) : (
+                            <Text className="text-sm text-gray-400">No location selected</Text>
+                        )}
+
+                        <View className="flex-row gap-x-2 mt-2">
+                            <TouchableOpacity
+                                onPress={getCurrentLocation}
+                                disabled={isLocationLoading}
+                                style={{
+                                    backgroundColor: '#0e7ccb',
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 12,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'row',
+                                    height: 48, // ✅ Keep height fixed
+                                    opacity: isLocationLoading ? 0.7 : 1,
+                                }}
+                            >
+                                <View style={{ minWidth: 160, alignItems: 'center' }}>
+                                    {isLocationLoading ? (
+                                        <ActivityIndicator color="white" />
+                                    ) : (
+                                        <Text style={{ color: 'white', fontWeight: '600' }}>Use Current Location</Text>
+                                    )}
+                                </View>
+
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={openLocationSheet}
+                                className="bg-gray-200 px-4 flex items-center justify-center rounded-lg"
+                            >
+                                <Text className="text-gray-800 font-medium">Add Manually</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    
                 </ScrollView>
 
                 {showDatePicker && (
@@ -280,7 +393,84 @@ const LookingForCommentatorScreen = () => {
                     />
                 )}
 
-                <FloatingActionButton label="Save" onPress={handleSave} />
+                {/* Save Button */}
+                {!activeTab && (
+                    <FloatingActionButton label="Save" loading={isLoading} onPress={handleSave} />
+                )}
+
+                {activeTab && (
+                    <View style={StyleSheet.absoluteFill}>
+                        <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill} />
+                    </View>
+                )}
+
+                <BottomSheetWrapper
+                    ref={bottomSheetRef}
+                    onClose={closePerformanceForm}
+                >
+                    {activeTab === "location" && (
+                        <View className="flex-1 px-4">
+                            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16 }}>Enter Location Manually</Text>
+                            <ScrollView showsVerticalScrollIndicator={false} className="max-h-[28rem] py-4">
+                                <View className="space-y-4">
+                                    <Input
+                                        label="Address"
+                                        value={formData.address}
+                                        onChangeText={(val) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                address: val,
+                                            }))
+                                        }
+                                        placeholder="Enter address"
+                                    />
+                                    <Input
+                                        label="City"
+                                        value={formData.city}
+                                        onChangeText={(val) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                city: val,
+                                            }))
+                                        }
+                                        placeholder="Enter address"
+                                    />
+                                    <Input
+                                        label="Latitude"
+                                        value={(formData.location.latitude as number | null)?.toString() || ""}
+                                        onChangeText={(val) =>
+                                            setFormData((prev: any) => ({
+                                                ...prev,
+                                                location: {
+                                                    ...prev.location,
+                                                    latitude: val ? parseFloat(val) : null,
+                                                },
+                                            }))
+                                        }
+                                        placeholder="Enter latitude"
+                                        keyboardType="numeric"
+                                    />
+                                    <Input
+                                        label="Longitude"
+                                        value={(formData.location.longitude as number | null)?.toString() || ""}
+                                        onChangeText={(val) =>
+                                            setFormData((prev: any) => ({
+                                                ...prev,
+                                                location: {
+                                                    ...prev.location,
+                                                    longitude: val ? parseFloat(val) : null,
+                                                },
+                                            }))
+                                        }
+                                        placeholder="Enter longitude"
+                                        keyboardType="numeric"
+                                    />
+                                </View>
+                            </ScrollView>
+                        </View>
+                    )}
+                </BottomSheetWrapper>
+
             </View>
         </SafeAreaView>
     );

@@ -1,3 +1,4 @@
+import AvatarImage from '@/components/AvatarImage';
 import ImagePickerButton from '@/components/ImagePickerButton';
 import AddPlayersModal from '@/components/Modal/AddPlayersModal';
 import Dropdown from '@/components/ui/Dropdown';
@@ -5,7 +6,7 @@ import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import Header from '@/components/ui/Header';
 import Input from '@/components/ui/Input';
 import { gameTypeOptions } from '@/constants/team';
-import { sanitizeObject } from '@/lib/utils/common';
+import { getFullStrapiUrl, sanitizeObject } from '@/lib/utils/common';
 import { RootState } from '@/store';
 import { showAlert } from '@/store/features/alerts/alertSlice';
 import { useCreateTeamMutation, useGetTeamsQuery, useUpdateTeamMutation } from '@/store/features/team/teamApi';
@@ -14,7 +15,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import {
-  Image,
   Pressable,
   ScrollView,
   StatusBar,
@@ -211,8 +211,8 @@ export default function CreateTeamScreen() {
             {/* Team Image Upload */}
             <View className="items-center pt-4">
               <ImagePickerButton
-                title='Upload Team Logo'
-                imageUri={formData.image}
+                title={team.image ? 'Update Team Logo' : 'Upload Team Logo'}
+                imageUri={formData.image || getFullStrapiUrl(team.image.formats.thumbnail.url)}
                 onChangeImage={(uri) => setFormData((prev: any) => ({ ...prev, image: uri }))}
               />
             </View>
@@ -320,9 +320,21 @@ export default function CreateTeamScreen() {
                     }}
                     onPress={() => togglePlayer(player.id)}
                   >
-                    <Image
-                      source={{ uri: player.avatar }}
-                      style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }}
+                    {/* <View className="w-12 h-12 rounded-full items-center justify-center overflow-hidden border border-gray-100 ">
+                      <Image
+                        source={{ uri: player.avatar }}
+                        className="w-full h-full"
+                        resizeMode="contain"
+                      />
+                    </View> */}
+                    <AvatarImage
+                      uri={player.avatar}
+                      size={42}
+                      borderRadius={80}
+                      rounded={true}
+                      resizeMode={'contain'}
+                      backgroundColor='transparent'
+                      extraStyle={{ marginRight: 12, }}
                     />
                     <View style={{ flex: 1 }}>
                       <Text style={{

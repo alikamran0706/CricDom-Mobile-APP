@@ -21,20 +21,36 @@ const ScorersScreen = () => {
   });
 
   const [page, setPage] = useState(1);
+  const [communityList, setCommunityList] = useState<any[]>([]); // 🟢 Local state for cumulative data
 
   const {
     data: communities,
     isLoading,
     isFetching,
     refetch,
-  } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters, });
+  } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters });
 
-  const communityList = communities?.data || [];
   const total = communities?.meta?.pagination?.total || 0;
   const hasMore = communityList.length < total;
 
+  // 🟢 Merge fetched data when `communities` changes
   useEffect(() => {
-    if (params?.refetch === 'true') {
+    if (communities?.data) {
+      setCommunityList((prev) => {
+        // Avoid duplicates if the same page is fetched again
+        const newItems = communities.data.filter(
+          (item: any) => !prev.some((p) => p.id === item.id)
+        );
+        return [...prev, ...newItems];
+      });
+    }
+  }, [communities]);
+
+  // 🟢 Reset list when refreshing
+  useEffect(() => {
+    if (params?.refetch === "true") {
+      setPage(1);
+      setCommunityList([]);
       refetch();
       router.setParams({ refetch: undefined });
     }
@@ -50,10 +66,9 @@ const ScorersScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  const tabs = ["Cricket", "Test Match", "The Hundred", "Pair Cricket"]
+  const tabs = ["Cricket", "Test Match", "The Hundred", "Pair Cricket"];
 
   const renderScorerCard = ({ item }: { item: any }) => {
-
     const points =
       (item.matches?.length || 0) * 10 +
       (item.error_free_matches || 0) * 5 +
@@ -70,11 +85,11 @@ const ScorersScreen = () => {
           dailyRate={item.per_day_fees}
           matchRate={item.per_match_fees}
           image={item.photo?.formats?.thumbnail?.url}
-          link={'/'}
+          link={"/"}
         />
       </Pressable>
-    )
-  }
+    );
+  };
 
   const HeaderComponent = () => {
     return (
@@ -91,47 +106,37 @@ const ScorersScreen = () => {
           </View>
         </View>
         {/* Tabs */}
-        <Tabs
-          tabs={tabs}
-          activeTab='Cricket'
-        />
+        <Tabs tabs={tabs} activeTab="Cricket" />
       </View>
-    )
-  }
+    );
+  };
 
   return (
     <SafeAreaView className="bg-white flex-1">
       <View className="flex-1">
-        {/* Header */}
-        <Header
-          heading="Scorers"
-        />
-        {/* Scorers List */}
+        <Header heading="Scorers" />
         <FlatList
           data={communityList}
           renderItem={renderScorerCard}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          ListHeaderComponent={() => (
-            <HeaderComponent />
-          )}
+          ListHeaderComponent={HeaderComponent}
           ListFooterComponent={
             hasMore && !isLoading ? (
               <ActivityIndicator size="small" className="mt-4 mb-6" />
             ) : null
           }
         />
-        {/* Bottom Buttons */}
         <FloatingActionButton
           label="REGISTER"
-          onPress={() => router.push('/create-scorer')}
+          onPress={() => router.push("/create-scorer")}
         />
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default ScorersScreen
+export default ScorersScreen;

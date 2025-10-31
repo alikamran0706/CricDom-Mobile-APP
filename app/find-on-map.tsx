@@ -3,7 +3,6 @@ import { players } from "@/constants/payer"
 import { useNavigation } from "expo-router"
 import { useLayoutEffect, useState } from "react"
 import { Platform, Text, TextInput, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
 
 const FindPlayerOnMapScreen = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -18,13 +17,11 @@ const FindPlayerOnMapScreen = () => {
     const bowlerCount = players.filter((p) => p.type === "bowler").length
     const allrounderCount = players.filter((p) => p.type === "allrounder").length
 
-
-
     return (
-        <SafeAreaView className="bg-white flex-1">
+        // <SafeAreaView className="bg-white flex-1">
             <View className="flex-1">
                 {/* <Header heading='Find Cricket Players Near You' /> */}
-                <View className="px-4 py-3">
+                <View className="px-4 py-1">
                     <View className="flex-row items-center">
                         <Text className="text-xl font-bold text-black ml-4">Find Cricket Players Near You</Text>
                     </View>
@@ -64,7 +61,7 @@ const FindPlayerOnMapScreen = () => {
                     />
                 }
             </View>
-        </SafeAreaView>
+        // </SafeAreaView>
     )
 }
 

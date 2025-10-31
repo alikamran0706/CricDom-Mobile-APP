@@ -9,11 +9,15 @@ const Tabs = ({ tabs = [], activeTab = '', onTabPress }: any) => {
                 {tabs.map((tab: string) => (
                     <TouchableOpacity
                         key={tab}
-                        className={`px-4 py-2 rounded-full mr-3 ${activeFilter === tab ? "bg-[#0e7ccb]" : "bg-gray-200"}`}
+                        style={{
+                            backgroundColor: activeFilter === tab ? '#0e7ccb' : '#e5e7eb',
+                        }}
+                        className="px-4 py-2 rounded-full mr-3"
                         onPress={() => setActiveFilter(tab)}
                     >
                         <Text className={`font-medium ${activeFilter === tab ? "text-white" : "text-gray-700"}`}>{tab}</Text>
                     </TouchableOpacity>
+
                 ))}
             </ScrollView>
         </View>

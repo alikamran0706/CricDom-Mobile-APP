@@ -72,7 +72,7 @@ export default function InningPlayerSelection({
 
     const isPlayerSelected = (playerId: string) =>
         selectedPlayer?.id === playerId;
-
+    
     return (
         <Modal
             visible={visible}
@@ -125,7 +125,7 @@ export default function InningPlayerSelection({
                                         {
                                             player.avatar &&
                                             <Image
-                                                source={{ uri: getFullStrapiUrl(player.avatar) }}
+                                                source={{ uri: getFullStrapiUrl(player.image?.url) }}
                                                 className="w-full h-full"
                                             />
                                         }

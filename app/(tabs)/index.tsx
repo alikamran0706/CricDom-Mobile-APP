@@ -1,8 +1,13 @@
+import MoreComponentsBelow from "@/components/home/MoreComponentsBelow";
+import OtherComponentsAbove from "@/components/home/OtherComponentsAbove";
+import SidebarDrawer from "@/components/Modal/Drawer/SidebarDrawer";
 import SocialShare from "@/components/SocialShare";
 import { useSidebar } from "@/hooks/useSidebar";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { FlatList, Image, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import FindPlayerOnMapScreen from "../find-on-map";
 
 const logo = require('../../assets/images/logo.png');
@@ -20,7 +25,10 @@ interface Post {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { toggleSidebar, isVisible, closeSidebar } = useSidebar()
+  const { toggleSidebar, isVisible, closeSidebar } = useSidebar();
+  const [isMapView, setIsMapView] = useState(true); // 🟢 Default: Map view
+
+  const toggleMapView = () => setIsMapView((prev) => !prev);
 
 
   const renderPost = ({ item }: { item: Post }) => (
@@ -133,10 +141,10 @@ export default function HomeScreen() {
 
   return (
     <>
-      {/* <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
+      <SidebarDrawer isVisible={isVisible} onClose={closeSidebar} />
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <SafeAreaView className="flex-1 bg-white">
-      
+
         <View className="px-4 py-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
@@ -148,6 +156,13 @@ export default function HomeScreen() {
               </View>
             </View>
             <View className="flex-row">
+              <TouchableOpacity className="mr-4" onPress={toggleMapView}>
+                <Ionicons
+                  name={isMapView ? "list-outline" : "map-outline"}
+                  size={24}
+                  color="#3b3b3b"
+                />
+              </TouchableOpacity>
               <TouchableOpacity className="mr-4" onPress={() => router.push(`/search`)}>
                 <Ionicons name="search" size={24} color="#3b3b3b" />
               </TouchableOpacity>
@@ -163,22 +178,27 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <FlatList
-          data={posts}
-          renderItem={renderPost}
-          keyExtractor={(item) => item.id}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.5}
-          ListHeaderComponent={() => (
-            <OtherComponentsAbove />
-          )}
-          ListFooterComponent={() => (
-            <MoreComponentsBelow />
-          )}
-        />
-      </SafeAreaView> */}
 
-      <FindPlayerOnMapScreen />
+        {
+          isMapView ? (
+            <FindPlayerOnMapScreen /> // 🗺 Default map view
+          ) : (
+            <FlatList
+              data={posts}
+              renderItem={renderPost}
+              keyExtractor={(item) => item.id}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.5}
+              ListHeaderComponent={() => (
+                <OtherComponentsAbove />
+              )}
+              ListFooterComponent={() => (
+                <MoreComponentsBelow />
+              )}
+            />
+          )}
+      </SafeAreaView>
+
     </>
   )
 }

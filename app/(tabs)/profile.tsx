@@ -1,20 +1,112 @@
+import ImagePickerModal from "@/components/Modal/ImagePickerModal"
 import QRCodeModal from "@/components/Modal/QRCodeModal"
+import { getFullStrapiUrl } from "@/lib/utils/common"
+import { showAlert } from "@/store/features/alerts/alertSlice"
+import { useCreatePlayerMutation, useUpdatePlayerMutation } from "@/store/features/player/playerApi"
+import { useUploadFileMutation } from "@/store/features/upload/uploadApi"
 import { useGetCurrentUserQuery } from "@/store/features/user/userApi"
 import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect, useState } from "react"
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { useEffect, useLayoutEffect, useState } from "react"
+import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useDispatch } from "react-redux"
+
+const fields = [
+  "phone_number",
+  "position",
+  "batting_style",
+  "bowling_style",
+  "age",
+  "email",
+  "image",
+  "name"
+];
 
 export default function ProfileDetails() {
+
+  const dispatch = useDispatch();
   const router = useRouter();
   const navigation = useNavigation();
   const [showQRModal, setShowQRModal] = useState(false);
+  const params = useLocalSearchParams();
+  const [modalVisible, setModalVisible] = useState(false);
   const { data: profile, isLoading, refetch } = useGetCurrentUserQuery();
+  const [uploadFile] = useUploadFileMutation();
+  const [createPlayer, { isLoading: imageLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
+  const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+  const [preview, setpreview] = useState('');
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
+
+  useEffect(() => {
+    if (params?.refetch === "true") {
+      refetch();
+      router.replace("/profile"); // optional cleanup
+    }
+  }, [params?.refetch]);
+
+  const onChangeImage = async (uri: any) => {
+    if (!uri) return null;
+
+    setpreview(uri);
+
+    try {
+      const imageId = await uploadFile({ image: uri })
+        .unwrap()
+        .then((res) => res[0]?.id)
+
+
+      if (!imageId) return
+
+      const playerData = {
+        ...(imageId && { image: imageId }),
+        ...(profile && { user: profile.documentId }),
+      }
+
+      const id = profile?.player?.documentId;
+
+      try {
+        if (profile?.player) await updatePlayer({ id, data: playerData }).unwrap();
+        else await createPlayer({ data: playerData }).unwrap();
+
+        refetch();
+
+      } catch (error: any) {
+        dispatch(
+          showAlert({
+            type: "error",
+            message: error?.response?.data || error.message || isError || "An unknown error occurred.",
+          }),
+        )
+      }
+
+    } catch (uploadError) {
+      dispatch(
+        showAlert({
+          type: "error",
+          message: "Could not upload the image.",
+        }),
+      )
+    }
+  }
+
+
+  const filledCount = profile?.player
+    ? fields.reduce((count: any, field: any) => {
+      if (field === "email") {
+        // email is on profile itself, not player
+        return profile.email ? count + 1 : count;
+      }
+      return profile.player[field] ? count + 1 : count;
+    }, 0)
+    : 0;
+
+  const totalFields = fields.length;
+  const completionPercent = Math.round((filledCount / totalFields) * 100);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -32,16 +124,18 @@ export default function ProfileDetails() {
         <View className="flex-row items-start gap-x-8 px-6 py-4 bg-blue-50 mx-4 mb-4 mt-1 rounded-2xl">
           <View className="flex">
             {/* Profile Photo with Edit Overlay */}
-            <View className="relative mb-4 overflow-hidden w-24 h-24 rounded-full">
+            <View className="relative mb-4 overflow-hidden w-24 h-24 rounded-full bg-white">
+
               <Image
                 source={{
-                  uri: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60",
+                  uri: preview || getFullStrapiUrl(profile?.player?.image?.url),
                 }}
                 className="w-[100%] h-[100%]"
+                resizeMode="contain"
               />
-              <View className="absolute bottom-0 left-0 right-0 rounded-b-full py-2" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
+              <Pressable onPress={() => setModalVisible(true)} className="absolute bottom-0 left-0 right-0 rounded-b-full py-2" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
                 <Text className="text-white text-center text-sm font-semibold">EDIT</Text>
-              </View>
+              </Pressable>
             </View>
           </View>
 
@@ -98,66 +192,81 @@ export default function ProfileDetails() {
         <View className="bg-white mx-4 mt-4 p-4 rounded-lg">
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-xl font-bold text-gray-900">My Profile</Text>
-            <TouchableOpacity onPress={() => router.push("/register-player")}>
+            <TouchableOpacity onPress={() => router.push({
+              pathname: "/register-player",
+              params: { player: JSON.stringify(profile?.player) }
+            })}>
               <Text className="text-[#0e7ccb] font-semibold">EDIT</Text>
             </TouchableOpacity>
           </View>
+          {
+            profile?.player ?
+              <View className="space-y-4">
+                <View className="flex-row">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">MOBILE NUMBER</Text>
+                    <Text className="text-gray-800">{profile?.player?.phone_number}</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">GENDER</Text>
+                    <Text className="text-gray-800">Male</Text>
+                  </View>
+                </View>
 
-          <View className="space-y-4">
-            <View className="flex-row">
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">MOBILE NUMBER</Text>
-                <Text className="text-gray-800">-</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">GENDER</Text>
-                <Text className="text-gray-800">Male</Text>
-              </View>
-            </View>
+                <View className="flex-row">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">PLAYING ROLE</Text>
+                    <Text className="text-gray-800">{profile?.player?.position}</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">BATTING STYLE</Text>
+                    <Text className="text-gray-800">{profile?.player?.batting_style}</Text>
+                  </View>
+                </View>
 
-            <View className="flex-row">
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">PLAYING ROLE</Text>
-                <Text className="text-gray-800">None</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">BATTING STYLE</Text>
-                <Text className="text-gray-800">RHB</Text>
-              </View>
-            </View>
+                <View className="flex-row">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">BOWLING STYLE</Text>
+                    <Text className="text-gray-800">{profile?.player?.bowling_style}</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">Age</Text>
+                    <Text className="text-gray-800">{profile?.player?.age}</Text>
+                  </View>
+                </View>
 
-            <View className="flex-row">
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">BOWLING STYLE</Text>
-                <Text className="text-gray-800">Right-arm fast</Text>
+                <View className="flex-row">
+                  <View className="flex">
+                    <Text className="text-gray-500 text-sm mb-1">EMAIL</Text>
+                    <Text className="text-gray-800" numberOfLines={1}>{profile?.email}</Text>
+                  </View>
+                  {/* <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">PIN</Text>
+                    <Text className="text-gray-800">-</Text>
+                  </View> */}
+                </View>
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">DATE OF BIRTH</Text>
-                <Text className="text-gray-800">2005-02-20</Text>
+              :
+              <View>
+                <Text className="text-black">Player Details Not added Yet</Text>
               </View>
-            </View>
-
-            <View className="flex-row">
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">EMAIL</Text>
-                <Text className="text-gray-800" numberOfLines={1}>{profile?.email}</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-gray-500 text-sm mb-1">PIN</Text>
-                <Text className="text-gray-800">-</Text>
-              </View>
-            </View>
-          </View>
+          }
 
           <View className="mt-6">
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-1 bg-gray-200 rounded-full h-2 mr-4">
-                <View
-                  className="bg-gradient-to-r from-blue-400 to-gray-600 h-2 rounded-full"
-                  style={{ width: "68%" }}
+                <LinearGradient
+                  colors={["#60A5FA", "#4B5563"]} 
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    height: 8,
+                    borderRadius: 9999,
+                    width: `${completionPercent}%`,
+                  }}
                 />
               </View>
-              <Text className="text-gray-500 text-sm">68%</Text>
+              <Text className="text-gray-500 text-sm">{completionPercent}%</Text>
             </View>
             <TouchableOpacity className="mt-2" onPress={() => router.push(`/player/${1}`)}>
               <Text className="text-[#0e7ccb] font-semibold text-center">Complete Profile</Text>
@@ -230,6 +339,12 @@ export default function ProfileDetails() {
         teamId="10818998"
         teamInitials={"FT"}
         teamColor="#3B82F6"
+      />
+
+      <ImagePickerModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onImagePicked={(uri) => onChangeImage(uri)}
       />
     </SafeAreaView>
   )

@@ -1,12 +1,16 @@
 import BottomSheetWrapper, { BottomSheetRef } from "@/components/BottomSheetWrapper";
+import MatchOfficialsModal from "@/components/match/modal/MatchOfficialsModal";
+import OfficialModal from "@/components/match/modal/OfficialModal";
 import SelectTeamModal from "@/components/Modal/SelectTeamModal";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import Header from "@/components/ui/Header";
 import Input from "@/components/ui/Input";
 import { ballTypes, matchTypes, pitchTypes } from "@/constants/match";
+import { MatchOfficials } from "@/lib/types/match";
 import { getFullStrapiUrl, sanitizeObject } from "@/lib/utils/common";
 import { RootState } from "@/store";
 import { showAlert } from "@/store/features/alerts/alertSlice";
+import { useGetCommunitiesQuery } from "@/store/features/community/communityApi";
 import { useGetLeaguesQuery } from "@/store/features/league/leagueApi";
 import { useCreateMatchMutation } from "@/store/features/match/matchApi";
 import { useGetTeamsQuery } from "@/store/features/team/teamApi";
@@ -18,7 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Location from 'expo-location';
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +45,19 @@ export default function CreateMatch() {
     const [uploadFile] = useUploadFileMutation();
     const [isLocationLoading, setIsLocationLoading] = useState(false);
     const { data: leaguesData } = useGetLeaguesQuery({ page: 1, pageSize: 20, creatorId: user?.documentId, });
+    const [activeModal, setActiveModal] = useState<any>(null);
+    const [matchOfficials, setMatchOfficials] = useState<MatchOfficials>({
+        umpires: { first: null, second: null },
+        scorers: { first: null, second: null },
+        commentators: { first: null, second: null },
+        referee: null,
+        livestreamers: null,
+    });
+
+    const [currentSlot, setCurrentSlot] = useState<{ category: string; slot?: string | null }>({
+        category: '',
+        slot: null,
+    });
 
     const [formData, setFormData] = useState<{
         overs_limit: string;
@@ -87,10 +104,85 @@ export default function CreateMatch() {
         },
     });
 
+    const {
+        data: scorers,
+    } = useGetCommunitiesQuery({ page: 1, pageSize: 100, filters: { 'filters[community_type][$eq]': 'scorer' } });
+
+    const {
+        data: livestreamers,
+    } = useGetCommunitiesQuery({ page: 1, pageSize: 100, filters: { 'filters[community_type][$eq]': 'livestreamer' } });
+
+    const {
+        data: umpires,
+    } = useGetCommunitiesQuery({ page: 1, pageSize: 100, filters: { 'filters[community_type][$eq]': 'umpire' } });
+
+    const {
+        data: commentators,
+    } = useGetCommunitiesQuery({ page: 1, pageSize: 100, filters: { 'filters[community_type][$eq]': 'commentator' } });
+
+    const {
+        data: referees,
+    } = useGetCommunitiesQuery({ page: 1, pageSize: 100, filters: { 'filters[community_type][$eq]': 'refree' } });
+
+    const scorerList = scorers?.data;
+    const umpireList = umpires?.data;
+    const commentatorList = commentators?.data;
+    const livestreamersList = livestreamers?.data;
+    const refereeList = referees?.data;
+
+    const officialHandler = (category: string, slot?: string | null) => {
+        setCurrentSlot({ category, slot });
+
+        // open correct modal based on category
+        switch (category) {
+            case 'umpires':
+                setActiveModal('umpires');
+                break;
+            case 'scorers':
+                setActiveModal('scorers');
+                break;
+            case 'commentators':
+                setActiveModal('commentators');
+                break;
+            case 'referee':
+                setActiveModal('referee');
+                break;
+            case 'livestreamers':
+                setActiveModal('livestreamers');
+                break;
+        }
+    };
+
+    const selectedOfficialHandler = (selectedData: any) => {
+        setMatchOfficials((prev: any) => {
+            const updated = { ...prev };
+
+            const { category, slot } = currentSlot;
+
+            if (category === 'referee' || category === 'livestreamers') {
+                updated[category] = selectedData;
+            } else if (slot) {
+                updated[category] = {
+                    ...prev[category],
+                    [slot]: selectedData,
+                };
+            }
+
+            return updated;
+        });
+
+        setActiveModal(null);
+    };
+
+
     const openLocationSheet = () => {
         setActiveTab("location");
-        bottomSheetRef.current?.open();
     };
+
+    useEffect(() => {
+        if (activeTab)
+            bottomSheetRef.current?.open();
+    }, [activeTab])
 
     const openLeagueSheet = () => {
         setActiveTab('league');
@@ -195,6 +287,18 @@ export default function CreateMatch() {
     };
 
     const handleSave = async () => {
+
+        const allOfficials: string[] = [
+            matchOfficials?.umpires?.first?.documentId,
+            matchOfficials?.umpires?.second?.documentId,
+            matchOfficials?.scorers?.first?.documentId,
+            matchOfficials?.scorers?.second?.documentId,
+            matchOfficials?.commentators?.first?.documentId,
+            matchOfficials?.commentators?.second?.documentId,
+            matchOfficials?.referee?.documentId,
+            matchOfficials?.livestreamers?.documentId,
+        ].filter((id): id is string => Boolean(id));
+
         if (selectTeamA)
             formData.team_a = selectTeamA.documentId
         if (selectTeamA)
@@ -231,9 +335,11 @@ export default function CreateMatch() {
 
         try {
 
-            const payload = { ...cleanedData, ...(imageId && { image: imageId }) };
-
-            console.log(payload, 'payloadpayloadpayload')
+            const payload = {
+                ...cleanedData,
+                ...(imageId && { image: imageId }),
+                ...(allOfficials?.length > 0 ? { communities: allOfficials } : {}),
+            };
 
             const { data } = await createMatch({ data: payload }).unwrap();
             dispatch(showAlert({ type: 'success', message: false ? 'Match updated successfully!' : 'Match created successfully!' }));
@@ -318,10 +424,6 @@ export default function CreateMatch() {
         }
     };
 
-    const teams: any[] = [
-
-    ]
-
     return (
         <>
             {
@@ -343,7 +445,7 @@ export default function CreateMatch() {
                                             <Pressable className="relative" onPress={() => setIsTeamAModalA(true)}>
                                                 <View
                                                     className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg p-2"
-                                                    style={{ backgroundColor: teams[0]?.color }}
+                                                // style={{ backgroundColor: teams[0]?.color }}
                                                 >
                                                     {!selectTeamA ?
                                                         <Feather name="plus" size={24} color="black" />
@@ -379,7 +481,7 @@ export default function CreateMatch() {
                                             <Pressable className="relative" onPress={() => setIsTeamAModalB(true)}>
                                                 <View
                                                     className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg overflow-hidden p-2"
-                                                    style={{ backgroundColor: teams[1]?.color }}
+                                                // style={{ backgroundColor: teams[1]?.color }}
                                                 >
                                                     {
                                                         !selectTeamB ?
@@ -575,11 +677,11 @@ export default function CreateMatch() {
                                         <View>
                                             <Text className="text-black py-3">Assign Match Officials</Text>
                                             <View className="flex-row flex-wrap mb-4">
-                                                <TouchableOpacity className="items-center flex-1"
-                                                    onPress={() => {
-                                                        setFormData((prev) => ({ ...prev, officials: "umpires" }))
-                                                        router.push('/match-officials')
-                                                    }}
+
+                                                {/* 🟦 Umpires */}
+                                                <TouchableOpacity
+                                                    className="items-center flex-1"
+                                                    onPress={() => setActiveModal("matchofficials")}
                                                 >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-blue-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
@@ -588,19 +690,24 @@ export default function CreateMatch() {
                                                                 style={{ width: 28, height: 28, resizeMode: 'contain' }}
                                                             />
                                                         </View>
-                                                        {/* {matchOfficials.umpires > 0 && (
-                                                        <View className="absolute -top-2 -right-2 w-7 h-7 bg-green-500 rounded-full items-center justify-center border-2 border-white">
-                                                            <Text className="text-white text-xs font-bold">{matchOfficials.umpires}</Text>
-                                                        </View>
-                                                    )} */}
+                                                        {(() => {
+                                                            const count =
+                                                                (matchOfficials?.umpires?.first ? 1 : 0) +
+                                                                (matchOfficials?.umpires?.second ? 1 : 0);
+                                                            return count > 0 ? (
+                                                                <View className="absolute -top-2 -right-2 w-7 h-7 bg-[#0e7ccb] rounded-full items-center justify-center border-2 border-white">
+                                                                    <Text className="text-white text-xs font-bold">{count}</Text>
+                                                                </View>
+                                                            ) : null;
+                                                        })()}
                                                     </View>
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Umpires</Text>
                                                 </TouchableOpacity>
 
-                                                <TouchableOpacity className="items-center flex-1" onPress={() => {
-                                                    setFormData((prev) => ({ ...prev, officials: "scorers" }))
-                                                    router.push('/match-officials')
-                                                }}
+                                                {/* 🟪 Scorers */}
+                                                <TouchableOpacity
+                                                    className="items-center flex-1"
+                                                    onPress={() => setActiveModal("matchofficials")}
                                                 >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-purple-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
@@ -609,37 +716,42 @@ export default function CreateMatch() {
                                                                 style={{ width: 28, height: 28, resizeMode: 'contain' }}
                                                             />
                                                         </View>
-                                                        <View className="absolute -top-2 -right-2 w-8 h-8 bg-[#0e7ccb] rounded-full items-center justify-center border-2 border-white">
-                                                            <Text className="text-white text-xs font-bold">3</Text>
-                                                        </View>
-
+                                                        {(() => {
+                                                            const count =
+                                                                (matchOfficials?.scorers?.first ? 1 : 0) +
+                                                                (matchOfficials?.scorers?.second ? 1 : 0);
+                                                            return count > 0 ? (
+                                                                <View className="absolute -top-2 -right-2 w-7 h-7 bg-[#0e7ccb] rounded-full items-center justify-center border-2 border-white">
+                                                                    <Text className="text-white text-xs font-bold">{count}</Text>
+                                                                </View>
+                                                            ) : null;
+                                                        })()}
                                                     </View>
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Scorers</Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity className="items-center flex-1"
-                                                    onPress={() => {
-                                                        setFormData((prev) => ({ ...prev, officials: "umpires" }))
-                                                        router.push('/match-officials')
-                                                    }}
+
+                                                {/* 🟥 Live Stream */}
+                                                <TouchableOpacity
+                                                    className="items-center flex-1"
+                                                    onPress={() => setActiveModal("matchofficials")}
                                                 >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-red-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
                                                             <Ionicons name="videocam" size={28} color="#ef4444" />
                                                         </View>
-                                                        {/* {matchOfficials.streamers > 0 && (
-                                                        <View className="absolute -top-2 -right-2 w-7 h-7 bg-green-500 rounded-full items-center justify-center border-2 border-white">
-                                                            <Text className="text-white text-xs font-bold">{matchOfficials.streamers}</Text>
-                                                        </View>
-                                                    )} */}
+                                                        {matchOfficials?.livestreamers ? (
+                                                            <View className="absolute -top-2 -right-2 w-7 h-7 bg-[#0e7ccb] rounded-full items-center justify-center border-2 border-white">
+                                                                <Ionicons name="checkmark" size={12} color="white" />
+                                                            </View>
+                                                        ) : null}
                                                     </View>
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Live Stream</Text>
                                                 </TouchableOpacity>
 
-                                                <TouchableOpacity className="items-center flex-1"
-                                                    onPress={() => {
-                                                        setFormData((prev) => ({ ...prev, officials: "others" }))
-                                                        router.push('/match-officials')
-                                                    }}
+                                                {/* 🟧 Others (Commentators + Referee) */}
+                                                <TouchableOpacity
+                                                    className="items-center flex-1"
+                                                    onPress={() => setActiveModal("matchofficials")}
                                                 >
                                                     <View className="relative">
                                                         <View className="w-16 h-16 bg-orange-100 rounded-2xl items-center justify-center mb-2 shadow-sm">
@@ -648,16 +760,31 @@ export default function CreateMatch() {
                                                                 style={{ width: 28, height: 28, resizeMode: 'contain' }}
                                                             />
                                                         </View>
-                                                        {/* {matchOfficials.others > 0 && (
-                                                        <View className="absolute -top-2 -right-2 w-7 h-7 bg-green-500 rounded-full items-center justify-center border-2 border-white">
-                                                            <Text className="text-white text-xs font-bold">{matchOfficials.others}</Text>
-                                                        </View>
-                                                    )} */}
+                                                        {(() => {
+                                                            const commentatorCount =
+                                                                (matchOfficials?.commentators?.first ? 1 : 0) +
+                                                                (matchOfficials?.commentators?.second ? 1 : 0);
+                                                            const refereeCount = matchOfficials?.referee ? 1 : 0;
+                                                            const total = commentatorCount + refereeCount;
+                                                            return total > 0 ? (
+                                                                <View className="absolute -top-2 -right-2 w-7 h-7 bg-[#0e7ccb] rounded-full items-center justify-center border-2 border-white">
+                                                                    <Text className="text-white text-xs font-bold">{total}</Text>
+                                                                </View>
+                                                            ) : null;
+                                                        })()}
                                                     </View>
                                                     <Text className="text-gray-700 font-medium text-sm text-center">Others</Text>
                                                 </TouchableOpacity>
+
                                             </View>
                                         </View>
+
+
+
+
+
+
+
 
                                     </View>
 
@@ -867,6 +994,76 @@ export default function CreateMatch() {
                                         disabled={isLoading}
                                     />
                                 }
+
+
+                                <Modal visible={activeModal !== null} onRequestClose={() => setActiveModal(null)} animationType="slide"
+                                    presentationStyle="pageSheet"
+                                >
+                                    <View className="flex-row justify-end items-center px-6 pt-6">
+                                        <TouchableOpacity
+                                            onPress={() => setActiveModal(null)}
+                                        >
+                                            <Ionicons name="close" size={24} color="#374151" />
+                                        </TouchableOpacity>
+                                    </View>
+                                    {
+                                        activeModal === "matchofficials" &&
+                                        <MatchOfficialsModal
+                                            officialHandler={officialHandler}
+                                            existingOfficials={matchOfficials} />
+                                    }
+                                    {
+                                        activeModal === "scorers" &&
+                                        <OfficialModal
+                                            data={scorerList}
+                                            selectedOfficialHandler={selectedOfficialHandler}
+                                            matchOfficials={matchOfficials}
+                                            currentSlot={currentSlot}
+                                            heading={'Select Scorer'}
+                                        />
+                                    }
+                                    {
+                                        activeModal === "umpires" &&
+                                        <OfficialModal
+                                            data={umpireList}
+                                            selectedOfficialHandler={selectedOfficialHandler}
+                                            matchOfficials={matchOfficials}
+                                            currentSlot={currentSlot}
+                                            heading={'Select Umpire'}
+                                        />
+                                    }
+                                    {
+                                        activeModal === "commentators" &&
+                                        <OfficialModal
+                                            data={commentatorList}
+                                            selectedOfficialHandler={selectedOfficialHandler}
+                                            matchOfficials={matchOfficials}
+                                            currentSlot={currentSlot}
+                                            heading={'Select Commentator'}
+                                        />
+                                    }
+                                    {
+                                        activeModal === "livestreamers" &&
+                                        <OfficialModal
+                                             data={livestreamersList}
+                                            selectedOfficialHandler={selectedOfficialHandler}
+                                            matchOfficials={matchOfficials}
+                                            currentSlot={currentSlot}
+                                            heading={'Select Live Streamer'}
+                                        />
+                                    }
+                                    {
+                                        activeModal === "referee" &&
+                                        <OfficialModal
+                                             data={refereeList}
+                                            selectedOfficialHandler={selectedOfficialHandler}
+                                            matchOfficials={matchOfficials}
+                                            currentSlot={currentSlot}
+                                            heading={'Select Referee'}
+                                        />
+                                    }
+
+                                </Modal>
 
                             </View>
                         </SafeAreaView>

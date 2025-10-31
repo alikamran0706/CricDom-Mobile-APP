@@ -1,33 +1,39 @@
-import Tabs from "@/components/ui/Tabs"
-import { useGetMatchesQuery } from "@/store/features/match/matchApi"
-import { Ionicons } from "@expo/vector-icons"
-import { router, useLocalSearchParams } from "expo-router"
-import { useEffect, useState } from "react"
-import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import Tabs from "@/components/ui/Tabs";
+import { useGetMatchesQuery } from "@/store/features/match/matchApi";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-
-type TabType = "Upcoming" | "past" | "today"
+type TabType = "Upcoming" | "Past" | "Today";
 
 const getStatusStyle = (status: string) => {
   switch (status) {
-    case 'Completed':
-      return { backgroundColor: '#D1FAE5', color: '#065F46' };
-    case 'Live':
-      return { backgroundColor: '#FEE2E2', color: '#991B1B' };
-    case 'Upcoming':
-      return { backgroundColor: '#DBEAFE', color: '#1E40AF' };
+    case "Completed":
+      return { backgroundColor: "#D1FAE5", color: "#065F46" };
+    case "Live":
+      return { backgroundColor: "#FEE2E2", color: "#991B1B" };
+    case "Upcoming":
+      return { backgroundColor: "#DBEAFE", color: "#1E40AF" };
     default:
-      return { backgroundColor: '#F3F4F6', color: '#374151' };
+      return { backgroundColor: "#F3F4F6", color: "#374151" };
   }
 };
 
-
 export default function MatchesScreen() {
   const params = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState<TabType>("Upcoming")
+  const [activeTab, setActiveTab] = useState<TabType>("Upcoming");
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [allMatches, setAllMatches] = useState<any[]>([]);
+  const pageSize = 7;
 
   const {
     data,
@@ -36,19 +42,35 @@ export default function MatchesScreen() {
     isFetching,
     refetch,
   } = useGetMatchesQuery({
+    leagueId: null,
     page,
     pageSize,
   });
 
-  // const filteredMatches = matchesData.filter((match) => match.status === activeTab)
-
   const matches = data?.data || [];
   const meta = data?.meta?.pagination || {};
 
-  // Filter matches by active tab (status)
-  const filteredMatches = matches.filter(
-    (match: any) => match?.status_type === activeTab
-  );
+  // Merge pages
+  useEffect(() => {
+    if (matches.length > 0) {
+      setAllMatches((prev) => (page === 1 ? matches : [...prev, ...matches]));
+    }
+  }, [data]);
+
+  // Handle refetch from params
+  useEffect(() => {
+    if (params?.refetch === "true") {
+      refetch();
+      router.setParams({ refetch: undefined });
+    }
+  }, [params?.refetch]);
+
+  // Reset when tab changes
+  useEffect(() => {
+    setPage(1);
+    setAllMatches([]);
+    refetch();
+  }, [activeTab]);
 
   const loadMore = () => {
     if (!isFetching && page < meta.pageCount) {
@@ -56,14 +78,11 @@ export default function MatchesScreen() {
     }
   };
 
-  useEffect(() => {
-    if (params?.refetch === 'true') {
-      refetch();
-      router.setParams({ refetch: undefined });
-    }
-  }, [params?.refetch]);
+  const tabs = ["Upcoming", "Past", "Today"];
 
-  const tabs = ['Upcoming', 'Past', 'Today'];
+  const filteredMatches = allMatches.filter(
+    (match: any) => match?.status_type?.toLowerCase() === activeTab.toLowerCase()
+  );
 
   const renderMatchItem = ({ item: match }: any) => {
     const tournamentName = match?.description || "Cricket Match";
@@ -77,22 +96,24 @@ export default function MatchesScreen() {
     const matchType = match?.game_format || "T20";
     const result = match?.result || "";
 
-    // Team scores with proper formatting
     const teamAScore = match?.team_a?.score
-      ? `${match.team_a.score}${match.team_a.wickets ? `/${match.team_a.wickets}` : ''} ${match.team_a.overs ? `(${match.team_a.overs} OV)` : ''}`
+      ? `${match.team_a.score}${match.team_a.wickets ? `/${match.team_a.wickets}` : ""
+      } ${match.team_a.overs ? `(${match.team_a.overs} OV)` : ""}`
       : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
     const teamBScore = match?.team_b?.score
-      ? `${match.team_b.score}${match.team_b.wickets ? `/${match.team_b.wickets}` : ''} ${match.team_b.overs ? `(${match.team_b.overs} OV)` : ''}`
+      ? `${match.team_b.score}${match.team_b.wickets ? `/${match.team_b.wickets}` : ""
+      } ${match.team_b.overs ? `(${match.team_b.overs} OV)` : ""}`
       : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
     const statusStyle = getStatusStyle(status);
+
     return (
       <TouchableOpacity
         className="bg-white rounded-2xl border border-gray-100 p-4 mb-3 shadow-sm"
         onPress={() => router.push(`/match/${match.documentId}`)}
         style={{
-          shadowColor: '#000',
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -153,9 +174,7 @@ export default function MatchesScreen() {
                 {teamA}
               </Text>
             </View>
-            <Text className="text-lg font-bold text-gray-900">
-              {teamAScore}
-            </Text>
+            <Text className="text-lg font-bold text-gray-900">{teamAScore}</Text>
           </View>
 
           {/* Team B */}
@@ -177,9 +196,7 @@ export default function MatchesScreen() {
                 {teamB}
               </Text>
             </View>
-            <Text className="text-lg font-bold text-gray-900">
-              {teamBScore}
-            </Text>
+            <Text className="text-lg font-bold text-gray-900">{teamBScore}</Text>
           </View>
         </View>
 
@@ -204,21 +221,22 @@ export default function MatchesScreen() {
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 pt-4">
           <Text className="text-xl font-semibold text-black">Matches</Text>
-          <TouchableOpacity className="items-center justify-center bg-[#0e7ccb] px-2 py-1 rounded-full" onPress={() => router.push('/create-match')}>
-            {/* <Ionicons name="add" size={24} color="#000" /> */}
+          <TouchableOpacity
+            className="items-center justify-center bg-[#0e7ccb] px-2 py-1 rounded-full"
+            onPress={() => router.push("/create-match")}
+          >
             <Text className="text-white">Start Match</Text>
           </TouchableOpacity>
         </View>
 
         {/* Tabs */}
-        <Tabs
-          tabs={tabs}
-          activeTab='Upcoming'
-        />
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Active Tab Content */}
         <View className="px-4 pb-6">
-          <Text className="text-lg font-semibold capitalize text-black">{activeTab}</Text>
+          <Text className="text-lg font-semibold capitalize text-black mb-2">
+            {activeTab}
+          </Text>
 
           {/* Match List */}
           {isLoading && page === 1 ? (
@@ -233,7 +251,7 @@ export default function MatchesScreen() {
             <FlatList
               data={filteredMatches}
               keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ paddingVertical: 20, paddingBottom: 80 }}
+              contentContainerStyle={{ paddingVertical: 20, paddingBottom: 120 }}
               renderItem={renderMatchItem}
               showsVerticalScrollIndicator={false}
               onEndReached={loadMore}
@@ -248,7 +266,9 @@ export default function MatchesScreen() {
               ListEmptyComponent={
                 <View className="items-center justify-center py-12">
                   <Ionicons name="calendar-outline" size={48} color="#D1D5DB" />
-                  <Text className="text-gray-500 mt-4">No {activeTab} matches</Text>
+                  <Text className="text-gray-500 mt-4">
+                    No {activeTab} matches
+                  </Text>
                 </View>
               }
             />
@@ -256,5 +276,5 @@ export default function MatchesScreen() {
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 }

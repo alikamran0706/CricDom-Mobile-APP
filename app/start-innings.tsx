@@ -77,7 +77,8 @@ export default function StartInningsScreen() {
             const strikerScoreRes = await createPlayerScore({
                 data: {
                     player: player.documentId,
-                    inning: inningData.documentId, 
+                    inning: inningData.documentId,
+                    isStriker: true,
                     runs: 0,
                     balls_faced: 0,
                     fours: 0,
@@ -90,6 +91,7 @@ export default function StartInningsScreen() {
                 data: {
                     player: nonStriker.documentId,
                     inning: inningData.documentId,
+                    isStriker: false,
                     runs: 0,
                     balls_faced: 0,
                     fours: 0,
@@ -122,6 +124,11 @@ export default function StartInningsScreen() {
             }).unwrap();
             const overData = overRes?.data || overRes;
 
+            const newInningData = {
+                ...inningData,
+                overs: [...(inningData.overs || []), overData],
+            };
+
             // 5️⃣ Navigate to Scoring Screen with all IDs
             router.replace({
                 pathname: "/scoring",
@@ -129,7 +136,7 @@ export default function StartInningsScreen() {
                     match: JSON.stringify(match),
                     battingTeam: JSON.stringify(battingTeam),
                     bowlingTeam: JSON.stringify(bowlingTeam),
-                    inning: JSON.stringify(inningData),
+                    inning: JSON.stringify(newInningData),
                     currentOver: JSON.stringify(overData),
                     striker: JSON.stringify(player),
                     nonStriker: JSON.stringify(nonStriker),
@@ -179,7 +186,7 @@ export default function StartInningsScreen() {
                             isSelected={player !== undefined && player !== null}
                         />
                         <PlayerCard
-                            title="Select Non-striker"
+                            title={nonStriker?.name || "Select Non-striker"}
                             iconSource={require("../assets/images/non-striker.png")}
                             onPress={() => {
                                 setShowAddNonStrinkerModal(true)
@@ -198,7 +205,7 @@ export default function StartInningsScreen() {
                     </Text>
                     <View className="flex-row">
                         <PlayerCard
-                            title="Select Bowler"
+                            title={bowler?.name || "Select Bowler"}
                             iconSource={require("../assets/images/bowler.png")}
                             onPress={() => {
                                 setShowAddNonStrinkerModal(false)

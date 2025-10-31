@@ -6,12 +6,12 @@ interface ShotTypeComponentProps {
 }
 
 const shotTypes = [
-    { key: "defence", label: "DEFENCE", image: require("../../assets/images/scoring/4.png") },
-    { key: "punch", label: "PUNCH", image: require("../../assets/images/scoring/2.png") },
-    { key: "straight_drive", label: "STRAIGHT\nDRIVE", image: require("../../assets/images/scoring/6.png") },
-    { key: "on_drive", label: "ON\nDRIVE", image: require("../../assets/images/scoring/44.png") },
-    { key: "lofted_shot", label: "LOFTED\nSHOT", image: require("../../assets/images/scoring/45.png") },
-    { key: "helicopter", label: "HELICOPTER", image: require("../../assets/images/scoring/5.png") },
+    { key: "Defence", label: "DEFENCE", image: require("../../assets/images/scoring/4.png") },
+    { key: "Punch", label: "PUNCH", image: require("../../assets/images/scoring/2.png") },
+    { key: "Pull", label: "STRAIGHT\nDRIVE", image: require("../../assets/images/scoring/6.png") },
+    { key: "Drive", label: "ON\nDRIVE", image: require("../../assets/images/scoring/44.png") },
+    { key: "Lofted", label: "LOFTED\nSHOT", image: require("../../assets/images/scoring/45.png") },
+    { key: "Cut", label: "HELICOPTER", image: require("../../assets/images/scoring/5.png") },
 ]
 
 export default function ShotTypeComponent({ onShotType }: ShotTypeComponentProps) {

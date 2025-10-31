@@ -9,40 +9,45 @@ import type { RootState } from "@/store"
 import { showAlert } from "@/store/features/alerts/alertSlice"
 import {
   useCreatePlayerMutation,
-  useGetPlayerByIdQuery,
-  useUpdatePlayerMutation,
+  useUpdatePlayerMutation
 } from "@/store/features/player/playerApi"
 import { useUploadFileMutation } from "@/store/features/upload/uploadApi"
 import { Ionicons } from "@expo/vector-icons"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
-import React, { useEffect, useLayoutEffect, useState } from "react"
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react"
 import { ActivityIndicator, Image, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useDispatch, useSelector } from "react-redux"
 
+const PhoneNumberInputComp = Platform.OS !== "web"
+  ? lazy(() => import("@/components/ui/PhoneNumberInput"))
+  : (() => null) as React.FC<any>;
+
 export default function CreatePlayerScreen() {
   const router = useRouter()
   const params = useLocalSearchParams()
-  const id = Array.isArray(params.id) ? params.id[0] : params.id
+  let player: any = null;
 
-  const navigation = useNavigation()
+  if (params?.player) {
+    try {
+      player = JSON.parse(params.player as string);
+    } catch (err) {
+      console.warn("❌ Failed to parse player param:", err);
+    }
+  }
 
-  const {
-    data,
-    isLoading: loading,
-    refetch,
-  } = useGetPlayerByIdQuery(id!, {
-    skip: !id,
-  })
-  const player = data?.data
-  const dispatch = useDispatch()
-  const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation()
-  const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation()
-  const [uploadFile] = useUploadFileMutation()
-  const profile = useSelector((state: RootState) => state.user.profile)
+  const id = player?.documentId;
 
-  const [currentStep, setCurrentStep] = useState(0)
-  const totalSteps = 3
+  const navigation = useNavigation();
+
+  const dispatch = useDispatch();
+  const [createPlayer, { isLoading, isError, error, isSuccess }] = useCreatePlayerMutation();
+  const [updatePlayer, { isLoading: isUpdating }] = useUpdatePlayerMutation();
+  const [uploadFile] = useUploadFileMutation();
+  const profile = useSelector((state: RootState) => state.user.profile);
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const totalSteps = 3;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -60,35 +65,26 @@ export default function CreatePlayerScreen() {
   const [showPositionDropdown, setShowPositionDropdown] = useState(false)
   const [showGameTypeDropdown, setShowGameTypeDropdown] = useState(false)
 
-  const [phoneNumber, setPhoneNumber] = useState('');
-
-  const [PhoneNumberInputComp, setPhoneNumberInputComp] = useState<any>(null);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') {
-      import('@/components/ui/PhoneNumberInput').then((mod) => {
-        setPhoneNumberInputComp(() => mod.default);
-      });
-    }
-  }, []);
-
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false })
   }, [navigation])
 
+  // console.log(formData)
+
   useEffect(() => {
-    if (player) {
-      setFormData({
-        name: player.name || "",
-        phone_number: player.phone_number || "",
-        image: null, // Assuming you let user upload new image, or populate existing later
-        batting_style: player.batting_style || "",
-        bowling_style: player.bowling_style || "",
-        position: player.position || "",
-        game_type: player.game_type || "",
-      })
-    }
-  }, [player])
+    if (!player) return;
+    setFormData({
+      name: player.
+        name || "",
+      phone_number: player.phone_number || "",
+      image: null,
+      batting_style: player.batting_style || "",
+      bowling_style: player.bowling_style || "",
+      position: player.position || "",
+      game_type: player.game_type || [],
+    });
+  }, []);
+
 
   const validateCurrentStep = () => {
     switch (currentStep) {
@@ -102,7 +98,7 @@ export default function CreatePlayerScreen() {
           )
           return false
         }
-        if (!phoneNumber.trim()) {
+        if (!formData.phone_number.trim()) {
           dispatch(
             showAlert({
               type: "error",
@@ -165,7 +161,7 @@ export default function CreatePlayerScreen() {
       return
     }
 
-    if (!phoneNumber?.trim()) {
+    if (!formData.phone_number?.trim()) {
       dispatch(
         showAlert({
           type: "error",
@@ -359,7 +355,6 @@ export default function CreatePlayerScreen() {
     </View>
   )
 
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
@@ -375,7 +370,7 @@ export default function CreatePlayerScreen() {
             {/* Player Image Upload */}
             <View style={{ alignItems: "center", marginBottom: 24 }}>
               <ImagePickerButton
-                imageUri={player?.image ? getFullStrapiUrl(player?.image.url) : formData.image}
+                imageUri={formData.image || getFullStrapiUrl(player?.image.url)}
                 onChangeImage={(uri) => setFormData((prev) => ({ ...prev, image: uri }))}
               />
             </View>
@@ -395,20 +390,23 @@ export default function CreatePlayerScreen() {
                 <Input
                   label="Phone Number"
                   value={formData.phone_number}
-                  onChangeText={(phone_number) => setPhoneNumber(phone_number)}
+                  onChangeText={(phone_number) => setFormData((prev) => ({ ...prev, phone_number }))}
                   placeholder="Enter phone number"
                   required={true}
                   keyboardType="phone-pad"
                 />
                 :
-
-                <PhoneNumberInputComp
-                  value={phoneNumber}
-                  onChange={(number: string) => setPhoneNumber(number)}
-                  label="Contact Number"
-                  required={true}
-                  placeholder="e.g. +1 123 456 7890"
-                />
+                <Suspense fallback={<ActivityIndicator size="small" color="#0e7ccb" />}>
+                  <PhoneNumberInputComp
+                    value={formData.phone_number}
+                    onChange={(number: string) =>
+                      setFormData((prev) => ({ ...prev, phone_number: number }))
+                    }
+                    label="Contact Number"
+                    required={true}
+                    placeholder="e.g. +1 123 456 7890"
+                  />
+                </Suspense>
 
               // <View>
               //   <Text className="text-base font-medium text-gray-800 mb-2">
@@ -559,15 +557,28 @@ export default function CreatePlayerScreen() {
                       width: 80,
                       height: 80,
                       borderRadius: 40,
-                      backgroundColor: "#E5E7EB",
+                      borderColor: "#E5E7EB",
+                      borderWidth: 1,
+                      overflow: "hidden",
                       justifyContent: "center",
                       alignItems: "center",
                     }}
                   >
-                    <Ionicons name="person" size={40} color="#9CA3AF" />
+                    <Image
+                      source={
+                        formData.image
+                          ? { uri: formData.image }
+                          : player?.image?.url
+                            ? { uri: getFullStrapiUrl(player.image.url) }
+                            : undefined
+                      }
+                      style={{ width: "70%", height: "70%" }}
+                      resizeMode="contain"
+                    />
                   </View>
                 </View>
               )}
+
 
               <View style={{ marginBottom: 12 }}>
                 <Text style={{ fontSize: 14, color: "black", marginBottom: 4 }}>Name</Text>
@@ -616,11 +627,7 @@ export default function CreatePlayerScreen() {
         {/* Step Indicator */}
         <StepIndicator />
 
-        {loading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#000" />
-          </View>
-        ) : (
+        {(
           <ScrollView style={{ flex: 1, paddingHorizontal: 16 }} contentContainerStyle={{ paddingBottom: 120 }}>
             <View style={{ paddingVertical: 24 }}>{renderStepContent()}</View>
           </ScrollView>

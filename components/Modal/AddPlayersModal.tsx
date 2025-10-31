@@ -164,6 +164,7 @@ export default function AddPlayersModal({
                       <Image
                         source={{ uri: getFullStrapiUrl(player.avatar) }}
                         className="w-full h-full"
+                        resizeMode="contain"
                       />
                     }
                   </View>

@@ -9,17 +9,17 @@ interface OutTypeComponentProps {
 const outTypes = [
   { key: "Bowled", label: "Bowled", icon: "baseball-outline", image: require("../../assets/images/scoring/battsman-miss.png") },
   { key: "Caught", label: "Caught", icon: "hand-left-outline", image: require("../../assets/images/scoring/8.png") },
-  { key: "Caught", label: "Caught\nBehind", icon: "hand-right-outline", image: require("../../assets/images/scoring/20.png") },
+  { key: "Caught Behind", label: "Caught\nBehind", icon: "hand-right-outline", image: require("../../assets/images/scoring/20.png") },
   { key: "Run Out", label: "Run Out", icon: "flash-outline", image: require("../../assets/images/scoring/42.png") },
   { key: "LBW", label: "LBW", icon: "shield-outline", image: require("../../assets/images/scoring/left-shot.png") },
   { key: "Stumped", label: "Stumped", icon: "remove-outline", image: require("../../assets/images/scoring/23.png") },
-  { key: "Stumped", label: "Retired\nHurt", icon: "medical-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Retired Hurt", label: "Retired\nHurt", icon: "medical-outline", image: require("../../assets/images/scoring/4.png") },
   { key: "Hit Wicket", label: "Hit\nWicket", icon: "hammer-outline", image: require("../../assets/images/scoring/4.png") },
-  { key: "Stumped", label: "Absent\nHurt", icon: "close-outline", image: require("../../assets/images/scoring/4.png") },
-  { key: "Stumped", label: "Retired\nOut", icon: "exit-outline", image: require("../../assets/images/scoring/4.png") },
-  { key: "Stumped", label: "Hit the Ball\nTwice", icon: "repeat-outline", image: require("../../assets/images/scoring/4.png") },
-  { key: "Stumped", label: "Timed Out", icon: "time-outline", image: require("../../assets/images/scoring/4.png") },
-  { key: "Stumped", label: "Retired", icon: "person-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Absent", label: "Absent\nHurt", icon: "close-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Retired Not Out", label: "Retired\nOut", icon: "exit-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Hit the Ball Twice", label: "Hit the Ball\nTwice", icon: "repeat-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Time Out", label: "Timed Out", icon: "time-outline", image: require("../../assets/images/scoring/4.png") },
+  { key: "Retired", label: "Retired", icon: "person-outline", image: require("../../assets/images/scoring/4.png") },
 ]
 
 export default function OutTypeComponent({ onOutType }: OutTypeComponentProps) {

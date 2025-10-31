@@ -26,10 +26,12 @@ const SelectTeamModal = ({
 
     const [searchQuery, setSearchQuery] = useState("");
 
+
     const filteredTeams = teamRecords?.filter(
         (team: any) =>
             (team.name.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+    console.log('filteredTeamsfilteredTeams', filteredTeams, 'filteredTeamsfilteredTeams')
 
     const renderItem = ({ item: team }: { item: any }) => (
         <TouchableOpacity
@@ -64,9 +66,14 @@ const SelectTeamModal = ({
     );
 
     return (
-        <Modal visible={visible} onClose={onClose} showCloseButton={false} customClass={"h-full w-full z-50 bg-black/60 flex-1"}>
-
-            <View>
+        <Modal
+            visible={visible}
+            onClose={onClose}
+            showCloseButton={false}
+            customClass="h-full w-full z-50 bg-black/60 flex-1"
+        >
+            <View className="flex-1 bg-white rounded-t-3xl overflow-hidden">
+                {/* Header */}
                 <View className="flex-row justify-between items-center px-6 pt-6">
                     <TouchableOpacity
                         className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
@@ -76,17 +83,15 @@ const SelectTeamModal = ({
                     </TouchableOpacity>
                 </View>
 
-                <View
-                    collapsable={false}
-                    className="p-6"
-                >
+                {/* Content Area */}
+                <View className="flex-1 p-6">
                     {/* Search Bar */}
                     <View className="pb-4">
                         <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-3">
                             <Ionicons name="search" size={20} color="#9CA3AF" />
                             <TextInput
                                 className="flex-1 ml-2 text-base"
-                                placeholder="Search by name or position"
+                                placeholder="Search by team name"
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 placeholderTextColor="#9CA3AF"
@@ -94,19 +99,18 @@ const SelectTeamModal = ({
                         </View>
                     </View>
 
-                    {/* Players Section */}
-                    <View className="px-4 mb-4">
-                        <Text className="text-lg font-semibold mb-3 text-black">Available Teams</Text>
+                    {/* Teams Section Title */}
+                    <View className="px-1 mb-2">
+                        <Text className="text-lg font-semibold text-black">Available Teams</Text>
                     </View>
 
+                    {/* ✅ FlatList must take full space */}
                     <FlatList
                         data={filteredTeams}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id.toString()}
                         onEndReached={() => {
-                            if (!isFetchingTeams) {
-                                loadMoreTeams();
-                            }
+                            if (!isFetchingTeams) loadMoreTeams();
                         }}
                         onEndReachedThreshold={0.3}
                         ListFooterComponent={
@@ -116,8 +120,9 @@ const SelectTeamModal = ({
                                 </View>
                             ) : null
                         }
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 40 }}
                     />
-
                 </View>
             </View>
         </Modal>

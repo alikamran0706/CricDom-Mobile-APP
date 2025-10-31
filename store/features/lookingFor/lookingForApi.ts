@@ -5,13 +5,14 @@ export const lookingForApi = createApi({
     reducerPath: 'lookingForApi',
     baseQuery,
     endpoints: (builder) => ({
-        getLookingFors: builder.query<any, { page?: number; pageSize?: number; creatorId?: string }>({
-            query: ({ page = 1, pageSize = 10, creatorId  }) => ({
+        getLookingFors: builder.query<any, { page?: number; pageSize?: number; filters?: any }>({
+            query: ({ page = 1, pageSize = 10, filters  }) => ({
                 url: `looking-fors`,
                 params: {
                     'pagination[page]': page,
                     'pagination[pageSize]': pageSize,
-                    ...(creatorId && { 'filters[creator][[documentId]][$eq]': creatorId }),
+                    ...(filters && filters),
+                    populate: '*',
                 },
             }),
         }),

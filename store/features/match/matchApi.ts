@@ -5,7 +5,7 @@ export const matchApi = createApi({
   reducerPath: 'matchApi',
   baseQuery: baseQueryWithReauth, 
   endpoints: (builder) => ({
-    getMatches: builder.query<any, { leagueId?: number; page?: number; pageSize?: number }>({
+    getMatches: builder.query<any, { leagueId?: number | null; page?: number; pageSize?: number }>({
       query: ({ leagueId, page = 1, pageSize = 10 }) => ({
         url: 'matches',
         method: 'GET',

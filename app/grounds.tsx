@@ -1,16 +1,64 @@
 import Header from "@/components/community/Header"
 import FloatingActionButton from "@/components/ui/FloatingActionButton"
+import { getFullStrapiUrl } from "@/lib/utils/common"
+import { useGetCommunitiesQuery } from "@/store/features/community/communityApi"
 import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRouter } from "expo-router"
-import { useLayoutEffect, useState } from "react"
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { useEffect, useLayoutEffect, useState } from "react"
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
+const PAGE_SIZE = 10;
+
 const ScorersScreen = () => {
     const router = useRouter();
+    const navigation = useNavigation();
+    const params = useLocalSearchParams();
     const [showSortModal, setShowSortModal] = useState(false);
     const [selectedSort, setSelectedSort] = useState("Ratings - High to Low");
-    const navigation = useNavigation();
+    const [filters, setFilters] = useState<{ [key: string]: string }>({
+        "filters[community_type][$eq]": "ground",
+    });
+
+    const [page, setPage] = useState(1);
+    const [communityList, setCommunityList] = useState<any[]>([]);
+
+    const {
+        data: communities,
+        isLoading,
+        isFetching,
+        refetch,
+    } = useGetCommunitiesQuery({ page, pageSize: PAGE_SIZE, filters });
+
+    const total = communities?.meta?.pagination?.total || 0;
+    const hasMore = communityList.length < total;
+
+    useEffect(() => {
+        if (communities?.data) {
+            setCommunityList((prev) => {
+                const newItems = communities.data.filter(
+                    (item: any) => !prev.some((p) => p.id === item.id)
+                );
+                return [...prev, ...newItems];
+            });
+        }
+    }, [communities]);
+
+    // 🟢 Handle re-fetch (triggered by params)
+    useEffect(() => {
+        if (params?.refetch === "true") {
+            setPage(1);
+            setCommunityList([]);
+            refetch();
+            router.setParams({ refetch: undefined });
+        }
+    }, [params?.refetch]);
+
+    const handleLoadMore = () => {
+        if (!isFetching && hasMore) {
+            setPage((prev) => prev + 1);
+        }
+    };
 
     const grounds = [
         {
@@ -55,12 +103,12 @@ const ScorersScreen = () => {
                 shadowRadius: 4,
             }}
         >
-            <Image source={{ uri: item.image }} className="w-full h-52 bg-gray-200" />
+            <Image source={{ uri: getFullStrapiUrl(item.photo?.formats?.thumbnail?.url) }} className="w-full h-52 bg-gray-200" />
 
             <View className="p-4">
                 <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-gray-800 text-base font-semibold flex-1">
-                        {item.id} - {item.name}
+                        {item.name}
                     </Text>
                     {item.verified && (
                         <Ionicons name="checkmark-circle" size={20} color="#0e7ccb" />
@@ -70,7 +118,7 @@ const ScorersScreen = () => {
                 <View className="flex-row items-center mb-2">
                     <View className="bg-yellow-400 px-3 py-1 rounded-full mr-2">
                         <Text className="text-black text-xs font-semibold">
-                            {item.rating}/5
+                            {item.ratings?.length}/5
                         </Text>
                     </View>
                     <Text className="text-gray-600 text-sm">
@@ -80,19 +128,19 @@ const ScorersScreen = () => {
 
                 <View className="flex-row items-center flex-wrap mb-3">
                     <Text className="text-gray-600 text-sm mr-4">
-                        {item.location}
+                       {item.address} {item.city}
                     </Text>
                     <Text className="text-gray-600 text-sm mr-4">
                         {item.type}
                     </Text>
                     <Text className="text-gray-600 text-sm">
-                        Matches Played: {item.matches}
+                        Matches Played: {item.matches?.length}
                     </Text>
                 </View>
 
                 <View className="flex-row items-center justify-between">
                     <Text className="text-[#c41e3a] text-base font-semibold">
-                        {item.price}
+                        {item.per_day_fees} - {item.per_match_fees}
                     </Text>
                     <TouchableOpacity className="bg-[#0e7ccb] px-4 py-2 rounded-md">
                         <Text className="text-white text-sm font-semibold">BOOK NOW</Text>
@@ -131,7 +179,7 @@ const ScorersScreen = () => {
                 />
                 {/* Scorers List */}
                 <FlatList
-                    data={grounds}
+                    data={communityList}
                     renderItem={renderGroundCard}
                     keyExtractor={(item) => item.id}
                     showsVerticalScrollIndicator={false}

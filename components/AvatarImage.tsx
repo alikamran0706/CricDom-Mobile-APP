@@ -2,7 +2,7 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, ImageStyle, View } from 'react-native';
+import { ActivityIndicator, Image, ImageResizeMode, ImageStyle, View } from 'react-native';
 
 interface AvatarImageProps {
     uri?: string;
@@ -15,6 +15,7 @@ interface AvatarImageProps {
     backgroundColor?: string;
     borderRadius?: string | number
     extraStyle?: any;
+    resizeMode?: ImageResizeMode;
 }
 
 const AvatarImage: React.FC<AvatarImageProps> = ({
@@ -27,6 +28,7 @@ const AvatarImage: React.FC<AvatarImageProps> = ({
     iconSize,
     backgroundColor = '#F3F4F6',
     borderRadius = rounded ? size / 2 : 8,
+    resizeMode = 'cover',
     extraStyle = {}
 }) => {
     const [loading, setLoading] = useState(true);
@@ -68,6 +70,7 @@ const AvatarImage: React.FC<AvatarImageProps> = ({
             <Image
                 source={{ uri: fullUri }}
                 style={imageStyle}
+                resizeMode={resizeMode || 'cover'}
                 onLoadEnd={() => setLoading(false)}
                 onError={() => {
                     setLoading(false);

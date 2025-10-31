@@ -32,7 +32,7 @@ export const userApi = createApi({
           'populate[player][populate][bowling_performances]': true,
           'populate[player][populate][teams]': true,
           'populate[player][populate][fall_of_wickets]': true,
-          'populate[innings]': true,
+          'populate[matches]': true,
           'populate[leagues]': true,
         },
       }),

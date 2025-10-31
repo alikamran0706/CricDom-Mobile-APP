@@ -270,3 +270,30 @@ export interface ManOfTheMatch {
   description: string
 }
 
+export interface Official {
+  id?: string | number;
+  documentId?: string;
+  name?: string;
+  rank?: string;
+  photo: any;
+  country: string;
+  address: string
+}
+
+export interface MatchOfficials {
+  umpires: {
+    first: Official | null;
+    second: Official | null;
+  };
+  scorers: {
+    first: Official | null;
+    second: Official | null;
+  };
+  commentators: {
+    first: Official | null;
+    second: Official | null;
+  };
+  referee: Official | null;
+  livestreamers: Official | null;
+}
+
