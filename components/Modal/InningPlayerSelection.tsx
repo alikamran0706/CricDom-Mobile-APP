@@ -65,11 +65,6 @@ export default function InningPlayerSelection({
         onClose();
     };
 
-    const handleInviteNewPlayer = () => {
-        onClose();
-        // router.push(`/invite-player/${teamId}`);
-    };
-
     const isPlayerSelected = (playerId: string) =>
         selectedPlayer?.id === playerId;
     
@@ -120,10 +115,11 @@ export default function InningPlayerSelection({
                                 className="flex-row items-center py-3"
                                 onPress={() => togglePlayerSelection(player)}
                             >
+                                {/* {console.log('playerplayer', getFullStrapiUrl(player.image?.url), '::::playerplayerplayer')} */}
                                 <View className="relative mr-3">
                                     <View className="relative w-12 h-12 rounded-full items-center justify-center overflow-hidden border border-gray-200 ">
                                         {
-                                            player.avatar &&
+                                            player.image?.url &&
                                             <Image
                                                 source={{ uri: getFullStrapiUrl(player.image?.url) }}
                                                 className="w-full h-full"
@@ -154,6 +150,7 @@ export default function InningPlayerSelection({
                     onPress={handleAddPlayers}
                     disabled={!selectedPlayer}
                     backgroundColor={!selectedPlayer ? "white" : "#E5E7EB"}
+                    containerStyle = {{ position: "absolute", bottom: 64, left: 16, right: 16} }
                 />
             </View>
         </Modal>

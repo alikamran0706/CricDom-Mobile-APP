@@ -41,7 +41,7 @@ export default function KeyMoments({ moments }: KeyMomentsProps) {
 
   return (
     <View className="px-4 mb-6">
-      <Text className="text-lg font-semibold mb-4">Key Moments</Text>
+      <Text className="text-lg font-semibold mb-4 text-black">Key Moments</Text>
       <View className="gap-y-3">
         {moments.map((moment) => (
           <View key={moment.id} className="bg-white border border-gray-200 rounded-lg p-4">

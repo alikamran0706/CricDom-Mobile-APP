@@ -47,6 +47,17 @@ export const scoringApi = createApi({
       invalidatesTags: ["Wicket", "Inning"],
     }),
 
+     // 🔁 Update Player Score
+    updateWicket: builder.mutation<any, { id: string; data: any }>({
+      query: ({ id, data }) => ({
+        url: `wickets/${id}`,
+        method: "PUT",
+        body: { data },
+        params: { populate: '*' },
+      }),
+       invalidatesTags: ["Wicket", "Inning"],
+    }),
+
     // 🧮 Create Player Score
     createPlayerScore: builder.mutation<any, { data: any }>({
       query: (newScore) => ({
@@ -94,6 +105,7 @@ export const {
   useCreateBallMutation,
   useUpdateBallMutation,
   useCreateWicketMutation,
+  useUpdateWicketMutation,
   useCreatePlayerScoreMutation,
   useUpdatePlayerScoreMutation,
   useUpdateBowlerStatsMutation,

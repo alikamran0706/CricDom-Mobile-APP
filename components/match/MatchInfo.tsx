@@ -14,7 +14,7 @@ type PlayerRole = 'All Rounder' | 'Bowler' | 'Batsman' | 'Wicket Keeper' | strin
 interface Player {
   name: string;
   position: PlayerRole;
-  image: string;
+  image: any;
   isCaptain?: boolean;
   batting_style?: string;
   bowling_style?: string;
@@ -43,59 +43,72 @@ const getRoleColor = (role: PlayerRole): string => {
   }
 };
 
+const imageMap: Record<string, any> = {
+  umpire: require('../../assets/images/umpire.png'),
+  scorer: require('../../assets/images/score.png'),
+  referee: require('../../assets/images/refree.png'),
+  commentator: require('../../assets/images/cricket-commentator.png'),
+}
+
 // --- Component ---
 const ProfessionalMatchInfo = ({ match }: any) => {
-  const renderPlayerCard = (player: Player, idx: number, isReversed = false) => (
-    <TouchableOpacity key={idx} className="mb-3 rounded-xl bg-white shadow" style={{ elevation: 2 }} activeOpacity={0.7}>
-      <View className={`flex-row items-center p-3 ${isReversed ? 'flex-row-reverse' : ''}`}>
-        <View className="relative mr-3">
-          <Image source={{ uri: getFullStrapiUrl(player.avatar) }} className="w-12 h-12 rounded-full bg-gray-200" />
-          {player.isCaptain && <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-yellow-400 border-2 border-white items-center justify-center"><Text className="text-xs font-bold text-gray-800">C</Text></View>}
-        </View>
-        <View className={`flex-1 ${isReversed ? 'items-end mr-3' : ''}`}>
-          <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>{player.name}</Text>
-          <View className="flex-row items-center mb-1">
-            <View className="w-5 h-5 rounded-full justify-center items-center mr-2" style={{ backgroundColor: getRoleColor(player.position) }}>
-              <Ionicons name={getRoleIcon(player.position)} size={12} color="white" />
-            </View>
-            <Text className="text-xs font-medium" style={{ color: getRoleColor(player.position) }}>{player.position}</Text>
-          </View>
-          {player.batting_style && <Text className="text-xs text-gray-500">{player.batting_style}</Text>}
-          {player.bowling_style && <Text className="text-xs text-gray-500">{player.bowling_style}</Text>}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderPlayerCard = (player: Player, idx: number, isReversed = false) => {
 
-  const renderTeamSection = (teamName: string, players: Player[], teamColor: string, isReversed = false) => (
-    <View className="mb-6 rounded-xl bg-white overflow-hidden shadow" style={{ elevation: 6 }}>
-      <LinearGradient colors={[teamColor, `${teamColor}CC`]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} className="p-4">
-        <View className={`flex-row items-center ${isReversed ? 'flex-row-reverse' : ''}`}>
-          <View className="w-12 h-12 rounded-full bg-gray-200 mr-3 justify-center items-center">
-            <Image source={{ uri: '/placeholder.svg?height=32&width=32&text=🏏' }} className="w-8 h-8 rounded-full" />
+    return (
+      <TouchableOpacity key={idx} className="mb-3 rounded-xl bg-white shadow" style={{ elevation: 2 }} activeOpacity={0.7}>
+        <View className={`flex-row items-center p-3 ${isReversed ? 'flex-row-reverse' : ''}`}>
+          <View className="relative mr-3">
+            <Image source={{ uri: getFullStrapiUrl(player.image?.url) }} className="w-12 h-12 rounded-full bg-gray-200" />
+            {player.isCaptain && <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-yellow-400 border-2 border-white items-center justify-center"><Text className="text-xs font-bold text-gray-800">C</Text></View>}
           </View>
-          <View className={`${isReversed ? 'items-end mr-3' : ''} flex-1`}>
-            <Text className="text-xl font-bold text-gray-600">{teamName}</Text>
-            <Text className="text-xs text-gray-600/80">{players?.length} Players</Text>
+          <View className={`flex-1 ${isReversed ? 'items-end mr-3' : ''}`}>
+            <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>{player.name}</Text>
+            <View className="flex-row items-center mb-1">
+              <View className="w-5 h-5 rounded-full justify-center items-center mr-2" style={{ backgroundColor: getRoleColor(player.position) }}>
+                <Ionicons name={getRoleIcon(player.position)} size={12} color="white" />
+              </View>
+              <Text className="text-xs font-medium" style={{ color: getRoleColor(player.position) }}>{player.position}</Text>
+            </View>
+            {player.batting_style && <Text className="text-xs text-gray-500">{player.batting_style}</Text>}
+            {player.bowling_style && <Text className="text-xs text-gray-500">{player.bowling_style}</Text>}
           </View>
         </View>
-      </LinearGradient>
-      <View className="p-4">{players?.map((player, index) => renderPlayerCard(player, index, isReversed))}</View>
-      <View className="flex-row justify-around bg-gray-100 border-t border-gray-200 py-4">
-        {[
-          ['Batsmen', players?.filter(p => p.role === 'Batsman').length],
-          ['All Rounders', players?.filter(p => p.role === 'All Rounder').length],
-          ['Bowlers', players?.filter(p => p.role === 'Bowler').length],
-          ['Keepers', players?.filter(p => p.role === 'Wicket Keeper').length],
-        ].map(([label, count]) => (
-          <View key={label as string} className="items-center">
-            <Text className="text-lg font-bold text-gray-800">{count}</Text>
-            <Text className="text-xs text-gray-500 mt-1">{label}</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  const renderTeamSection = (teamName: string, players: Player[], teamColor: string, isReversed = false, image?: any) => {
+
+    return (
+      <View className="mb-6 rounded-xl bg-white overflow-hidden shadow" style={{ elevation: 6 }}>
+        <LinearGradient colors={[teamColor, `${teamColor}CC`]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} className="p-4">
+          <View className={`flex-row items-center ${isReversed ? 'flex-row-reverse' : ''}`}>
+            <View className="w-12 h-12 rounded-full bg-gray-200 mr-3 justify-center items-center">
+              <Image source={{ uri: getFullStrapiUrl(image) }} className="w-8 h-8 rounded-full" />
+            </View>
+            <View className={`${isReversed ? 'items-end mr-3' : ''} flex-1`}>
+              <Text className="text-xl font-bold text-gray-600">{teamName}</Text>
+              <Text className="text-xs text-gray-600/80">{players?.length} Players</Text>
+            </View>
           </View>
-        ))}
+        </LinearGradient>
+        <View className="p-4">{players?.map((player, index) => renderPlayerCard(player, index, isReversed))}</View>
+        <View className="flex-row justify-around bg-gray-100 border-t border-gray-200 py-4">
+          {[
+            ['Batsmen', players?.filter(p => p.role === 'Batsman').length],
+            ['All Rounders', players?.filter(p => p.role === 'All Rounder').length],
+            ['Bowlers', players?.filter(p => p.role === 'Bowler').length],
+            ['Keepers', players?.filter(p => p.role === 'Wicket Keeper').length],
+          ].map(([label, count]) => (
+            <View key={label as string} className="items-center">
+              <Text className="text-lg font-bold text-gray-800">{count}</Text>
+              <Text className="text-xs text-gray-500 mt-1">{label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
 
   return (
     <ScrollView className="flex-1 bg-gray-50 px-4" showsVerticalScrollIndicator={false}>
@@ -117,7 +130,7 @@ const ProfessionalMatchInfo = ({ match }: any) => {
         >
           <Text className="text-2xl font-bold text-gray-800 mb-1">Match Details</Text>
           <Text className="text-sm text-gray-800/90">
-            {matchData.team1.name} vs {matchData.team2.name} • {matchData.matchType}
+            {match?.team_a?.name} vs {match?.team_b?.name}
           </Text>
         </LinearGradient>
       </View>
@@ -160,24 +173,25 @@ const ProfessionalMatchInfo = ({ match }: any) => {
       </View>
 
       <View>
-        {renderTeamSection(match?.team_a?.name, match?.team_b?.players, '#fff1f2')}
+        {renderTeamSection(match?.team_a?.name, match?.team_a?.players, '#fff1f2', false, match?.team_a?.image?.url)}
         <View className="items-center my-4">
           <LinearGradient colors={['#f5f5f5', '#cce5ff']} className="w-16 h-16 rounded-full justify-center items-center shadow" style={{ elevation: 4 }}>
             <Text className="text-lg font-bold text-gray-600">VS</Text>
           </LinearGradient>
         </View>
-        {renderTeamSection(match?.team_b?.name, match?.team_b?.players, '#a9d3f2', false)}
+        {renderTeamSection(match?.team_b?.name, match?.team_b?.players, '#a9d3f2', false, match?.team_b?.image?.url)}
       </View>
       <View className="my-4 p-4 bg-white rounded-xl shadow" style={{ elevation: 3 }}>
         <Text className="text-xl font-semibold text-gray-800 mb-3">Match Officials</Text>
-        {[
-          ['person-outline', 'Umpire 1: John Smith'],
-          ['person-outline', 'Umpire 2: Mike Johnson'],
-          ['tv-outline', '3rd Umpire: David Wilson'],
-        ].map(([icon, label], idx) => (
+        {match?.communities?.map((community: any, idx: number) => (
           <View key={idx} className="flex-row items-center py-1">
-            <Ionicons name={icon as any} size={20} color="#666" />
-            <Text className="text-base text-gray-700 ml-3">{label}</Text>
+            {/* <Ionicons name={icon as any} size={20} color="#666" /> */}
+            {/* imageMap[image] */}
+            <Image
+              source={imageMap[community?.community_type]}
+              style={{ width: 20, height: 20, resizeMode: 'contain' }}
+            />
+            <Text className="text-base text-gray-700 ml-3 capitalize">{community?.community_type}: {community?.name}</Text>
           </View>
         ))}
       </View>

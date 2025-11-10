@@ -17,10 +17,7 @@ export default function Match() {
   const [activeTab, setActiveTab] = useState<'batting' | 'bowling' | null>(null);
   const { data, isLoading, isError } = useGetMatchQuery(id as string);
 
-
   const match = data?.data;
-
-  console.log('datadatadata', match?.toss, 'inningsdatadatadata', id, 'idid');
 
   const [activeMatchTab, setActiveMatchTab] = useState("Info")
 
@@ -49,11 +46,11 @@ export default function Match() {
       case "Info":
         return <MatchInfo match={match} />
       case "Summary":
-        return <Summary />
+        return <Summary match={match} />
       case "Innings":
-        return <Innings />
+        return <Innings match={match} />
       case "Scoreboard":
-        return <Scoreboard />
+        return <Scoreboard match={match} />
       default:
         return <MatchInfo />
     }
@@ -68,7 +65,7 @@ export default function Match() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1">
           <MatchHeader
-            title={match?.name || matchData.title}
+            title={match?.description || matchData.title}
             subtitle={matchData.subtitle}
             status={matchData.status}
           />
@@ -77,13 +74,14 @@ export default function Match() {
             {
               match &&
               <MatchOverview
-                team1={match?.team_a}
-                team2={match?.team_b}
+                inning1={match?.innings[0]}
+                inning2={match?.innings[1]}
                 result={matchData.result}
                 venue={matchData.venue}
                 date={matchData.date}
                 time={matchData.time}
                 status={match?.status_type}
+                match={match}
               />
             }
 

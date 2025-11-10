@@ -46,7 +46,7 @@ const LeaderboardScreen = () => {
     const router = useRouter();
     const [selectedCategory, setSelectedCategory] = useState("Batting");
     const ballTypes = ["LEATHER", "TENNIS", "BOX CRICKET"];
-     const categories = ["Batting", "Bowling", "Fielding"];
+    const categories = ["Batting", "Bowling", "Fielding"];
     const [selectedBallType, setSelectedBallType] = useState("BOX CRICKET");
 
     const navigation = useNavigation();
@@ -55,7 +55,7 @@ const LeaderboardScreen = () => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
 
-   const battingPlayers: Player[] = [
+    const battingPlayers: Player[] = [
         {
             id: "1",
             name: "Atta Jan",
@@ -118,7 +118,7 @@ const LeaderboardScreen = () => {
         },
     ];
 
-     const fieldingPlayers: Player[] = [
+    const fieldingPlayers: Player[] = [
         {
             id: "1",
             name: "Muhammad Anas",
@@ -181,7 +181,7 @@ const LeaderboardScreen = () => {
         },
     ];
 
-     const getRankColor = (rank: number) => {
+    const getRankColor = (rank: number) => {
         switch (rank) {
             case 1:
                 return "text-yellow-400";
@@ -206,7 +206,7 @@ const LeaderboardScreen = () => {
         return "Most wickets in Pakistan (All Time)";
     };
 
-     const challenges: Challenge[] = [
+    const challenges: Challenge[] = [
         {
             id: "1",
             title: "3 50s",
@@ -230,7 +230,7 @@ const LeaderboardScreen = () => {
         },
     ];
 
-     const renderPlayerStats = (player: Player) => {
+    const renderPlayerStats = (player: Player) => {
         if (selectedCategory === "Batting" && player.stats.batting) {
             const { innings, runs, average, strikeRate } = player.stats.batting;
             return (
@@ -279,104 +279,106 @@ const LeaderboardScreen = () => {
                 ))}
             </View>
 
-                  <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-                    {/* Category Tabs */}
-                    <View className="flex-row px-4 py-4 gap-x-3">
-                        {categories.map((category) => (
-                            <TouchableOpacity
-                                key={category}
-                                className={`px-5 py-2 rounded-full ${selectedCategory === category ? "bg-[#0e7ccb]" : "bg-slate-200"
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                {/* Category Tabs */}
+                <View className="flex-row px-4 py-4 gap-x-3">
+                    {categories.map((category) => (
+                        <TouchableOpacity
+                            key={category}
+                            className={`px-5 py-2 rounded-full ${selectedCategory === category ? "bg-[#0e7ccb]" : "bg-slate-200"
+                                }`}
+                            onPress={() => setSelectedCategory(category)}
+                        >
+                            <Text
+                                className={`text-sm font-medium ${selectedCategory === category ? "text-white" : "text-slate-500"
                                     }`}
-                                onPress={() => setSelectedCategory(category)}
                             >
-                                <Text
-                                    className={`text-sm font-medium ${selectedCategory === category ? "text-white" : "text-slate-500"
-                                        }`}
-                                >
-                                    {category}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                                {category}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
 
-                    {/* Leaderboard Title */}
-                    <Text className="text-back font-semibold text-base px-4 mb-4">
-                        {getLeaderboardTitle()}
-                    </Text>
+                {/* Leaderboard Title */}
+                <Text className="text-back font-semibold text-base px-4 mb-4">
+                    {getLeaderboardTitle()}
+                </Text>
 
-                    {/* Player List */}
-                    <View className="px-4 gap-y-3">
-                        {getCurrentPlayers().map((player) => (
-                            <View
-                                key={player.id}
-                                className="bg-white rounded-xl p-4 flex-row items-center justify-between shadow-sm"
-                            >
-                                <View className="flex-row items-center flex-1">
-                                    <View className="relative mr-3">
+                {/* Player List */}
+                <View className="px-4 gap-y-3">
+                    {getCurrentPlayers().map((player) => (
+                        <View
+                            key={player.id}
+                            className="bg-white rounded-xl p-4 flex-row items-center justify-between shadow-sm"
+                        >
+                            <View className="flex-row items-center flex-1">
+                                <View className="relative mr-3">
+                                    <View  className="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
                                         <Image
                                             source={{ uri: player.profileImage }}
-                                            className="w-12 h-12 rounded-full"
+                                            className="w-[100%] h-[100%] rounded-full"
                                         />
-                                        {player.isPro && (
-                                            <View className="absolute -bottom-1 -right-1 bg-green-500 px-1.5 py-0.5 rounded-md">
-                                                <Text className="text-white text-[10px] font-bold">PRO</Text>
-                                            </View>
-                                        )}
                                     </View>
-                                    <View className="flex-1">
-                                        <View className="flex-row items-center mb-1">
-                                            <Text className="text-gray-800 font-semibold text-base mr-2">
-                                                {player.name}
-                                            </Text>
-                                            <Text className="text-gray-500 italic text-sm">({player.location})</Text>
+                                    {player.isPro && (
+                                        <View className="absolute -bottom-1 -right-1 bg-green-500 px-1.5 py-0.5 rounded-md">
+                                            <Text className="text-white text-[10px] font-bold">PRO</Text>
                                         </View>
-                                        {renderPlayerStats(player)}
-                                    </View>
+                                    )}
                                 </View>
-                                <Text className={`text-2xl font-bold ml-4 ${getRankColor(player.rank)}`}>
-                                    {player.rank}
+                                <View className="flex-1">
+                                    <View className="flex-row items-center mb-1">
+                                        <Text className="text-gray-800 font-semibold text-base mr-2">
+                                            {player.name}
+                                        </Text>
+                                        <Text className="text-gray-500 italic text-sm">({player.location})</Text>
+                                    </View>
+                                    {renderPlayerStats(player)}
+                                </View>
+                            </View>
+                            <Text className={`text-2xl font-bold ml-4 ${getRankColor(player.rank)}`}>
+                                {player.rank}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+
+                {/* Challenges */}
+                {selectedCategory === "Batting" && (
+                    <View className="m-4 bg-white rounded-xl p-4 shadow-sm">
+                        <View className="flex-row justify-between items-center mb-4">
+                            <View className="flex-row items-center gap-x-2">
+                                <Ionicons name="trophy" size={20} color="black" />
+                                <Text className="text-black font-semibold text-base">
+                                    Ready to CHALLENGE yourself?
                                 </Text>
                             </View>
-                        ))}
-                    </View>
-
-                    {/* Challenges */}
-                    {selectedCategory === "Batting" && (
-                        <View className="m-4 bg-white rounded-xl p-4 shadow-sm">
-                            <View className="flex-row justify-between items-center mb-4">
-                                <View className="flex-row items-center gap-x-2">
-                                    <Ionicons name="trophy" size={20} color="black" />
-                                    <Text className="text-black font-semibold text-base">
-                                        Ready to CHALLENGE yourself?
-                                    </Text>
-                                </View>
-                                <TouchableOpacity>
-                                    <Ionicons name="close" size={24} color="#666" />
-                                </TouchableOpacity>
-                            </View>
-
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                {challenges.map((challenge) => (
-                                    <View key={challenge.id} className="w-[120px] items-center mr-4">
-                                        <View className="w-16 h-16 rounded-full bg-[#0e7ccb] items-center justify-center mb-2">
-                                            <Text className="text-white text-base font-bold">{challenge.icon}</Text>
-                                        </View>
-                                        <Text className="text-gray-900 font-semibold text-sm mb-1">
-                                            {challenge.title}
-                                        </Text>
-                                        <Text className="text-gray-500 text-xs mb-2">{challenge.subtitle}</Text>
-                                        <View className="flex-row mb-3">
-                                            <View className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                        </View>
-                                        <TouchableOpacity className="bg-[#0e7ccb] px-5 py-2 rounded-full">
-                                            <Text className="text-white text-xs font-semibold">JOIN</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                ))}
-                            </ScrollView>
+                            <TouchableOpacity>
+                                <Ionicons name="close" size={24} color="#666" />
+                            </TouchableOpacity>
                         </View>
-                    )}
-                </ScrollView>
+
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            {challenges.map((challenge) => (
+                                <View key={challenge.id} className="w-[120px] items-center mr-4">
+                                    <View className="w-16 h-16 rounded-full bg-[#0e7ccb] items-center justify-center mb-2">
+                                        <Text className="text-white text-base font-bold">{challenge.icon}</Text>
+                                    </View>
+                                    <Text className="text-gray-900 font-semibold text-sm mb-1">
+                                        {challenge.title}
+                                    </Text>
+                                    <Text className="text-gray-500 text-xs mb-2">{challenge.subtitle}</Text>
+                                    <View className="flex-row mb-3">
+                                        <View className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    </View>
+                                    <TouchableOpacity className="bg-[#0e7ccb] px-5 py-2 rounded-full">
+                                        <Text className="text-white text-xs font-semibold">JOIN</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </View>
+                )}
+            </ScrollView>
         </SafeAreaView>
     )
 }

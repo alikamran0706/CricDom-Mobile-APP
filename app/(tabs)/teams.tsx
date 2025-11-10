@@ -3,7 +3,7 @@ import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import { useGetTeamsQuery } from "@/store/features/team/teamApi";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -52,12 +52,13 @@ export default function TeamsScreen() {
     setIsRefreshing(false);
   };
 
-  useEffect(() => {
-    if (params?.refetch === 'true') {
-      refetch();
-      router.setParams({ refetch: undefined });
-    }
-  }, [params?.refetch]);
+  // useEffect(() => {
+  //   if (params?.refetch === 'true') {
+  //     refetch();
+  //     // router.setParams({ refetch: undefined });
+  //     router.replace("/teams"); 
+  //   }
+  // }, [params?.refetch]);
 
   // Render each team
   const renderTeam = ({ item }: any) => {

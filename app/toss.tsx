@@ -34,9 +34,11 @@ const TossScreen = () => {
     const dispatch = useDispatch();
 
     // Animation values
-    const coinRotation = useRef(new Animated.Value(0)).current
-    const celebrationScale = useRef(new Animated.Value(0)).current
-    const navigation = useNavigation()
+    const coinRotation = useRef(new Animated.Value(0)).current;
+    const celebrationScale = useRef(new Animated.Value(0)).current;
+    const navigation = useNavigation();
+
+    console.log('selectedWinner::', selectedWinner, 'oooo')
 
     useEffect(() => {
         try {

@@ -1,112 +1,114 @@
-import PlayerCard from "@/components/PlayerCard";
-import FloatingLabelInputBorderBottom from "@/components/ui/FloatingLabelInputBorderBottom";
-import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
+import { useMemo } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
-interface MatchResult {
-    selectHours: any;
-    setSelectHours: any;
+interface MatchResultProps {
+  match: any;
+  setActiveModal: any
 }
 
-const MatchResult = ({
-    selectHours,
-    setSelectHours,
-}: MatchResult) => {
+const MatchResult = ({ match, setActiveModal }: MatchResultProps) => {
 
-    const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
-    const [allOverChecked, setAllOverChecked] = useState(false);
+     const router = useRouter();
 
-    const toggleAllOver = () => {
-        setAllOverChecked(!allOverChecked);
+  // 🧮 Compute match summary dynamically
+  const resultSummary = useMemo(() => {
+    if (!match?.innings || match.innings.length < 2) return null;
+
+    const firstInnings = match.innings[0];
+    const secondInnings = match.innings[1];
+
+    const firstTeamName = firstInnings?.batting_team?.name || "Team A";
+    const secondTeamName = secondInnings?.batting_team?.name || "Team B";
+
+    const firstRuns = firstInnings?.runs || 0;
+    const firstWkts = firstInnings?.wickets || 0;
+    const firstOvers = firstInnings?.overs?.length || 0;
+
+    console.log('currentRuns > target', )
+
+    const secondRuns = secondInnings?.runs || 0;
+    const secondWkts = secondInnings?.wickets || 0;
+    const secondOvers = secondInnings?.overs?.length || 0;
+
+    if (secondRuns > firstRuns) {
+      // 🏆 Team 2 won
+      const wicketsRemaining = 10 - secondWkts;
+      const runsNeeded = secondRuns - firstRuns;
+      return {
+        winner: secondTeamName,
+        message: `${secondTeamName} won by ${wicketsRemaining} wicket${wicketsRemaining !== 1 ? "s" : ""}`,
+        details: `${firstTeamName}: ${firstRuns}/${firstWkts} (${firstOvers} overs)\n${secondTeamName}: ${secondRuns}/${secondWkts} (${secondOvers} overs)`,
+      };
+    } else if (secondRuns < firstRuns) {
+      // 🏆 Team 1 won
+      const runsDiff = firstRuns - secondRuns;
+      return {
+        winner: firstTeamName,
+        message: `${firstTeamName} won by ${runsDiff} run${runsDiff !== 1 ? "s" : ""}`,
+        details: `${firstTeamName}: ${firstRuns}/${firstWkts} (${firstOvers} overs)\n${secondTeamName}: ${secondRuns}/${secondWkts} (${secondOvers} overs)`,
+      };
+    } else {
+      // 🤝 Draw or tie
+      return {
+        winner: null,
+        message: "Match tied!",
+        details: `${firstTeamName}: ${firstRuns}/${firstWkts} (${firstOvers} overs)\n${secondTeamName}: ${secondRuns}/${secondWkts} (${secondOvers} overs)`,
+      };
     }
+  }, [match]);
 
-    return (
-        <View
-            collapsable={false}
-            className="px-6 "
-        >
-
-            {/* Team Section */}
-            <View>
-                <Text className="text-lg font-semibold text-gray-800 mb-4">
-                    Who won the match?
-                </Text>
-                <View className="flex-row mb-8">
-                    <PlayerCard
-                        title={"Team A"}
-                        iconSource={require("../../../assets/images/striker-dark.png")}
-                        onPress={() => setSelectedTeam('teamA')}
-                        isSelected={selectedTeam === "teamA"}
-                    />
-                    <PlayerCard
-                        title="Team B"
-                        iconSource={require("../../../assets/images/non-striker.png")}
-                        onPress={() => setSelectedTeam("teamB")}
-                        isSelected={selectedTeam === "teamB"}
-                    />
-                </View>
-            </View>
-
-            <TouchableOpacity
-                className="flex-row items-center mb-3"
-                onPress={() => toggleAllOver()}
-            >
-                <View
-                    className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${allOverChecked ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-300"
-                        }`}
-                >
-                    {allOverChecked && <Ionicons name="checkmark" size={16} color="white" />}
-                </View>
-                <Text className="text-base text-gray-800">
-                    Consider all overs for TEAM A calculation
-                </Text>
-            </TouchableOpacity>
-
-            <View >
-                <Text className="text-lg font-semibold text-gray-800 mb-4">
-                    Match Drawn
-                </Text>
-                <TouchableOpacity
-                    className="flex-row items-center w-[45%] mb-3"
-                    onPress={() => toggleAllOver()}
-                >
-                    <View
-                        className={`w-5 h-5 border-2 rounded justify-center items-center mr-2 ${allOverChecked ? "bg-[#0e7ccb] border-[#0e7ccb]" : "border-gray-300"
-                            }`}
-                    >
-                        {allOverChecked && <Ionicons name="checkmark" size={16} color="white" />}
-                    </View>
-                    <Text className="text-base text-gray-800">
-                        Match Abandoned
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            <FloatingLabelInputBorderBottom
-                label="Enter Reason"
-                value={selectHours}
-                onChangeText={(text) => setSelectHours(text)}
-                required
-            />
-
-            <Text className="text-xs text-gray-600">*You cannot change match overs in second innings.</Text>
-
-            <View className="flex-row gap-x-3 my-4">
-                <TouchableOpacity className="flex-1 bg-gray-200 rounded-xl py-4 items-center" onPress={() => { }}>
-                    <Text className="text-gray-700 font-bold">Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    className="flex-1 rounded-xl py-4 items-center bg-[#0e7ccb]"
-                    onPress={() => { }}
-                >
-                    <Text className="text-white font-bold">Save</Text> 
-                </TouchableOpacity>
-            </View>
-
+  return (
+    <View className="px-6 py-4">
+      {resultSummary ? (
+        <View className="bg-gray-100 rounded-xl p-4 mb-6 shadow-sm">
+          <Text className="text-lg font-semibold text-[#0e7ccb] mb-1">
+            🏆 {resultSummary.message}
+          </Text>
+          <Text className="text-gray-700 text-sm whitespace-pre-line">
+            {resultSummary.details}
+          </Text>
         </View>
-    )
-}
+      ) : (
+        <Text className="text-gray-500 mb-6">
+          Waiting for both innings to complete...
+        </Text>
+      )}
 
-export default MatchResult
+      {/* Optional winner logo */}
+      {resultSummary?.winner && (
+        <View className="items-center mb-6">
+          <Image
+            source={require("../../../assets/images/award2.png")}
+            style={{ width: 80, height: 80 }}
+            resizeMode="contain"
+          />
+          <Text className="text-lg font-bold text-[#0e7ccb] mt-2">
+            {resultSummary.winner} 🏆
+          </Text>
+        </View>
+      )}
+
+      <View className="flex-row gap-x-3">
+        <TouchableOpacity
+          className="flex-1 bg-gray-200 rounded-xl py-4 items-center"
+          onPress={() => setActiveModal(null)}
+        >
+          <Text className="text-gray-700 font-bold">Close</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className="flex-1 rounded-xl py-4 items-center bg-[#0e7ccb]"
+          onPress={() => {
+            router.push("/create-match")
+            setActiveModal(null)
+        }}
+        >
+          <Text className="text-white font-bold">Start New</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default MatchResult;

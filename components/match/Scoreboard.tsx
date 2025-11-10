@@ -4,21 +4,26 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
+import AvatarImage from '../AvatarImage';
 import InningsAccordion from './ScoreboardTeamPerformance';
 
 
-const Scoreboard = () => {
-
-
-
+const Scoreboard = ({ match }: any) => {
 
     const currentInnings = teamA;
     const teamB = teamA;
 
-    const renderBattingCard = (player: BattingStats) => (
-        <View key={player.id} className="flex-row items-center py-3 border-b border-gray-100">
+    const renderBattingCard = (item: BattingStats) => (
+        <View key={item.id} className="flex-row items-center py-3 border-b border-gray-100">
             <View className="flex-row items-center flex-1">
-                <Image source={{ uri: player.image }} className="w-12 h-12 rounded-full mr-3" />
+                <AvatarImage
+                    uri={item.player?.image?.formats?.thumbnail?.url}
+                    size={42}
+                    borderRadius={80}
+                    rounded={true}
+                    backgroundColor='transparent'
+                    extraStyle={{ marginRight: 12, }}
+                />
                 <View className="flex-1">
 
                     <View className="flex-1 overflow-hidden">
@@ -27,62 +32,113 @@ const Scoreboard = () => {
                             numberOfLines={1}
                             ellipsizeMode="tail"
                         >
-                            {player.name}
+                            {item.player?.name}
                         </Text>
 
-                        {player.isCaptain && (
+                        {item.isCaptain && (
                             <Text className="text-xs text-blue-500">(C)</Text>
                         )}
 
-                        {player.isWicketKeeper && (
+                        {item.isWicketKeeper && (
                             <Text className="text-xs font-bold text-green-600">(WK)</Text>
                         )}
                     </View>
-                    {player.isNotOut && (
+                    {item.is_out && (
                         <Text className="text-xs text-green-600 mt-1">not out</Text>
                     )}
                 </View>
             </View>
 
             <View className="flex-row justify-between w-48">
-                <Text className="text-sm font-bold text-gray-800 w-8 text-center">{player.runs}</Text>
-                <Text className="text-sm text-gray-600 w-8 text-center">{player.balls}</Text>
-                <Text className="text-sm text-gray-600 w-8 text-center">{player.fours}</Text>
-                <Text className="text-sm text-gray-600 w-8 text-center">{player.sixes}</Text>
-                <Text className="text-sm text-gray-600 w-12 text-center">{player.strikeRate.toFixed(2)}</Text>
+                <Text className="text-sm font-bold text-gray-800 w-8 text-center">{item.runs}</Text>
+                <Text className="text-sm text-gray-600 w-8 text-center">{item.balls}</Text>
+                <Text className="text-sm text-gray-600 w-8 text-center">{item.fours}</Text>
+                <Text className="text-sm text-gray-600 w-8 text-center">{item.sixes}</Text>
+                <Text className="text-sm text-gray-600 w-12 text-center">{item.strike_rate?.toFixed(2) || 0}</Text>
             </View>
             <Ionicons name="trending-up" size={16} color="#666" className="ml-2" />
         </View>
     );
 
-    const renderBowlingCard = (bowler: BowlingStats) => (
-        <View key={bowler.id} className="flex-row items-center px-2 py-3 border-b border-gray-100">
-            <View className="flex-row items-center flex-1">
-                <Image source={{ uri: bowler.image }} className="w-10 h-10 rounded-full mr-3" />
-                <View className="flex-1">
-                    <View className="flex-row items-center">
-                        <Text className="text-sm font-medium text-gray-800 mr-2" numberOfLines={1}>
-                            {bowler.name}
-                        </Text>
-                        {bowler.isCaptain && (
-                            <Text className="text-xs font-bold text-[#0e7ccb]">(C)</Text>
-                        )}
+    const calculateExtras = (bowlerData: any) => {
+        const overs = bowlerData?.overs || [];
+
+        let wides = 0;
+        let noBalls = 0;
+        let byes = 0;
+        let legByes = 0;
+        let total = 0;
+
+        overs.forEach((over: any) => {
+            over?.over_balls?.forEach((ball: any) => {
+                console.log('..................................................')
+                console.log(ball)
+                console.log('..................................................')
+                if (ball.is_extra && ball.extra_type) {
+                    total += ball.runs || 0;
+
+                    switch (ball.extra_type) {
+                        case "wide":
+                            wides += ball.runs || 0;
+                            break;
+                        case "no-ball":
+                            noBalls += ball.runs || 0;
+                            break;
+                        case "bye":
+                            byes += ball.runs || 0;
+                            break;
+                        case "leg-bye":
+                            legByes += ball.runs || 0;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        });
+
+        return { wides, noBalls, byes, legByes, total };
+    };
+
+    const renderBowlingCard = (bowlerStats: BowlingStats) => {
+        const extra = calculateExtras(bowlerStats);
+
+        console.log(extra)
+        return (
+            <View key={bowlerStats.id} className="flex-row items-center px-2 py-3 border-b border-gray-100">
+                <View className="flex-row items-center flex-1">
+                    <AvatarImage
+                        uri={bowlerStats.bowler?.image?.formats?.thumbnail?.url}
+                        size={42}
+                        borderRadius={80}
+                        rounded={true}
+                        backgroundColor='transparent'
+                        extraStyle={{ marginRight: 12, }}
+                    />
+                    <View className="flex-1">
+                        <View className="flex-row items-center">
+                            <Text className="text-sm font-medium text-gray-800 mr-2" numberOfLines={1}>
+                                {bowlerStats.bowler?.name}
+                            </Text>
+                            {bowlerStats.isCaptain && (
+                                <Text className="text-xs font-bold text-[#0e7ccb]">(C)</Text>
+                            )}
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            <View className="flex-row w-48 justify-between">
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.overs}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.maidens}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.runs}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.wickets}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.economy}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.wides}</Text>
-                <Text className="text-xs text-gray-800 w-6 text-center">{bowler.noBalls}</Text>
+                <View className="flex-row w-48 justify-between">
+                    <Text className="text-xs text-gray-800 w-6 text-center">{bowlerStats.overs?.length}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{bowlerStats.maidens}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{bowlerStats.runs_conceded}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{bowlerStats.wickets?.length}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{bowlerStats.runs_conceded / bowlerStats.overs?.length}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{extra?.wides}</Text>
+                    <Text className="text-xs text-gray-800 w-6 text-center">{extra?.noBalls}</Text>
+                </View>
             </View>
-        </View>
-    );
-
+        );
+    }
 
     const renderFallOfWickets = () => (
         <View className="mb-6">
@@ -243,20 +299,24 @@ const Scoreboard = () => {
         </View>
     )
 
+    const innigABalls = match?.innings[0]?.overs[match?.innings[0]?.overs?.length - 1]?.over_balls?.length;
 
     const teamAInnings = {
-        ...teamA,
-        overs: parseFloat(teamA.overs),
+        ...match?.innings[0],
+        overs: innigABalls < 6 ? `${match?.innings[0]?.overs?.length - 1}.${innigABalls}` : match?.innings[0]?.overs?.length,
         runRate: parseFloat(teamA.runRate),
         renderBattingCard,
         renderBowlingCard,
         renderFallOfWickets,
     };
 
+    const innigBBalls = match?.innings[1]?.overs[match?.innings[0]?.overs?.length - 1]?.over_balls?.length;
+
     const teamBInnings = {
-        ...teamB,
-        overs: parseFloat(teamA.overs),
+        ...match?.innings[1],
+        overs: innigBBalls < 6 ? `${match?.innings[1]?.overs?.length - 1}.${innigBBalls}` : match?.innings[1]?.overs?.length,
         runRate: parseFloat(teamA.runRate),
+        yetToBat: !match?.innings[1] ? !match?.innings[1] : [],
         renderBattingCard,
         renderBowlingCard,
         renderFallOfWickets,
@@ -267,12 +327,15 @@ const Scoreboard = () => {
             <View className='pt-2'>
                 <InningsAccordion innings={teamAInnings} />
             </View>
-            <View>
-                <InningsAccordion innings={teamBInnings} />
-            </View>
+            {
+                match?.innings[1] &&
+                <View>
+                    <InningsAccordion innings={teamBInnings} />
+                </View>
+            }
 
             {/* Man of the Match */}
-            {renderManOfTheMatch()}
+            {match?.status_type !== 'Live' && renderManOfTheMatch()}
 
         </ScrollView>
     );

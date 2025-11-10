@@ -136,7 +136,9 @@ export default function CreateTeamScreen() {
 
     const cleanedData = sanitizeObject(formData);
 
-    const playerDocumentIds = players.map((player: Player) => player.documentId);
+    const playerDocumentIds = players
+      .filter((player) => player.selected)
+      .map((player) => player.documentId);
 
     if (!cleanedData?.name?.trim()) {
       dispatch(
@@ -211,9 +213,16 @@ export default function CreateTeamScreen() {
             {/* Team Image Upload */}
             <View className="items-center pt-4">
               <ImagePickerButton
-                title={team.image ? 'Update Team Logo' : 'Upload Team Logo'}
-                imageUri={formData.image || getFullStrapiUrl(team.image.formats.thumbnail.url)}
-                onChangeImage={(uri) => setFormData((prev: any) => ({ ...prev, image: uri }))}
+                title={team ? 'Update Team Logo' : 'Upload Team Logo'}
+                imageUri={
+                  formData.image ||
+                  (team?.image?.formats?.thumbnail?.url
+                    ? getFullStrapiUrl(team.image.formats.thumbnail.url)
+                    : '')
+                }
+                onChangeImage={(uri) =>
+                  setFormData((prev: any) => ({ ...prev, image: uri }))
+                }
               />
             </View>
 

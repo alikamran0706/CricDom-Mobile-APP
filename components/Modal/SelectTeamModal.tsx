@@ -31,7 +31,6 @@ const SelectTeamModal = ({
         (team: any) =>
             (team.name.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-    console.log('filteredTeamsfilteredTeams', filteredTeams, 'filteredTeamsfilteredTeams')
 
     const renderItem = ({ item: team }: { item: any }) => (
         <TouchableOpacity

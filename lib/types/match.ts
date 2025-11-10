@@ -114,6 +114,7 @@ export interface Player {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  image?: any
 }
 
 export interface Inning {
@@ -194,26 +195,28 @@ export interface BattingStats {
     balls: number;
     fours: number;
     sixes: number;
-    strikeRate: number;
+    strike_rate: number;
     isOut: boolean;
     dismissal?: string;
-    isNotOut?: boolean;
+    is_out?: boolean;
     isCaptain?: boolean;
     isWicketKeeper?: boolean;
+    player: any;
 }
 
 export interface BowlingStats {
     id: string;
     name: string;
     image: string;
-    overs: string;
+    overs: any;
     maidens: number;
-    runs: number;
-    wickets: number;
+    runs_conceded: number;
+    wickets: any;
     economy: string;
     wides: number;
     noBalls: number;
     isCaptain?: boolean;
+    bowler: any
 }
 
 export interface FallOfWicket {

@@ -1,4 +1,5 @@
 import Tabs from "@/components/ui/Tabs";
+import { extractDateTimePart } from "@/lib/utils/common";
 import { useGetMatchesQuery } from "@/store/features/match/matchApi";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,7 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-type TabType = "Upcoming" | "Past" | "Today";
+type TabType = "Upcoming" | "Past" | "Live";
 
 const getStatusStyle = (status: string) => {
   switch (status) {
@@ -30,7 +31,7 @@ const getStatusStyle = (status: string) => {
 
 export default function MatchesScreen() {
   const params = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState<TabType>("Upcoming");
+  const [activeTab, setActiveTab] = useState<TabType>("Live");
   const [page, setPage] = useState(1);
   const [allMatches, setAllMatches] = useState<any[]>([]);
   const pageSize = 7;
@@ -68,7 +69,7 @@ export default function MatchesScreen() {
   // Reset when tab changes
   useEffect(() => {
     setPage(1);
-    setAllMatches([]);
+    // setAllMatches([]);
     refetch();
   }, [activeTab]);
 
@@ -78,7 +79,7 @@ export default function MatchesScreen() {
     }
   };
 
-  const tabs = ["Upcoming", "Past", "Today"];
+  const tabs = ["Live", "Upcoming", "Past", ];
 
   const filteredMatches = allMatches.filter(
     (match: any) => match?.status_type?.toLowerCase() === activeTab.toLowerCase()
@@ -89,22 +90,29 @@ export default function MatchesScreen() {
     const tournamentDivision = match?.tournament_division || "";
     const teamA = match?.team_a?.name || "Team A";
     const teamB = match?.team_b?.name || "Team B";
-    const date = match?.date || "TBD";
+    const date = extractDateTimePart(match?.match_date, 'datetime') || "TBD";
     const time = match?.time || "";
     const venue = match?.location?.address || "Venue TBD";
-    const status = match?.status_type || "Upcoming";
+    const status = match?.status_type || "Live";
     const matchType = match?.game_format || "T20";
     const result = match?.result || "";
 
-    const teamAScore = match?.team_a?.score
-      ? `${match.team_a.score}${match.team_a.wickets ? `/${match.team_a.wickets}` : ""
-      } ${match.team_a.overs ? `(${match.team_a.overs} OV)` : ""}`
+    const battingTeamA = match?.innings[0]?.batting_team;
+    const battingTeamB = match?.innings[1]?.batting_team;
+    const lastOverA = match?.innings[0]?.overs[match?.innings[0]?.overs.length-1]?.over_balls?.length
+
+    const lastOverB = match?.innings[1]?.overs[match?.innings[1]?.overs.length-1]?.over_balls?.length
+
+    const teamAScore = battingTeamA
+      ? `${ match?.innings[0].runs}${ match?.innings[0].wickets ? `/${match?.innings[0].wickets}` 
+      : ""
+      } ${match?.innings[0].overs ? `(${lastOverA < 6 ? match?.innings[0]?.overs.length-1 : match?.innings[0]?.overs.length}.${lastOverA} OV)` : ""}`
       : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
-    const teamBScore = match?.team_b?.score
-      ? `${match.team_b.score}${match.team_b.wickets ? `/${match.team_b.wickets}` : ""
-      } ${match.team_b.overs ? `(${match.team_b.overs} OV)` : ""}`
-      : `0/0 (${match.overs_limit || 0}.0 OV)`;
+    const teamBScore = match?.innings[1]
+      ? `${ match?.innings[1].runs}${ match?.innings[1].wickets ? `/${match?.innings[1].wickets}` : ""
+      } ${match?.innings[1].overs ? `(${lastOverA < 6 ? match?.innings[1]?.overs.length-1 : match?.innings[1]?.overs.length}.${lastOverB} OV)` : ""}`
+      : match?.status_type === 'Live' ?`Yet To Bat` : `0/0 (${match.overs_limit || 0}.0 OV)`;
 
     const statusStyle = getStatusStyle(status);
 
@@ -230,7 +238,7 @@ export default function MatchesScreen() {
         </View>
 
         {/* Tabs */}
-        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={ (tab: any) => setActiveTab(tab)} />
 
         {/* Active Tab Content */}
         <View className="px-4 pb-6">

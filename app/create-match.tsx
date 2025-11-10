@@ -287,7 +287,6 @@ export default function CreateMatch() {
     };
 
     const handleSave = async () => {
-
         const allOfficials: string[] = [
             matchOfficials?.umpires?.first?.documentId,
             matchOfficials?.umpires?.second?.documentId,
@@ -300,9 +299,9 @@ export default function CreateMatch() {
         ].filter((id): id is string => Boolean(id));
 
         if (selectTeamA)
-            formData.team_a = selectTeamA.documentId
+            formData.team_a = selectTeamA?.documentId
         if (selectTeamA)
-            formData.team_b = selectTeamB.documentId
+            formData.team_b = selectTeamB?.documentId
 
         if (formData.team_a === formData.team_b) {
             alert("Team A and Team B must be different.");
@@ -314,13 +313,18 @@ export default function CreateMatch() {
             return;
         }
 
-        if (selectTeamA?.players?.length < 2) {
-            alert(`Team ${selectTeamA.name} must have at least 2 players.`);
+        if (selectTeamA?.players?.length < 2 || selectTeamA?.players === undefined) {
+            alert(`Team ${selectTeamA?.name || 'Team A'} must have at least 2 players.`);
             return;
         }
 
-        if (selectTeamB?.players?.length < 2) {
-            alert(`Team ${selectTeamB.name} must have at least 2 players.`);
+        if (selectTeamB?.players?.length < 2 || selectTeamB?.players === undefined) {
+            alert(`Team ${selectTeamB?.name || 'Team B'} must have at least 2 players.`);
+            return;
+        }
+
+        if (parseInt(formData?.overs_limit) < 2 || !formData?.overs_limit) {
+            alert(`Minimum 2 overs`);
             return;
         }
 
@@ -359,7 +363,7 @@ export default function CreateMatch() {
             // });
             // router.push("/toss")
         } catch (error: any) {
-            console.log(error?.response?.data || error.message || error || 'An unknown error occurred. tttttttttttt')
+            console.log(error?.response?.data || error.message || error || 'An unknown error occurred')
             // Show error feedback if needed
         }
     };
@@ -442,7 +446,9 @@ export default function CreateMatch() {
                                     <View className="flex-row items-center justify-center">
                                         {/* Team A */}
                                         <View className="items-center">
-                                            <Pressable className="relative" onPress={() => setIsTeamAModalA(true)}>
+                                            <Pressable className="relative" onPress={() => {
+                                                setIsTeamAModalA(true)
+                                            }}>
                                                 <View
                                                     className="w-24 h-24 rounded-2xl items-center justify-center mb-3 shadow-lg p-2"
                                                 // style={{ backgroundColor: teams[0]?.color }}
@@ -1045,7 +1051,7 @@ export default function CreateMatch() {
                                     {
                                         activeModal === "livestreamers" &&
                                         <OfficialModal
-                                             data={livestreamersList}
+                                            data={livestreamersList}
                                             selectedOfficialHandler={selectedOfficialHandler}
                                             matchOfficials={matchOfficials}
                                             currentSlot={currentSlot}
@@ -1055,7 +1061,7 @@ export default function CreateMatch() {
                                     {
                                         activeModal === "referee" &&
                                         <OfficialModal
-                                             data={refereeList}
+                                            data={refereeList}
                                             selectedOfficialHandler={selectedOfficialHandler}
                                             matchOfficials={matchOfficials}
                                             currentSlot={currentSlot}
@@ -1068,7 +1074,7 @@ export default function CreateMatch() {
                             </View>
                         </SafeAreaView>
                     </GestureHandlerRootView>
-                    : isTeamAModalA ?
+                    : (isTeamAModalA && teamRecord) ?
                         <SelectTeamModal
                             visible={isTeamAModalA}
                             onClose={() => setIsTeamAModalA(false)}
@@ -1078,7 +1084,7 @@ export default function CreateMatch() {
                             isFetchingTeams={isFetchingTeams}
                             loadMoreTeams={loadMoreTeams}
                         />
-                        : isTeamAModalB &&
+                        : (isTeamAModalB && teamRecord) &&
                         <SelectTeamModal
                             visible={isTeamAModalB}
                             onClose={() => setIsTeamAModalB(false)}

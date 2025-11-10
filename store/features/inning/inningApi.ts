@@ -94,8 +94,28 @@ export const inningApi = createApi({
             invalidatesTags: ['BowlerStats'],
         }),
 
+        getBowlerStat: builder.query<any, string>({
+            query: (bowlertatId) => ({
+                url: `bowler-stats/${bowlertatId}`,
+                method: 'GET',
+                params: {
+                    populate: '*'
 
+                },
+            }),
+        }),
 
+        getBowlerStatByBowlerAndInning: builder.query<any, { bowlerId: string; inningId: string }>({
+            query: ({ bowlerId, inningId }) => ({
+                url: 'bowler-stats',
+                method: 'GET',
+                params: {
+                    populate: '*',
+                    'filters[bowler][documentId][$eq]': bowlerId,
+                    'filters[inning][documentId][$eq]': inningId,
+                },
+            }),
+        }),
 
         // ✅ Add this inside your endpoints definition
         getOvers: builder.query<any, { inningId?: string } | void>({
@@ -149,6 +169,9 @@ export const {
     useUpdatePlayerScoreMutation,
     useCreateBowlerStatsMutation,
     useUpdateBowlerStatsMutation,
+    useGetBowlerStatQuery,
+    useGetBowlerStatByBowlerAndInningQuery, 
+    useLazyGetBowlerStatByBowlerAndInningQuery,
 
     useGetOversQuery,
     useGetOverQuery,

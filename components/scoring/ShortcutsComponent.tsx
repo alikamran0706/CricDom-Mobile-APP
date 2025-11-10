@@ -1,7 +1,9 @@
+import { showAlert } from '@/store/features/alerts/alertSlice'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 
 interface ShortcutItem {
@@ -14,11 +16,13 @@ interface ShortcutItem {
 
 interface ShortcutsComponentProps {
     shortcutHandler: (key: string) => void
+    matchState: any
 }
 
-const ShortcutsComponent = ({ shortcutHandler }: ShortcutsComponentProps) => {
+const ShortcutsComponent = ({ shortcutHandler, matchState }: ShortcutsComponentProps) => {
 
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const shortcuts: ShortcutItem[] = [
         {
@@ -55,7 +59,15 @@ const ShortcutsComponent = ({ shortcutHandler }: ShortcutsComponentProps) => {
             id: "6",
             title: "Match Overs",
             icon: "time-outline",
-            onPress: () => shortcutHandler("Change Match Overs"),
+            onPress: () => {
+                if (matchState?.innings?.length > 1) {
+                    dispatch(showAlert({
+                        type: 'error', message: "You can’t change overs — the first innings has already been completed."
+                    }));
+                } else {
+                    shortcutHandler("Change Match Overs")
+                }
+            }
         },
         {
             id: "7",

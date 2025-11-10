@@ -39,7 +39,7 @@ const ChangeModal = ({
                 className={`flex-row items-center p-3 border rounded-xl mb-3 border-gray-200`}
                 onPress={() => {
                     setSelectedItem(item)
-                    onClose()
+                    // onClose()
                 }}
             >
                 <View className="relative mr-3">

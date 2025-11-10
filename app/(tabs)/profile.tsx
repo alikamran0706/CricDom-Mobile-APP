@@ -45,7 +45,7 @@ export default function ProfileDetails() {
   useEffect(() => {
     if (params?.refetch === "true") {
       refetch();
-      router.replace("/profile"); // optional cleanup
+      router.replace("/profile"); 
     }
   }, [params?.refetch]);
 
@@ -256,7 +256,7 @@ export default function ProfileDetails() {
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-1 bg-gray-200 rounded-full h-2 mr-4">
                 <LinearGradient
-                  colors={["#60A5FA", "#4B5563"]} 
+                  colors={["#60A5FA", "#4B5563"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{
@@ -268,7 +268,13 @@ export default function ProfileDetails() {
               </View>
               <Text className="text-gray-500 text-sm">{completionPercent}%</Text>
             </View>
-            <TouchableOpacity className="mt-2" onPress={() => router.push(`/player/${1}`)}>
+            <TouchableOpacity className="mt-2" onPress={() =>
+              // router.push(`/player/${profile?.player?.documentId}`)
+              router.push({
+                pathname: `/player/${profile?.player?.documentId}` as any,
+                params: { type: 'payer' },
+              })
+            }>
               <Text className="text-[#0e7ccb] font-semibold text-center">Complete Profile</Text>
             </TouchableOpacity>
           </View>

@@ -54,7 +54,9 @@ export default function TeamDetailScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const profile = useSelector((state: RootState) => state.user.profile);
-  const { data, isLoading, isError } = useGetTeamQuery(id as string);
+  const { data, isLoading, isError } = useGetTeamQuery(id as string, {
+  refetchOnMountOrArgChange: true,
+});
 
   const team = data?.data;
   const [players, setPlayers] = useState<Player[]>([]);
